@@ -23,3 +23,8 @@ export type PayPeriodAccordionProps = {
   onToggle: () => void;
   onSaved: (period: PayPeriodWithExpenses) => void;
 };
+
+export type IncomeSourceRowProps = {
+  index: number;
+  onRemove: () => void;
+};

@@ -16,3 +16,8 @@ export type PayPeriodInput = Pick<PayPeriod, "start_date" | "end_date">;
 export type PayPeriodWithExpenses = PayPeriod & { expenses: Expense[] };
 export type PayPeriodFormValues = PayPeriodInput & { expenses: ExpenseDraft[] };
 export type PayPeriodResult<T> = { data: T; error?: never; requiresReload?: never } | { data?: never; error: string; requiresReload?: boolean };
+
+export type IncomeSource = Pick<Tables<"IncomeSource">, "id" | "name" | "amount">;
+export type IncomeSourceDraft = Pick<IncomeSource, "name" | "amount"> & { id?: number };
+export type IncomeSourcesFormValues = { incomeSources: IncomeSourceDraft[] };
+export type IncomeSourceResult<T> = { data: T; error?: never; requiresReload?: never } | { data?: never; error: string; requiresReload?: boolean };
