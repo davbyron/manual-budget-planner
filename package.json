@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "generate-types": "supabase gen types --remote=zfyoktgqqtewbpoqwguc > types/database.types.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
