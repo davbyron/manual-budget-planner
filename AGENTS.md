@@ -7,3 +7,11 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+## Project conventions
+
+- Store all type and interface declarations in the `types/` folder. Keep component props in `types/props.ts` and shared application types in `types/index.ts`. Import types into components and runtime modules rather than declaring them there.
+
+- Only store one component per file in the `components/` folder.
+
+- Store necessary util functions under `lib/utils/`.
