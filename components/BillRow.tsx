@@ -2,6 +2,7 @@
 
 import { useId, useState } from "react";
 import { useController, useFormContext } from "react-hook-form";
+import { validateBillDates } from "@/lib/utils/bills";
 import type { BillsFormValues } from "@/types";
 import type { BillRowProps } from "@/types/props";
 
@@ -57,6 +58,29 @@ export default function BillRow({ index, onRemove }: BillRowProps) {
             onAmountBlur();
           }} />
         {rowErrors?.cost && <span id={`${id}-cost-error`} role="alert" className="text-xs text-red-600 dark:text-red-400">{rowErrors.cost.message}</span>}
+      </label>
+
+      <label htmlFor={`${id}-start-date`} className="w-40 text-sm font-medium">
+        Start date
+        <input id={`${id}-start-date`} type="date" className={inputClass}
+          aria-invalid={!!rowErrors?.startDate} aria-describedby={rowErrors?.startDate ? `${id}-start-date-error` : undefined}
+          {...register(`bills.${index}.startDate`, {
+            setValueAs: (value) => value === "" ? null : value,
+            validate: (value) => validateBillDates(value, null) ?? true,
+            deps: [`bills.${index}.endDate`],
+          })} />
+        {rowErrors?.startDate && <span id={`${id}-start-date-error`} role="alert" className="text-xs text-red-600 dark:text-red-400">{rowErrors.startDate.message}</span>}
+      </label>
+
+      <label htmlFor={`${id}-end-date`} className="w-40 text-sm font-medium">
+        End date
+        <input id={`${id}-end-date`} type="date" className={inputClass}
+          aria-invalid={!!rowErrors?.endDate} aria-describedby={rowErrors?.endDate ? `${id}-end-date-error` : undefined}
+          {...register(`bills.${index}.endDate`, {
+            setValueAs: (value) => value === "" ? null : value,
+            validate: (value, values) => validateBillDates(values.bills[index].startDate, value) ?? true,
+          })} />
+        {rowErrors?.endDate && <span id={`${id}-end-date-error`} role="alert" className="text-xs text-red-600 dark:text-red-400">{rowErrors.endDate.message}</span>}
       </label>
 
       <div className="pt-6">

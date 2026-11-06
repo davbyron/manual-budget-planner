@@ -76,7 +76,7 @@ export default function Bills() {
               {fields.map((field, index) => <li key={field.formKey}><BillRow index={index} onRemove={() => { remove(index); setMessage(""); }} /></li>)}
             </ul>
             <div className="mt-4 flex flex-wrap justify-between gap-3">
-              <button type="button" onClick={() => { append({ day: null, name: "New bill", cost: 0 }); setMessage(""); }} className={buttonClass}>+ Add new bill</button>
+              <button type="button" onClick={() => { append({ day: null, name: "New bill", cost: 0, startDate: null, endDate: null }); setMessage(""); }} className={buttonClass}>+ Add new bill</button>
               <button type="submit" disabled={pending || !isDirty || requiresReload} className={buttonClass}>{pending ? "Saving…" : "Save"}</button>
             </div>
           </fieldset>

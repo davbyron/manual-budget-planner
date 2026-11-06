@@ -19,41 +19,36 @@ export type Database = {
           cost: number
           created_at: string
           day: number | null
+          endDate: string | null
           id: number
           isCostVariable: boolean
           name: string
-          pay_period_id: number | null
+          startDate: string | null
           updated_at: string | null
         }
         Insert: {
           cost?: number
           created_at?: string
           day?: number | null
+          endDate?: string | null
           id?: number
           isCostVariable?: boolean
           name?: string
-          pay_period_id?: number | null
+          startDate?: string | null
           updated_at?: string | null
         }
         Update: {
           cost?: number
           created_at?: string
           day?: number | null
+          endDate?: string | null
           id?: number
           isCostVariable?: boolean
           name?: string
-          pay_period_id?: number | null
+          startDate?: string | null
           updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "Bill_pay_period_id_fkey"
-            columns: ["pay_period_id"]
-            isOneToOne: false
-            referencedRelation: "PayPeriod"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       Expense: {
         Row: {
