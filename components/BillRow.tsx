@@ -1,16 +1,26 @@
 "use client";
 
-import { useId } from "react";
-import { useFormContext } from "react-hook-form";
+import { useId, useState } from "react";
+import { useController, useFormContext } from "react-hook-form";
 import type { BillsFormValues } from "@/types";
 import type { BillRowProps } from "@/types/props";
+
+const dollarFormatter = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
 
 const inputClass = "mt-1 w-full min-w-0 rounded-lg border border-zinc-300 bg-transparent px-3 py-2 text-sm focus-visible:outline-2 focus-visible:outline-blue-600 dark:border-zinc-700";
 
 export default function BillRow({ index, onRemove }: BillRowProps) {
   const id = useId();
-  const { register, formState: { errors } } = useFormContext<BillsFormValues>();
+  const { register, control, formState: { errors } } = useFormContext<BillsFormValues>();
   const rowErrors = errors.bills?.[index];
+  const [amountDraft, setAmountDraft] = useState<string | null>(null);
+  const { field: { name: amountName, ref: amountRef, value: amountValue, onChange: onAmountChange, onBlur: onAmountBlur } } = useController<BillsFormValues, `bills.${number}.cost`>({
+    control,
+    name: `bills.${index}.cost`,
+    rules: {
+      validate: (value) => (Number.isFinite(value) && value >= 0) || "Enter an amount of 0 or more.",
+    },
+  });
 
   return (
     <div className="flex min-w-0 flex-wrap items-start gap-3 border-t border-zinc-200 py-4 dark:border-zinc-800">
@@ -31,9 +41,21 @@ export default function BillRow({ index, onRemove }: BillRowProps) {
 
       <label htmlFor={`${id}-cost`} className="w-28 text-sm font-medium">
         Amount
-        <input id={`${id}-cost`} type="number" min={0} step="any" inputMode="decimal" className={inputClass}
+        <input id={`${id}-cost`} type="text" inputMode="decimal" className={inputClass}
+          name={amountName} ref={amountRef}
+          value={amountDraft ?? (Number.isFinite(amountValue) ? dollarFormatter.format(amountValue) : "")}
           aria-invalid={!!rowErrors?.cost} aria-describedby={rowErrors?.cost ? `${id}-cost-error` : undefined}
-          {...register(`bills.${index}.cost`, { valueAsNumber: true, validate: (value) => (Number.isFinite(value) && value >= 0) || "Enter an amount of 0 or more." })} />
+          onFocus={() => setAmountDraft(Number.isFinite(amountValue) ? amountValue.toFixed(2) : "")}
+          onChange={(event) => {
+            const value = event.target.value.replace(/[$,]/g, "").trim();
+            if (!/^\d*(\.\d{0,2})?$/.test(value)) return;
+            setAmountDraft(value);
+            onAmountChange(value === "" || value === "." ? NaN : Number(value));
+          }}
+          onBlur={() => {
+            setAmountDraft(null);
+            onAmountBlur();
+          }} />
         {rowErrors?.cost && <span id={`${id}-cost-error`} role="alert" className="text-xs text-red-600 dark:text-red-400">{rowErrors.cost.message}</span>}
       </label>
 
