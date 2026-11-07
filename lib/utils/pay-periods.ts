@@ -5,6 +5,7 @@ export function validatePayPeriod(input: PayPeriodInput): string | null {
   if (!input || typeof input.start_date !== "string" || !input.start_date || typeof input.end_date !== "string" || !input.end_date) {
     return "Enter both a start date and an end date.";
   }
+  if (typeof input.color !== "string" || !/^#[0-9a-fA-F]{6}$/.test(input.color)) return "Choose a valid color.";
   return validateBillDates(input.start_date, input.end_date);
 }
 
@@ -17,7 +18,7 @@ export function validateExpense(input: ExpenseDraft): string | null {
 }
 
 export function payPeriodMatches(current: PayPeriodWithExpenses, original: PayPeriodWithExpenses): boolean {
-  if (current.id !== original.id || current.start_date !== original.start_date || current.end_date !== original.end_date || current.expenses.length !== original.expenses.length) return false;
+  if (current.id !== original.id || current.color !== original.color || current.start_date !== original.start_date || current.end_date !== original.end_date || current.expenses.length !== original.expenses.length) return false;
   const saved = new Map(current.expenses.map((expense) => [expense.id, expense]));
   return original.expenses.every((expense) => {
     const match = saved.get(expense.id);

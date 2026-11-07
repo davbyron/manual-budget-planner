@@ -4,7 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { payPeriodMatches, validateExpense, validatePayPeriod } from "@/lib/utils/pay-periods";
 import type { Expense, PayPeriod, PayPeriodFormValues, PayPeriodInput, PayPeriodResult, PayPeriodWithExpenses } from "@/types";
 
-const periodColumns = "id, start_date, end_date";
+const periodColumns = "id, start_date, end_date, color";
 const expenseColumns = "id, date, name, cost, pay_period_id";
 const pageSize = 500;
 
@@ -65,7 +65,7 @@ export async function createPayPeriod(input: PayPeriodInput): Promise<PayPeriodR
   if (validationError) return { error: validationError };
   try {
     const { data, error } = await createAdminClient().from("PayPeriod")
-      .insert({ start_date: input.start_date, end_date: input.end_date }).select(periodColumns).single();
+      .insert({ start_date: input.start_date, end_date: input.end_date, color: input.color }).select(periodColumns).single();
     if (error) return { error: "Could not confirm the new pay period. Reload pay periods before trying again.", requiresReload: true };
     return { data: { ...data, expenses: [] } };
   } catch {
@@ -106,8 +106,8 @@ export async function savePayPeriod(id: number, input: PayPeriodFormValues, orig
   };
   try {
     const client = createAdminClient();
-    if (input.start_date !== current.data.start_date || input.end_date !== current.data.end_date) {
-      const { error } = await client.from("PayPeriod").update({ start_date: input.start_date, end_date: input.end_date, updated_at: new Date().toISOString() })
+    if (input.start_date !== current.data.start_date || input.end_date !== current.data.end_date || input.color !== current.data.color) {
+      const { error } = await client.from("PayPeriod").update({ start_date: input.start_date, end_date: input.end_date, color: input.color, updated_at: new Date().toISOString() })
         .eq("id", id).select("id").single();
       if (error) return interrupted;
     }

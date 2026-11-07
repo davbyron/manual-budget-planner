@@ -114,6 +114,7 @@ export type Database = {
       }
       PayPeriod: {
         Row: {
+          color: string
           created_at: string
           end_date: string
           id: number
@@ -122,6 +123,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          color?: string
           created_at?: string
           end_date?: string
           id?: number
@@ -130,6 +132,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          color?: string
           created_at?: string
           end_date?: string
           id?: number

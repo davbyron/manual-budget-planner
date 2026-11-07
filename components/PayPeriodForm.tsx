@@ -18,7 +18,7 @@ export default function PayPeriodForm({ period, onSaved, onCancel, onReload }: P
   const [requiresReload, setRequiresReload] = useState(false);
   const [message, setMessage] = useState("");
   const form = useForm<PayPeriodFormValues>({ defaultValues: {
-    start_date: period?.start_date ?? "", end_date: period?.end_date ?? "", expenses: period?.expenses ?? [],
+    start_date: period?.start_date ?? "", end_date: period?.end_date ?? "", color: period?.color || "#3b82f6", expenses: period?.expenses ?? [],
   } });
   const { register, control, reset, handleSubmit, getValues, setError, clearErrors, formState: { errors, isDirty } } = form;
   const { fields, append, remove } = useFieldArray({ control, name: "expenses", keyName: "formKey" });
@@ -31,13 +31,13 @@ export default function PayPeriodForm({ period, onSaved, onCancel, onReload }: P
       try {
         const result = original
           ? await savePayPeriod(original.id, values, original)
-          : await createPayPeriod({ start_date: values.start_date, end_date: values.end_date });
+          : await createPayPeriod({ start_date: values.start_date, end_date: values.end_date, color: values.color });
         if (result.error !== undefined) {
           setRequiresReload(result.requiresReload ?? false);
           setError("root", { message: result.error });
           return;
         }
-        reset({ start_date: result.data.start_date, end_date: result.data.end_date, expenses: result.data.expenses });
+        reset({ start_date: result.data.start_date, end_date: result.data.end_date, color: result.data.color, expenses: result.data.expenses });
         setOriginal(result.data);
         setMessage("Pay period saved.");
         onSaved(result.data);
@@ -55,7 +55,7 @@ export default function PayPeriodForm({ period, onSaved, onCancel, onReload }: P
       try {
         const result = await getPayPeriod(original.id);
         if (result.error !== undefined) { setError("root", { message: result.error }); return; }
-        reset({ start_date: result.data.start_date, end_date: result.data.end_date, expenses: result.data.expenses });
+        reset({ start_date: result.data.start_date, end_date: result.data.end_date, color: result.data.color, expenses: result.data.expenses });
         setOriginal(result.data);
         setRequiresReload(false);
         setMessage("");
@@ -80,6 +80,12 @@ export default function PayPeriodForm({ period, onSaved, onCancel, onReload }: P
               <input id={`${id}-end`} type="date" className={inputClass} aria-invalid={!!errors.end_date} aria-describedby={errors.end_date ? `${id}-end-error` : undefined}
                 {...register("end_date", { validate: (date, values) => !date ? "Enter an end date." : validateBillDates(values.start_date || null, date) ?? true })} />
               {errors.end_date && <span id={`${id}-end-error`} role="alert" className="text-xs text-red-600 dark:text-red-400">{errors.end_date.message}</span>}
+            </label>
+            <label htmlFor={`${id}-color`} className="w-20 text-sm font-medium">Color
+              <input id={`${id}-color`} type="color" className="mt-1 h-10 w-full cursor-pointer rounded-lg border border-zinc-300 bg-transparent p-1 focus-visible:outline-2 focus-visible:outline-blue-600 dark:border-zinc-700"
+                aria-invalid={!!errors.color} aria-describedby={errors.color ? `${id}-color-error` : undefined}
+                {...register("color", { validate: (color) => /^#[0-9a-fA-F]{6}$/.test(color) || "Choose a valid color." })} />
+              {errors.color && <span id={`${id}-color-error`} role="alert" className="text-xs text-red-600 dark:text-red-400">{errors.color.message}</span>}
             </label>
           </div>
           {original && <div className="mt-6">
