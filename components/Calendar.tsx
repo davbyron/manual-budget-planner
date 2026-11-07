@@ -33,6 +33,8 @@ export default function Calendar(props: CalendarProps) {
     );
   }
 
+  const today = new Date();
+
   const year = visibleMonth.getFullYear();
   const month = visibleMonth.getMonth();
   const firstWeekday = visibleMonth.getDay();
@@ -84,23 +86,50 @@ export default function Calendar(props: CalendarProps) {
             <tr key={week}>
               {weekdays.map((day, weekday) => {
                 const date = week * 7 + weekday - firstWeekday + 1;
+                const isCurrentDate = date === today.getDate() && month === today.getMonth() && year === today.getFullYear();
                 const isCurrentMonth = date >= 1 && date <= daysInMonth;
                 const dateKey = `${String(year).padStart(4, "0")}-${String(month + 1).padStart(2, "0")}-${String(date).padStart(2, "0")}`;
                 const backgroundColor = isCurrentMonth ? getPayPeriodColor(dateKey, payPeriods) : undefined;
                 const dayBills = isCurrentMonth ? getBillsForDate(dateKey, bills) : [];
+
                 return (
-                  <td key={day} style={{ backgroundColor }} className="h-12 border-t border-zinc-100 px-1 py-2 align-top text-sm sm:h-20 dark:border-zinc-800">
-                    {isCurrentMonth ? <>
-                      <span>{date}</span>
-                      {dayBills.length > 0 && <ul className="mt-1 space-y-1 text-left text-xs">
-                        {dayBills.map((bill) => (
-                          <li key={bill.id} className="rounded bg-white/80 p-1 text-zinc-900 dark:bg-zinc-950/80 dark:text-zinc-100">
-                            <span className="block break-words">{bill.name}</span>
-                            <span className="block break-words font-medium">{dollarFormatter.format(bill.cost)}</span>
-                          </li>
-                        ))}
-                      </ul>}
-                    </> : null}
+                  <td
+                    key={day}
+                    style={{ backgroundColor }}
+                    className="px-1 py-2 text-sm align-top border-t border-zinc-100 dark:border-zinc-800"
+                  >
+                    {isCurrentMonth ? (
+                      <div className="min-h-28 overflow-scroll scrollbar-none flex flex-col items-start gap-1">
+                        <div
+                          className="sticky top-0 px-1 pb-1 w-full text-left text-xs"
+                          style={{ backgroundColor: backgroundColor ?? "transparent" }}
+                        >
+                          <div
+                            className={isCurrentDate ? `bg-red-600 text-white rounded-full size-4 flex items-center justify-center` : ""}
+                          >
+                            {date}
+                          </div>
+                        </div>
+
+                        {dayBills.length > 0 && (
+                          <ul className="w-full space-y-1 text-left text-xs">
+                            {dayBills.map((bill) => (
+                              <li
+                                key={bill.id}
+                                className="rounded bg-white/70 p-1 text-zinc-900 dark:bg-zinc-950/80 dark:text-zinc-100"
+                              >
+                                <span className="block break-words">
+                                  {bill.name}
+                                </span>
+                                <span className="block break-words font-medium">
+                                  {dollarFormatter.format(bill.cost)}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    ) : null}
                   </td>
                 );
               })}
