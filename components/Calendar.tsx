@@ -53,9 +53,16 @@ export default function Calendar(props: CalendarProps) {
   return (
     <section
       aria-labelledby={headingId}
-      className="w-full max-w-250 rounded-2xl border border-zinc-200 bg-white p-4 text-zinc-900 shadow-sm sm:p-6 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100"
+      className="
+        sticky top-5
+        p-4 w-full max-w-250 h-fit
+        flex flex-col gap-6
+        rounded-2xl border border-zinc-200 bg-white
+        text-zinc-900 shadow-sm
+        dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100
+      "
     >
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-4 bg-white">
         <h2 id={headingId} aria-live="polite" aria-atomic="true">
           {months[month]} {year}
         </h2>
@@ -74,6 +81,7 @@ export default function Calendar(props: CalendarProps) {
           </button>
         </div>
       </div>
+
       <table aria-labelledby={headingId} className="w-full table-fixed border-collapse text-center">
         <thead>
           <tr>
