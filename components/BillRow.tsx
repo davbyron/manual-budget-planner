@@ -1,17 +1,19 @@
 "use client";
 
-import { useId, useState } from "react";
-import { useController, useFormContext } from "react-hook-form";
-import { validateBillDates } from "@/lib/utils/bills";
 import type { BillsFormValues } from "@/types";
 import type { BillRowProps } from "@/types/props";
+import { useId, useState, useMemo } from "react";
+import { useController, useFormContext } from "react-hook-form";
+import { validateBillDates } from "@/lib/utils/bills";
 
 const dollarFormatter = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
 
-const inputClass = "mt-1 w-full min-w-0 rounded-lg border border-zinc-300 bg-transparent px-3 py-2 text-sm focus-visible:outline-2 focus-visible:outline-blue-600 dark:border-zinc-700";
+const inputClass = "mt-1 w-full min-w-0 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm focus-visible:outline-2 focus-visible:outline-blue-600 dark:border-zinc-700";
 
 export default function BillRow(props: BillRowProps) {
   const { index, onRemove } = props;
+
+  const isEven = useMemo(() => index % 2 === 0, [index]);
 
   const id = useId();
 
@@ -42,7 +44,13 @@ export default function BillRow(props: BillRowProps) {
   });
 
   return (
-    <div className="flex min-w-0 flex-wrap items-start gap-3 border-t border-zinc-200 py-4 dark:border-zinc-800">
+    <div
+      className={`
+        px-2 py-4 min-w-0 flex flex-wrap items-start gap-3
+        border-t border-zinc-200 dark:border-zinc-800
+        ${isEven ? "bg-zinc-100 dark:bg-zinc-900" : ""}
+      `}
+    >
       {/* Day */}
       <label htmlFor={`${id}-day`} className="w-20 text-sm font-medium">
         Day

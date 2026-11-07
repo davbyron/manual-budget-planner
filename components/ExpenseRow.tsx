@@ -6,7 +6,7 @@ import { useId, useState, useMemo } from "react";
 import { useController, useFormContext } from "react-hook-form";
 import { validateBillDates } from "@/lib/utils/bills";
 
-const inputClass = "mt-1 w-full min-w-0 rounded-lg border border-zinc-300 bg-transparent px-3 py-2 text-sm focus-visible:outline-2 focus-visible:outline-blue-600 dark:border-zinc-700";
+const inputClass = "mt-1 w-full min-w-0 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm focus-visible:outline-2 focus-visible:outline-blue-600 dark:border-zinc-700";
 const dollars = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
 
 export default function ExpenseRow(props: ExpenseRowProps) {
@@ -47,7 +47,7 @@ export default function ExpenseRow(props: ExpenseRowProps) {
       className={`
         px-2 py-4 min-w-0 flex flex-wrap items-start gap-3
         border-t border-zinc-200 dark:border-zinc-800
-        ${isEven ? "bg-zinc-50 dark:bg-zinc-900" : ""}
+        ${isEven ? "bg-zinc-100 dark:bg-zinc-900" : ""}
       `}
     >
       <label htmlFor={`${id}-date`} className="w-40 text-sm font-medium">
