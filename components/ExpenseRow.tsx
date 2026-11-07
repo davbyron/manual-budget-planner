@@ -2,7 +2,7 @@
 
 import type { PayPeriodFormValues } from "@/types";
 import type { ExpenseRowProps } from "@/types/props";
-import { useId, useState } from "react";
+import { useId, useState, useMemo } from "react";
 import { useController, useFormContext } from "react-hook-form";
 import { validateBillDates } from "@/lib/utils/bills";
 
@@ -11,6 +11,8 @@ const dollars = new Intl.NumberFormat("en-US", { style: "currency", currency: "U
 
 export default function ExpenseRow(props: ExpenseRowProps) {
   const { index, onRemove } = props;
+
+  const isEven = useMemo(() => index % 2 === 0, [index]);
 
   const id = useId();
 
@@ -41,7 +43,13 @@ export default function ExpenseRow(props: ExpenseRowProps) {
   });
 
   return (
-    <div className="flex min-w-0 flex-wrap items-start gap-3 border-t border-zinc-200 py-4 dark:border-zinc-800">
+    <div
+      className={`
+        px-2 py-4 min-w-0 flex flex-wrap items-start gap-3
+        border-t border-zinc-200 dark:border-zinc-800
+        ${isEven ? "bg-zinc-50 dark:bg-zinc-900" : ""}
+      `}
+    >
       <label htmlFor={`${id}-date`} className="w-40 text-sm font-medium">
         Date
         <input
