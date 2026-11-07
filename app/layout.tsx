@@ -26,9 +26,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${instrumentSerif.variable} ${instrumentSans.variable} h-full antialiased`}
+      className={`${instrumentSerif.variable} ${instrumentSans.variable} antialiased`}
     >
-      <body className="min-h-full flex flex-col gap-5 p-10">
+      <body className="flex flex-col gap-10 p-10">
         <h1 className="w-full text-center text-6xl font-instrument-serif">
           Financial Planner
         </h1>

@@ -51,7 +51,7 @@ export default function PayPeriods(props: PayPeriodsProps) {
   return (
     <section
       aria-labelledby={headingId}
-      className="w-full min-w-0 rounded-2xl border border-zinc-200 bg-white p-4 text-zinc-900 shadow-sm sm:p-6 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100"
+      className="w-full h-full min-w-0 rounded-r-2xl border border-zinc-200 bg-white p-4 text-zinc-900 shadow-sm sm:p-6 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100"
     >
       <header className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <h2 id={headingId}>Pay Periods & Expenses</h2>

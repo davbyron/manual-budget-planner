@@ -20,12 +20,29 @@ export default function PlannerTabs(props: PlannerTabsProps) {
   const [incomeSources, setIncomeSources] = useState<IncomeSource[] | null>(null);
 
   return (
-    <div className="min-w-0 space-y-3">
-      <div role="tablist" aria-label="Financial planner sections" className="flex flex-wrap gap-1 rounded-xl border border-zinc-200 bg-zinc-100 p-1 dark:border-zinc-800 dark:bg-zinc-900">
+    <div className="flex flex-1">
+      <div
+        role="tablist"
+        aria-label="Financial planner sections"
+        className="flex flex-col gap-1 h-fit rounded-l-xl border border-zinc-200 bg-zinc-100 p-1 dark:border-zinc-800 dark:bg-zinc-900"
+      >
         {tabs.map((tab, index) => (
-          <button key={tab.id} id={`${id}-${tab.id}-tab`} type="button" role="tab"
-            aria-selected={activeTab === index} aria-controls={`${id}-${tab.id}-panel`} tabIndex={activeTab === index ? 0 : -1}
-            className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 ${activeTab === index ? "bg-white text-zinc-900 shadow-sm dark:bg-zinc-800 dark:text-zinc-100" : "text-zinc-600 hover:bg-white/60 dark:text-zinc-400 dark:hover:bg-zinc-800/60"}`}
+          <button
+            key={tab.id}
+            id={`${id}-${tab.id}-tab`}
+            type="button"
+            role="tab"
+            aria-selected={activeTab === index}
+            aria-controls={`${id}-${tab.id}-panel`}
+            tabIndex={activeTab === index ? 0 : -1}
+            className={`
+              [writing-mode:vertical-rl] rotate-180 rounded-lg px-3 py-2 text-sm font-medium whitespace-nowrap
+              focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600
+              ${activeTab === index ?
+                "bg-white text-zinc-900 shadow-sm dark:bg-zinc-800 dark:text-zinc-100" :
+                "text-zinc-600 hover:bg-white/60 dark:text-zinc-400 dark:hover:bg-zinc-800/60"
+              }
+            `}
             onClick={() => setActiveTab(index)}
             onKeyDown={(event) => {
               let next = index;
@@ -37,26 +54,53 @@ export default function PlannerTabs(props: PlannerTabsProps) {
               event.preventDefault();
               setActiveTab(next);
               event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('[role="tab"]')[next]?.focus();
-            }}>
+            }}
+          >
             {tab.label}
           </button>
         ))}
       </div>
+
       {/* Keep panels mounted so switching tabs preserves drafts and accordion state. */}
-      <div id={`${id}-pay-periods-panel`} role="tabpanel" aria-labelledby={`${id}-pay-periods-tab`} hidden={activeTab !== 0} tabIndex={0}>
-        <PayPeriods
-          bills={bills}
-          incomeSources={incomeSources}
-          periods={periods}
-          onPeriodsChange={onPeriodsChange}
-        />
-      </div>
-      <div id={`${id}-bills-panel`} role="tabpanel" aria-labelledby={`${id}-bills-tab`} hidden={activeTab !== 1} tabIndex={0}>
-        <Bills onBillsChange={onBillsChange} />
-      </div>
-      <div id={`${id}-income-sources-panel`} role="tabpanel" aria-labelledby={`${id}-income-sources-tab`} hidden={activeTab !== 2} tabIndex={0}>
-        <IncomeSources onIncomeSourcesChange={setIncomeSources} />
-      </div>
+      <>
+        <div
+          id={`${id}-pay-periods-panel`}
+          role="tabpanel"
+          aria-labelledby={`${id}-pay-periods-tab`}
+          hidden={activeTab !== 0}
+          tabIndex={0}
+          className="flex-1"
+        >
+          <PayPeriods
+            bills={bills}
+            incomeSources={incomeSources}
+            periods={periods}
+            onPeriodsChange={onPeriodsChange}
+          />
+        </div>
+
+        <div
+          id={`${id}-bills-panel`}
+          role="tabpanel"
+          aria-labelledby={`${id}-bills-tab`}
+          hidden={activeTab !== 1}
+          tabIndex={0}
+          className="flex-1"
+        >
+          <Bills onBillsChange={onBillsChange} />
+        </div>
+
+        <div
+          id={`${id}-income-sources-panel`}
+          role="tabpanel"
+          aria-labelledby={`${id}-income-sources-tab`}
+          hidden={activeTab !== 2}
+          tabIndex={0}
+          className="flex-1"
+        >
+          <IncomeSources onIncomeSourcesChange={setIncomeSources} />
+        </div>
+      </>
     </div>
   );
 }

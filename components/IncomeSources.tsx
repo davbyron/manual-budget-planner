@@ -68,7 +68,10 @@ export default function IncomeSources(props: IncomeSourcesProps) {
   });
 
   return (
-    <section aria-labelledby={headingId} className="w-full rounded-2xl border border-zinc-200 bg-white p-4 text-zinc-900 shadow-sm sm:p-6 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100">
+    <section
+      aria-labelledby={headingId}
+      className="w-full h-full rounded-r-2xl border border-zinc-200 bg-white p-4 text-zinc-900 shadow-sm sm:p-6 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100"
+    >
       <h2 id={headingId} className="mb-2">Income sources</h2>
       {!loaded && !loadError && <p role="status">Loading income sources…</p>}
       {loadError && <div role="alert" className="mb-4 text-sm text-red-600 dark:text-red-400">{loadError} <button type="button" disabled={pending} onClick={() => setAttempt((value) => value + 1)} className={buttonClass}>Retry</button></div>}
