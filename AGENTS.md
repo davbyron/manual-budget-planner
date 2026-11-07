@@ -26,3 +26,5 @@ export default function PayPeriodForm(props: PayPeriodFormProps) {
   // rest of component
 }
 ```
+
+- Always import types before all other imports.
