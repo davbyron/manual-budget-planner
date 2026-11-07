@@ -57,7 +57,7 @@ export default function PayPeriodForm(props: PayPeriodFormProps) {
   } = useController<PayPeriodFormValues, "color">({
     control,
     name: "color",
-    rules: { validate: (color) => /^#[0-9a-fA-F]{6}$/.test(color as string) || "Choose a valid color." },
+    rules: { validate: (color) => /^#[0-9a-fA-F]{6}$/.test(color) || "Choose a valid color." },
   });
 
   const save = handleSubmit((values) => {
@@ -188,7 +188,7 @@ export default function PayPeriodForm(props: PayPeriodFormProps) {
                 aria-describedby={errors.color ? `${id}-color-error` : undefined}
                 name={colorName}
                 ref={colorRef}
-                value={colorValue as string}
+                value={colorValue}
                 onChange={onColorChange}
                 onBlur={onColorBlur}
               />
