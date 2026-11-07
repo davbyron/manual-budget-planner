@@ -46,7 +46,7 @@ export default function PayPeriods({ periods, onPeriodsChange }: PayPeriodsProps
   return (
     <section aria-labelledby={headingId} className="w-full min-w-0 rounded-2xl border border-zinc-200 bg-white p-4 text-zinc-900 shadow-sm sm:p-6 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100">
       <header className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <h2 id={headingId} className="text-xl font-semibold">Pay periods</h2>
+        <h2 id={headingId} className="text-xl font-semibold">Pay Periods & Expenses</h2>
         <button type="button" disabled={!periods.length} className={buttonClass} onClick={() => setOpenIds(allOpen ? new Set() : new Set(periods.map((period) => period.id)))}>{allOpen ? "Close all pay periods" : "Open all pay periods"}</button>
       </header>
       {!loaded && !error && <p role="status">Loading pay periods…</p>}

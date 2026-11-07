@@ -7,7 +7,7 @@ import PayPeriods from "@/components/PayPeriods";
 import type { PlannerTabsProps } from "@/types/props";
 
 const tabs = [
-  { id: "pay-periods", label: "Pay Periods" },
+  { id: "pay-periods", label: "Pay Periods & Expenses" },
   { id: "bills", label: "Bills" },
   { id: "income-sources", label: "Income Sources" },
 ];
