@@ -53,7 +53,7 @@ export default function Calendar(props: CalendarProps) {
   return (
     <section aria-labelledby={headingId} className="w-full rounded-2xl border border-zinc-200 bg-white p-4 text-zinc-900 shadow-sm sm:p-6 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100">
       <header className="mb-6 flex flex-wrap items-center justify-between gap-4">
-        <h2 id={headingId} aria-live="polite" aria-atomic="true" className="text-xl font-semibold">
+        <h2 id={headingId} aria-live="polite" aria-atomic="true">
           {months[month]} {year}
         </h2>
         <div role="group" aria-label="Calendar navigation" className="flex flex-wrap gap-2">

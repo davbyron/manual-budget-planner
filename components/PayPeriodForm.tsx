@@ -206,7 +206,7 @@ export default function PayPeriodForm(props: PayPeriodFormProps) {
 
           {original && (
             <div className="mt-6">
-              <h3 className="mb-2 font-semibold">Expenses</h3>
+              <h4 className="mb-2">Expenses</h4>
               {fields.length === 0 && (
                 <p className="py-3 text-sm text-zinc-500 dark:text-zinc-400">
                   No expenses.
