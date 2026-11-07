@@ -141,7 +141,7 @@ export default function BillRow(props: BillRowProps) {
       </label>
 
       {/* Start date */}
-      <label htmlFor={`${id}-start-date`} className="w-40 text-sm font-medium">
+      <label htmlFor={`${id}-start-date`} className="w-25 text-sm font-medium">
         Start date
         <input
           id={`${id}-start-date`}
@@ -167,7 +167,7 @@ export default function BillRow(props: BillRowProps) {
       </label>
 
       {/* End date */}
-      <label htmlFor={`${id}-end-date`} className="w-40 text-sm font-medium">
+      <label htmlFor={`${id}-end-date`} className="w-25 text-sm font-medium">
         End date
         <input
           id={`${id}-end-date`}
