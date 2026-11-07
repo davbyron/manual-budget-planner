@@ -1,5 +1,9 @@
 import type { Dispatch, SetStateAction } from "react";
-import type { PayPeriod, PayPeriodWithExpenses } from "@/types";
+import type { Bill, IncomeSource, PayPeriod, PayPeriodWithExpenses } from "@/types";
+
+export type BillsProps = {
+  onBillsChange?: (bills: Bill[]) => void;
+};
 
 export type BillRowProps = {
   index: number;
@@ -19,10 +23,15 @@ export type PayPeriodFormProps = {
 };
 
 export type PayPeriodAccordionProps = {
+  remainingBalance: number | null;
   period: PayPeriodWithExpenses;
   open: boolean;
   onToggle: () => void;
   onSaved: (period: PayPeriodWithExpenses) => void;
+};
+
+export type IncomeSourcesProps = {
+  onIncomeSourcesChange?: (incomeSources: IncomeSource[]) => void;
 };
 
 export type IncomeSourceRowProps = {
@@ -35,6 +44,8 @@ export type CalendarProps = {
 };
 
 export type PayPeriodsProps = {
+  bills?: Bill[] | null;
+  incomeSources?: IncomeSource[] | null;
   periods: PayPeriodWithExpenses[];
   onPeriodsChange: Dispatch<SetStateAction<PayPeriodWithExpenses[]>>;
 };

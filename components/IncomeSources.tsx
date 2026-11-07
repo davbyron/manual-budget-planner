@@ -5,10 +5,12 @@ import { FormProvider, useFieldArray, useForm } from "react-hook-form";
 import { getIncomeSources, saveIncomeSources } from "@/lib/actions/income-sources";
 import IncomeSourceRow from "@/components/IncomeSourceRow";
 import type { IncomeSource, IncomeSourcesFormValues } from "@/types";
+import type { IncomeSourcesProps } from "@/types/props";
 
 const buttonClass = "rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-700 dark:hover:bg-zinc-800";
 
-export default function IncomeSources() {
+export default function IncomeSources(props: IncomeSourcesProps) {
+  const { onIncomeSourcesChange } = props;
   const headingId = useId();
   const [originalIncomeSources, setOriginalIncomeSources] = useState<IncomeSource[]>([]);
   const [loaded, setLoaded] = useState(false);
@@ -31,6 +33,7 @@ export default function IncomeSources() {
         else {
           reset({ incomeSources: result.data });
           setOriginalIncomeSources(result.data);
+          onIncomeSourcesChange?.(result.data);
           setLoadError(null);
           setLoaded(true);
         }
@@ -39,7 +42,7 @@ export default function IncomeSources() {
       }
     });
     return () => { active = false; };
-  }, [attempt, reset]);
+  }, [attempt, reset, onIncomeSourcesChange]);
 
   const save = handleSubmit(({ incomeSources }) => {
     if (requiresReload) return;
@@ -55,6 +58,7 @@ export default function IncomeSources() {
         }
         reset({ incomeSources: result.data });
         setOriginalIncomeSources(result.data);
+        onIncomeSourcesChange?.(result.data);
         setMessage("Income sources saved.");
       } catch {
         setRequiresReload(true);

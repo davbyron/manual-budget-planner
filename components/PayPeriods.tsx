@@ -4,12 +4,14 @@ import { useEffect, useId, useState, useTransition } from "react";
 import { getPayPeriods } from "@/lib/actions/pay-periods";
 import PayPeriodAccordion from "@/components/PayPeriodAccordion";
 import PayPeriodForm from "@/components/PayPeriodForm";
+import { getPayPeriodRemainingBalances } from "@/lib/utils/pay-periods";
 import type { PayPeriodsProps } from "@/types/props";
 import type { PayPeriodWithExpenses } from "@/types";
 
 const buttonClass = "rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium hover:bg-zinc-100 disabled:opacity-50 dark:border-zinc-700 dark:hover:bg-zinc-800";
 
-export default function PayPeriods({ periods, onPeriodsChange }: PayPeriodsProps) {
+export default function PayPeriods(props: PayPeriodsProps) {
+  const { bills = null, incomeSources = null, periods, onPeriodsChange } = props;
   const headingId = useId();
   const [openIds, setOpenIds] = useState<Set<number>>(() => new Set());
   const [creating, setCreating] = useState(false);
@@ -18,6 +20,9 @@ export default function PayPeriods({ periods, onPeriodsChange }: PayPeriodsProps
   const [attempt, setAttempt] = useState(0);
   const [pending, startTransition] = useTransition();
   const allOpen = periods.length > 0 && periods.every((period) => openIds.has(period.id));
+  const remainingBalances = bills === null || incomeSources === null
+    ? null
+    : getPayPeriodRemainingBalances(periods, bills, incomeSources);
 
   useEffect(() => {
     let active = true;
@@ -54,7 +59,13 @@ export default function PayPeriods({ periods, onPeriodsChange }: PayPeriodsProps
       {loaded && <>
         {periods.length === 0 && <p className="py-3 text-sm text-zinc-500 dark:text-zinc-400">No pay periods.</p>}
         <div className="space-y-3">
-          {periods.map((period) => <PayPeriodAccordion key={period.id} period={period} open={openIds.has(period.id)} onSaved={saved} onToggle={() => setOpenIds((current) => {
+          {periods.map((period) => <PayPeriodAccordion
+            key={period.id}
+            remainingBalance={remainingBalances?.get(period.id) ?? null}
+            period={period}
+            open={openIds.has(period.id)}
+            onSaved={saved}
+            onToggle={() => setOpenIds((current) => {
             const next = new Set(current);
             if (next.has(period.id)) next.delete(period.id); else next.add(period.id);
             return next;

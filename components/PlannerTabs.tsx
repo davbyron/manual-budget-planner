@@ -4,6 +4,7 @@ import { useId, useState } from "react";
 import Bills from "@/components/Bills";
 import IncomeSources from "@/components/IncomeSources";
 import PayPeriods from "@/components/PayPeriods";
+import type { Bill, IncomeSource } from "@/types";
 import type { PlannerTabsProps } from "@/types/props";
 
 const tabs = [
@@ -15,6 +16,8 @@ const tabs = [
 export default function PlannerTabs({ periods, onPeriodsChange }: PlannerTabsProps) {
   const id = useId();
   const [activeTab, setActiveTab] = useState(0);
+  const [bills, setBills] = useState<Bill[] | null>(null);
+  const [incomeSources, setIncomeSources] = useState<IncomeSource[] | null>(null);
 
   return (
     <div className="min-w-0 space-y-3">
@@ -41,13 +44,18 @@ export default function PlannerTabs({ periods, onPeriodsChange }: PlannerTabsPro
       </div>
       {/* Keep panels mounted so switching tabs preserves drafts and accordion state. */}
       <div id={`${id}-pay-periods-panel`} role="tabpanel" aria-labelledby={`${id}-pay-periods-tab`} hidden={activeTab !== 0} tabIndex={0}>
-        <PayPeriods periods={periods} onPeriodsChange={onPeriodsChange} />
+        <PayPeriods
+          bills={bills}
+          incomeSources={incomeSources}
+          periods={periods}
+          onPeriodsChange={onPeriodsChange}
+        />
       </div>
       <div id={`${id}-bills-panel`} role="tabpanel" aria-labelledby={`${id}-bills-tab`} hidden={activeTab !== 1} tabIndex={0}>
-        <Bills />
+        <Bills onBillsChange={setBills} />
       </div>
       <div id={`${id}-income-sources-panel`} role="tabpanel" aria-labelledby={`${id}-income-sources-tab`} hidden={activeTab !== 2} tabIndex={0}>
-        <IncomeSources />
+        <IncomeSources onIncomeSourcesChange={setIncomeSources} />
       </div>
     </div>
   );

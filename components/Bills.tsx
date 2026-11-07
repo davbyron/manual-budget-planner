@@ -5,10 +5,12 @@ import { FormProvider, useFieldArray, useForm } from "react-hook-form";
 import { getBills, saveBills } from "@/lib/actions/bills";
 import BillRow from "@/components/BillRow";
 import type { Bill, BillsFormValues } from "@/types";
+import type { BillsProps } from "@/types/props";
 
 const buttonClass = "rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-700 dark:hover:bg-zinc-800";
 
-export default function Bills() {
+export default function Bills(props: BillsProps) {
+  const { onBillsChange } = props;
   const headingId = useId();
   const [originalBills, setOriginalBills] = useState<Bill[]>([]);
   const [loaded, setLoaded] = useState(false);
@@ -31,6 +33,7 @@ export default function Bills() {
         else {
           reset({ bills: result.data });
           setOriginalBills(result.data);
+          onBillsChange?.(result.data);
           setLoadError(null);
           setLoaded(true);
         }
@@ -39,7 +42,7 @@ export default function Bills() {
       }
     });
     return () => { active = false; };
-  }, [attempt, reset]);
+  }, [attempt, reset, onBillsChange]);
 
   const save = handleSubmit(({ bills }) => {
     if (requiresReload) return;
@@ -55,6 +58,7 @@ export default function Bills() {
         }
         reset({ bills: result.data });
         setOriginalBills(result.data);
+        onBillsChange?.(result.data);
         setMessage("Bills saved.");
       } catch {
         setRequiresReload(true);

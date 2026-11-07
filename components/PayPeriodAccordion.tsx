@@ -5,8 +5,11 @@ import { useId } from "react";
 import PayPeriodForm from "@/components/PayPeriodForm";
 import formatDate from "@/lib/utils/formatDate";
 
+const dollars = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
+
 export default function PayPeriodAccordion(props: PayPeriodAccordionProps) {
   const {
+    remainingBalance,
     period,
     open,
     onToggle,
@@ -32,12 +35,14 @@ export default function PayPeriodAccordion(props: PayPeriodAccordionProps) {
             background: `radial-gradient(circle at left, ${period.color}, white)`
           }}
         >
-          <span>
-            {formatDate(period.start_date)} - {formatDate(period.end_date)}
-            <span className="mt-1 block text-xs font-normal text-zinc-500 dark:text-zinc-400">
-              {period.expenses.length} {period.expenses.length === 1 ? "expense" : "expenses"}
+          <div className="flex gap-3 items-center">
+            <span>
+              {formatDate(period.start_date)} - {formatDate(period.end_date)}
             </span>
-          </span>
+            <span className="text-xs text-center bg-white/75 py-0.5 px-2.5 rounded-full text-zinc-500 dark:text-zinc-400">
+              {remainingBalance === null ? "Loading remaining balance…" : `${dollars.format(remainingBalance)} remaining`}
+            </span>
+          </div>
 
           <span aria-hidden="true">
             {open ? "-" : "+"}
