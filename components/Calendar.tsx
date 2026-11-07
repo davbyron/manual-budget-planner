@@ -55,7 +55,7 @@ export default function Calendar(props: CalendarProps) {
       aria-labelledby={headingId}
       className="w-full max-w-250 rounded-2xl border border-zinc-200 bg-white p-4 text-zinc-900 shadow-sm sm:p-6 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100"
     >
-      <header className="mb-6 flex flex-wrap items-center justify-between gap-4">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <h2 id={headingId} aria-live="polite" aria-atomic="true">
           {months[month]} {year}
         </h2>
@@ -73,7 +73,7 @@ export default function Calendar(props: CalendarProps) {
             <span aria-hidden="true">»</span>
           </button>
         </div>
-      </header>
+      </div>
       <table aria-labelledby={headingId} className="w-full table-fixed border-collapse text-center">
         <thead>
           <tr>

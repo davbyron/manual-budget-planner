@@ -53,7 +53,7 @@ export default function PayPeriods(props: PayPeriodsProps) {
       aria-labelledby={headingId}
       className="w-full h-full min-w-0 rounded-r-2xl border border-zinc-200 bg-white p-4 text-zinc-900 shadow-sm sm:p-6 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100"
     >
-      <header className="mb-4 flex flex-wrap items-center justify-between gap-3">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <h2 id={headingId}>Pay Periods & Expenses</h2>
         <div className="flex gap-2">
           <button
@@ -73,7 +73,7 @@ export default function PayPeriods(props: PayPeriodsProps) {
               {allOpen ? "Close all pay periods" : "Open all pay periods"}
           </button>
         </div>
-      </header>
+      </div>
 
       {!loaded && !error && <p role="status">Loading pay periods…</p>}
 

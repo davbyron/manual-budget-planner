@@ -9,7 +9,7 @@ export default function Home() {
   const [bills, setBills] = useState<Bill[] | null>(null);
   const [payPeriods, setPayPeriods] = useState<PayPeriodWithExpenses[]>([]);
   return (
-    <main className="w-full flex gap-6">
+    <main className="p-10 w-full flex gap-6">
       <PlannerTabs
         periods={payPeriods}
         onPeriodsChange={setPayPeriods}
