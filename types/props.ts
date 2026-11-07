@@ -38,3 +38,5 @@ export type PayPeriodsProps = {
   periods: PayPeriodWithExpenses[];
   onPeriodsChange: Dispatch<SetStateAction<PayPeriodWithExpenses[]>>;
 };
+
+export type PlannerTabsProps = PayPeriodsProps;
