@@ -18,7 +18,7 @@ const instrumentSans = Instrument_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Financial Planner",
+  title: "Manual Budget Planner",
   description: "Personalized financial planner",
 };
 
@@ -31,7 +31,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="flex flex-col">
         <header>
           <h1 className="w-full py-8 bg-neutral-950 text-white text-center text-6xl font-instrument-serif">
-            Financial Planner
+            Manual Budget Planner
           </h1>
         </header>
         {children}
