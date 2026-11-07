@@ -33,3 +33,7 @@ h2 {
 h3, h4 {
   @apply font-semibold;
 }
+
+button {
+  @apply cursor-pointer hover:brightness-105 active:brightness-90 disabled:cursor-not-allowed disabled:opacity-50;
+}
