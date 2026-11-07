@@ -1,7 +1,7 @@
 "use client";
 
 import { useId, useState, useTransition } from "react";
-import { FormProvider, useFieldArray, useForm } from "react-hook-form";
+import { FormProvider, useController, useFieldArray, useForm } from "react-hook-form";
 import { createPayPeriod, getPayPeriod, savePayPeriod } from "@/lib/actions/pay-periods";
 import { validateBillDates } from "@/lib/utils/bills";
 import ExpenseRow from "@/components/ExpenseRow";
@@ -22,6 +22,11 @@ export default function PayPeriodForm({ period, onSaved, onCancel, onReload }: P
   } });
   const { register, control, reset, handleSubmit, getValues, setError, clearErrors, formState: { errors, isDirty } } = form;
   const { fields, append, remove } = useFieldArray({ control, name: "expenses", keyName: "formKey" });
+  const { field: { name: colorName, value: colorValue, ref: colorRef, onChange: onColorChange, onBlur: onColorBlur } } = useController<PayPeriodFormValues, "color">({
+    control,
+    name: "color",
+    rules: { validate: (color) => /^#[0-9a-fA-F]{6}$/.test(color as string) || "Choose a valid color." },
+  });
 
   const save = handleSubmit((values) => {
     if (requiresReload) return;
@@ -84,7 +89,7 @@ export default function PayPeriodForm({ period, onSaved, onCancel, onReload }: P
             <label htmlFor={`${id}-color`} className="w-20 text-sm font-medium">Color
               <input id={`${id}-color`} type="color" className="mt-1 h-10 w-full cursor-pointer rounded-lg border border-zinc-300 bg-transparent p-1 focus-visible:outline-2 focus-visible:outline-blue-600 dark:border-zinc-700"
                 aria-invalid={!!errors.color} aria-describedby={errors.color ? `${id}-color-error` : undefined}
-                {...register("color", { validate: (color) => /^#[0-9a-fA-F]{6}$/.test(color) || "Choose a valid color." })} />
+                name={colorName} ref={colorRef} value={colorValue as string} onChange={onColorChange} onBlur={onColorBlur} />
               {errors.color && <span id={`${id}-color-error`} role="alert" className="text-xs text-red-600 dark:text-red-400">{errors.color.message}</span>}
             </label>
           </div>

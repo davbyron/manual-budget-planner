@@ -4,13 +4,13 @@ import { useEffect, useId, useState, useTransition } from "react";
 import { getPayPeriods } from "@/lib/actions/pay-periods";
 import PayPeriodAccordion from "@/components/PayPeriodAccordion";
 import PayPeriodForm from "@/components/PayPeriodForm";
+import type { PayPeriodsProps } from "@/types/props";
 import type { PayPeriodWithExpenses } from "@/types";
 
 const buttonClass = "rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium hover:bg-zinc-100 disabled:opacity-50 dark:border-zinc-700 dark:hover:bg-zinc-800";
 
-export default function PayPeriods() {
+export default function PayPeriods({ periods, onPeriodsChange }: PayPeriodsProps) {
   const headingId = useId();
-  const [periods, setPeriods] = useState<PayPeriodWithExpenses[]>([]);
   const [openIds, setOpenIds] = useState<Set<number>>(() => new Set());
   const [creating, setCreating] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -26,16 +26,16 @@ export default function PayPeriods() {
         const result = await getPayPeriods();
         if (!active) return;
         if (result.error !== undefined) setError(result.error);
-        else { setPeriods(result.data); setLoaded(true); setError(null); }
+        else { onPeriodsChange(result.data); setLoaded(true); setError(null); }
       } catch {
         if (active) setError("Could not load pay periods. Please try again.");
       }
     });
     return () => { active = false; };
-  }, [attempt]);
+  }, [attempt, onPeriodsChange]);
 
   function saved(period: PayPeriodWithExpenses) {
-    setPeriods((current) => {
+    onPeriodsChange((current) => {
       const next = current.some((item) => item.id === period.id)
         ? current.map((item) => item.id === period.id ? period : item)
         : [...current, period];

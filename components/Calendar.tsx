@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useId, useState } from "react";
+import { getPayPeriodColor } from "@/lib/utils/calendar";
+import type { CalendarProps } from "@/types/props";
 
 const months = [
   "January", "February", "March", "April", "May", "June",
@@ -9,7 +11,7 @@ const months = [
 const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const navigationClassName = "rounded-lg border border-zinc-200 px-3 py-2 text-sm font-medium transition-colors hover:bg-zinc-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 dark:border-zinc-700 dark:hover:bg-zinc-800";
 
-export default function Calendar() {
+export default function Calendar({ payPeriods }: CalendarProps) {
   const headingId = useId();
   const [visibleMonth, setVisibleMonth] = useState<Date | null>(null);
 
@@ -79,9 +81,12 @@ export default function Calendar() {
             <tr key={week}>
               {weekdays.map((day, weekday) => {
                 const date = week * 7 + weekday - firstWeekday + 1;
+                const isCurrentMonth = date >= 1 && date <= daysInMonth;
+                const dateKey = `${String(year).padStart(4, "0")}-${String(month + 1).padStart(2, "0")}-${String(date).padStart(2, "0")}`;
+                const backgroundColor = isCurrentMonth ? getPayPeriodColor(dateKey, payPeriods) : undefined;
                 return (
-                  <td key={day} className="h-12 border-t border-zinc-100 text-sm sm:h-20 dark:border-zinc-800">
-                    {date >= 1 && date <= daysInMonth ? date : null}
+                  <td key={day} style={{ backgroundColor }} className="h-12 border-t border-zinc-100 text-sm sm:h-20 dark:border-zinc-800">
+                    {isCurrentMonth ? date : null}
                   </td>
                 );
               })}

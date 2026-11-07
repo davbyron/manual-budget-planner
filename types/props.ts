@@ -1,4 +1,5 @@
-import type { PayPeriodWithExpenses } from "@/types";
+import type { Dispatch, SetStateAction } from "react";
+import type { PayPeriod, PayPeriodWithExpenses } from "@/types";
 
 export type BillRowProps = {
   index: number;
@@ -27,4 +28,13 @@ export type PayPeriodAccordionProps = {
 export type IncomeSourceRowProps = {
   index: number;
   onRemove: () => void;
+};
+
+export type CalendarProps = {
+  payPeriods: PayPeriod[];
+};
+
+export type PayPeriodsProps = {
+  periods: PayPeriodWithExpenses[];
+  onPeriodsChange: Dispatch<SetStateAction<PayPeriodWithExpenses[]>>;
 };
