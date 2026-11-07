@@ -15,3 +15,14 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Only store one component per file in the `components/` folder.
 
 - Store necessary util functions under `lib/utils/`.
+
+- When an HTML or JSX element has more than three attributes, place each of them on a new line, including the first.
+
+- Always extract props like so:
+```
+export default function PayPeriodForm(props: PayPeriodFormProps) {
+  const { period, onSaved, onCancel, onReload } = props;
+
+  // rest of component
+}
+```
