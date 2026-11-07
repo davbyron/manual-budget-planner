@@ -2,14 +2,16 @@
 
 import type { IncomeSourcesFormValues } from "@/types";
 import type { IncomeSourceRowProps } from "@/types/props";
-import { useId, useState } from "react";
+import { useId, useState, useMemo } from "react";
 import { useController, useFormContext } from "react-hook-form";
 
-const inputClass = "mt-1 w-full min-w-0 rounded-lg border border-zinc-300 bg-transparent px-3 py-2 text-sm focus-visible:outline-2 focus-visible:outline-blue-600 dark:border-zinc-700";
+const inputClass = "mt-1 w-full min-w-0 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm focus-visible:outline-2 focus-visible:outline-blue-600 dark:border-zinc-700";
 const dollars = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
 
 export default function IncomeSourceRow(props: IncomeSourceRowProps) {
   const { index, onRemove } = props;
+
+  const isEven = useMemo(() => index % 2 === 0, [index]);
 
   const id = useId();
 
@@ -40,7 +42,13 @@ export default function IncomeSourceRow(props: IncomeSourceRowProps) {
   });
 
   return (
-    <div className="flex min-w-0 flex-wrap items-start gap-3 border-t border-zinc-200 py-4 dark:border-zinc-800">
+    <div
+      className={`
+        px-2 py-4 min-w-0 flex flex-wrap items-start gap-3
+        border-t border-zinc-200 dark:border-zinc-800
+        ${isEven ? "bg-zinc-100 dark:bg-zinc-900" : ""}
+      `}
+    >
       <label htmlFor={`${id}-name`} className="min-w-32 flex-1 text-sm font-medium">
         Name
         <input
