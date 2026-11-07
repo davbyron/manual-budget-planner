@@ -49,39 +49,87 @@ export default function PayPeriods(props: PayPeriodsProps) {
   }
 
   return (
-    <section aria-labelledby={headingId} className="w-full min-w-0 rounded-2xl border border-zinc-200 bg-white p-4 text-zinc-900 shadow-sm sm:p-6 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100">
+    <section
+      aria-labelledby={headingId}
+      className="w-full min-w-0 rounded-2xl border border-zinc-200 bg-white p-4 text-zinc-900 shadow-sm sm:p-6 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100"
+    >
       <header className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <h2 id={headingId}>Pay Periods & Expenses</h2>
-        <button type="button" disabled={!periods.length} className={buttonClass} onClick={() => setOpenIds(allOpen ? new Set() : new Set(periods.map((period) => period.id)))}>{allOpen ? "Close all pay periods" : "Open all pay periods"}</button>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => setCreating(true)}
+            className={buttonClass}
+            disabled={creating}
+          >
+            + Add new pay period
+          </button>
+          <button
+            type="button"
+            disabled={!periods.length}
+            className={buttonClass}
+            onClick={() => setOpenIds(allOpen ? new Set() : new Set(periods.map((period) => period.id)))}
+          >
+              {allOpen ? "Close all pay periods" : "Open all pay periods"}
+          </button>
+        </div>
       </header>
+
       {!loaded && !error && <p role="status">Loading pay periods…</p>}
-      {error && <div role="alert" className="mb-4 text-sm text-red-600 dark:text-red-400">{error} <button type="button" disabled={pending} className={buttonClass} onClick={() => setAttempt((value) => value + 1)}>Retry</button></div>}
-      {loaded && <>
-        {periods.length === 0 && <p className="py-3 text-sm text-zinc-500 dark:text-zinc-400">No pay periods.</p>}
-        <div className="space-y-3">
-          {periods.map((period) => <PayPeriodAccordion
-            key={period.id}
-            remainingBalance={remainingBalances?.get(period.id) ?? null}
-            period={period}
-            open={openIds.has(period.id)}
-            onSaved={saved}
-            onToggle={() => setOpenIds((current) => {
-            const next = new Set(current);
-            if (next.has(period.id)) next.delete(period.id); else next.add(period.id);
-            return next;
-          })} />)}
+
+      {error && (
+        <div
+          role="alert"
+          className="mb-4 text-sm text-red-600 dark:text-red-400"
+        >
+          {error}
+          <button
+            type="button"
+            disabled={pending}
+            className={buttonClass}
+            onClick={() => setAttempt((value) => value + 1)}
+          >
+            Retry
+          </button>
         </div>
-        <div className="mt-4">
-          {creating ? <div className="rounded-xl border border-zinc-200 p-4 dark:border-zinc-800">
-            <h3 className="mb-3">New pay period</h3>
-            <PayPeriodForm onCancel={() => setCreating(false)} onReload={() => { setCreating(false); setAttempt((value) => value + 1); }} onSaved={(period) => {
-              saved(period);
-              setOpenIds((current) => new Set(current).add(period.id));
-              setCreating(false);
-            }} />
-          </div> : <button type="button" onClick={() => setCreating(true)} className={buttonClass}>+ Add new pay period</button>}
-        </div>
-      </>}
+      )}
+
+      {loaded && (
+        <>
+          {periods.length === 0 && (
+            <p className="py-3 text-sm text-zinc-500 dark:text-zinc-400">
+              No pay periods.
+            </p>
+          )}
+
+          <div className="space-y-3">
+             {creating ? (
+              <div className="rounded-xl border border-zinc-200 p-4 dark:border-zinc-800">
+                <h3 className="mb-3">New pay period</h3>
+                <PayPeriodForm onCancel={() => setCreating(false)} onReload={() => { setCreating(false); setAttempt((value) => value + 1); }} onSaved={(period) => {
+                  saved(period);
+                  setOpenIds((current) => new Set(current).add(period.id));
+                  setCreating(false);
+                }} />
+              </div>
+            ) : null }
+            {periods.map((period) => (
+              <PayPeriodAccordion
+                key={period.id}
+                remainingBalance={remainingBalances?.get(period.id) ?? null}
+                period={period}
+                open={openIds.has(period.id)}
+                onSaved={saved}
+                onToggle={() => setOpenIds((current) => {
+                  const next = new Set(current);
+                  if (next.has(period.id)) next.delete(period.id); else next.add(period.id);
+                  return next;
+                })}
+              />
+            ))}
+          </div>
+        </>
+      )}
     </section>
   );
 }
