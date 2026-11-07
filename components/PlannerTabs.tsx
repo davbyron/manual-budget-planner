@@ -4,7 +4,7 @@ import { useId, useState } from "react";
 import Bills from "@/components/Bills";
 import IncomeSources from "@/components/IncomeSources";
 import PayPeriods from "@/components/PayPeriods";
-import type { Bill, IncomeSource } from "@/types";
+import type { IncomeSource } from "@/types";
 import type { PlannerTabsProps } from "@/types/props";
 
 const tabs = [
@@ -13,10 +13,10 @@ const tabs = [
   { id: "income-sources", label: "Income Sources" },
 ];
 
-export default function PlannerTabs({ periods, onPeriodsChange }: PlannerTabsProps) {
+export default function PlannerTabs(props: PlannerTabsProps) {
+  const { periods, onPeriodsChange, bills, onBillsChange } = props;
   const id = useId();
   const [activeTab, setActiveTab] = useState(0);
-  const [bills, setBills] = useState<Bill[] | null>(null);
   const [incomeSources, setIncomeSources] = useState<IncomeSource[] | null>(null);
 
   return (
@@ -52,7 +52,7 @@ export default function PlannerTabs({ periods, onPeriodsChange }: PlannerTabsPro
         />
       </div>
       <div id={`${id}-bills-panel`} role="tabpanel" aria-labelledby={`${id}-bills-tab`} hidden={activeTab !== 1} tabIndex={0}>
-        <Bills onBillsChange={setBills} />
+        <Bills onBillsChange={onBillsChange} />
       </div>
       <div id={`${id}-income-sources-panel`} role="tabpanel" aria-labelledby={`${id}-income-sources-tab`} hidden={activeTab !== 2} tabIndex={0}>
         <IncomeSources onIncomeSourcesChange={setIncomeSources} />

@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useId, useState } from "react";
-import { getPayPeriodColor } from "@/lib/utils/calendar";
+import { getBillsForDate, getPayPeriodColor } from "@/lib/utils/calendar";
 import type { CalendarProps } from "@/types/props";
+
+const dollarFormatter = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
 
 const months = [
   "January", "February", "March", "April", "May", "June",
@@ -11,7 +13,8 @@ const months = [
 const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const navigationClassName = "rounded-lg border border-zinc-200 px-3 py-2 text-sm font-medium transition-colors hover:bg-zinc-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 dark:border-zinc-700 dark:hover:bg-zinc-800";
 
-export default function Calendar({ payPeriods }: CalendarProps) {
+export default function Calendar(props: CalendarProps) {
+  const { payPeriods, bills } = props;
   const headingId = useId();
   const [visibleMonth, setVisibleMonth] = useState<Date | null>(null);
 
@@ -84,9 +87,20 @@ export default function Calendar({ payPeriods }: CalendarProps) {
                 const isCurrentMonth = date >= 1 && date <= daysInMonth;
                 const dateKey = `${String(year).padStart(4, "0")}-${String(month + 1).padStart(2, "0")}-${String(date).padStart(2, "0")}`;
                 const backgroundColor = isCurrentMonth ? getPayPeriodColor(dateKey, payPeriods) : undefined;
+                const dayBills = isCurrentMonth ? getBillsForDate(dateKey, bills) : [];
                 return (
-                  <td key={day} style={{ backgroundColor }} className="h-12 border-t border-zinc-100 text-sm sm:h-20 dark:border-zinc-800">
-                    {isCurrentMonth ? date : null}
+                  <td key={day} style={{ backgroundColor }} className="h-12 border-t border-zinc-100 px-1 py-2 align-top text-sm sm:h-20 dark:border-zinc-800">
+                    {isCurrentMonth ? <>
+                      <span>{date}</span>
+                      {dayBills.length > 0 && <ul className="mt-1 space-y-1 text-left text-xs">
+                        {dayBills.map((bill) => (
+                          <li key={bill.id} className="rounded bg-white/80 p-1 text-zinc-900 dark:bg-zinc-950/80 dark:text-zinc-100">
+                            <span className="block break-words">{bill.name}</span>
+                            <span className="block break-words font-medium">{dollarFormatter.format(bill.cost)}</span>
+                          </li>
+                        ))}
+                      </ul>}
+                    </> : null}
                   </td>
                 );
               })}

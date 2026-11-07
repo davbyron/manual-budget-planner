@@ -40,6 +40,7 @@ export type IncomeSourceRowProps = {
 };
 
 export type CalendarProps = {
+  bills: Bill[];
   payPeriods: PayPeriod[];
 };
 
@@ -50,4 +51,6 @@ export type PayPeriodsProps = {
   onPeriodsChange: Dispatch<SetStateAction<PayPeriodWithExpenses[]>>;
 };
 
-export type PlannerTabsProps = PayPeriodsProps;
+export type PlannerTabsProps = PayPeriodsProps & {
+  onBillsChange: (bills: Bill[]) => void;
+};
