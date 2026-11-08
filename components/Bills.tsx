@@ -18,7 +18,7 @@ export default function Bills(props: BillsProps) {
   const [loaded, setLoaded] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
-  const [message, setMessage] = useState("");
+  const [formSubmissionSucceeded, setFormSubmissionSucceeded] = useState(false);
   const [requiresReload, setRequiresReload] = useState(false);
 
   const [pending, startTransition] = useTransition();
@@ -70,7 +70,7 @@ export default function Bills(props: BillsProps) {
     if (requiresReload) return;
 
     clearErrors("root");
-    setMessage("");
+    setFormSubmissionSucceeded(false);
 
     startTransition(async () => {
       try {
@@ -85,7 +85,7 @@ export default function Bills(props: BillsProps) {
         reset({ bills: result.data });
         setOriginalBills(result.data);
         onBillsChange?.(result.data);
-        setMessage("Bills saved.");
+       setFormSubmissionSucceeded(true);
       } catch {
         setRequiresReload(true);
         setError("root", {
@@ -127,7 +127,7 @@ export default function Bills(props: BillsProps) {
             onSubmit={save}
             noValidate
             aria-label="Bills"
-            onChange={() => setMessage("")}
+            onChange={() => setFormSubmissionSucceeded(false)}
           >
             <fieldset disabled={pending}>
               {fields.length === 0 && (
@@ -141,7 +141,7 @@ export default function Bills(props: BillsProps) {
                   <li key={field.formKey}>
                     <BillRow
                       index={index}
-                      onRemove={() => { remove(index); setMessage(""); }}
+                      onRemove={() => { remove(index); setFormSubmissionSucceeded(false); }}
                     />
                   </li>
                 ))}
@@ -150,19 +150,30 @@ export default function Bills(props: BillsProps) {
               <div className="mt-4 flex flex-wrap justify-between gap-3">
                 <button
                   type="button"
-                  onClick={() => { append({ day: null, name: "New bill", cost: 0, startDate: null, endDate: null }); setMessage(""); }}
+                  onClick={() => {
+                    append({ day: null, name: "New bill", cost: 0, startDate: null, endDate: null });
+                    setFormSubmissionSucceeded(false);
+                  }}
                   className={buttonClass}
                 >
                   + Add new bill
                 </button>
 
-                <button
-                  type="submit"
-                  disabled={pending || !isDirty || requiresReload}
-                  className={buttonClass}
-                >
-                  {pending ? "Saving…" : "Save"}
-                </button>
+                <div className="flex gap-2">
+                  {formSubmissionSucceeded && (
+                    <p role="status" className="mt-2 text-sm text-green-600 dark:text-green-400">
+                      ✔ Bills saved
+                    </p>
+                  )}
+
+                  <button
+                    type="submit"
+                    disabled={pending || !isDirty || requiresReload}
+                    className={buttonClass}
+                  >
+                    {pending ? "Saving…" : "Save"}
+                  </button>
+                </div>
               </div>
             </fieldset>
 
@@ -181,15 +192,13 @@ export default function Bills(props: BillsProps) {
                   if (!window.confirm("Reload saved bills? This will discard the unsaved edits in this form.")) return;
                   setLoaded(false);
                   setRequiresReload(false);
-                  setMessage("");
+                  setFormSubmissionSucceeded(false);
                   setAttempt((value) => value + 1);
                 }}
               >
                 Reload saved bills
               </button>
             )}
-
-            <p role="status" className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">{message}</p>
           </form>
         </FormProvider>
       )}
