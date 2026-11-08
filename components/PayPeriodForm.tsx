@@ -19,7 +19,7 @@ export default function PayPeriodForm(props: PayPeriodFormProps) {
   const [original, setOriginal] = useState(period);
   const [pending, startTransition] = useTransition();
   const [requiresReload, setRequiresReload] = useState(false);
-  const [message, setMessage] = useState("");
+  const [formSubmissionSucceeded, setFormSubmissionSucceeded] = useState(false);
 
   const form = useForm<PayPeriodFormValues>({
     defaultValues: {
@@ -64,7 +64,7 @@ export default function PayPeriodForm(props: PayPeriodFormProps) {
     if (requiresReload) return;
 
     clearErrors("root");
-    setMessage("");
+    setFormSubmissionSucceeded(false);
 
     startTransition(async () => {
       try {
@@ -85,7 +85,7 @@ export default function PayPeriodForm(props: PayPeriodFormProps) {
           expenses: result.data.expenses
         });
         setOriginal(result.data);
-        setMessage("Pay period saved.");
+        setFormSubmissionSucceeded(true);
         onSaved(result.data);
       } catch {
         setRequiresReload(true);
@@ -115,7 +115,7 @@ export default function PayPeriodForm(props: PayPeriodFormProps) {
         });
         setOriginal(result.data);
         setRequiresReload(false);
-        setMessage("");
+        setFormSubmissionSucceeded(false);
         onSaved(result.data);
       } catch {
         setError("root", { message: "Could not reload this pay period. Please try again." });
@@ -129,7 +129,7 @@ export default function PayPeriodForm(props: PayPeriodFormProps) {
         onSubmit={save}
         noValidate
         aria-label={original ? `Edit pay period ${original.start_date} to ${original.end_date}` : "New pay period"}
-        onChange={() => setMessage("")}
+        onChange={() => setFormSubmissionSucceeded(false)}
       >
         <fieldset disabled={pending} className="min-w-0">
           <div className="flex flex-wrap gap-3">
@@ -218,7 +218,7 @@ export default function PayPeriodForm(props: PayPeriodFormProps) {
                   <li key={field.formKey}>
                     <ExpenseRow
                       index={index}
-                      onRemove={() => { remove(index); setMessage(""); }}
+                      onRemove={() => { remove(index); setFormSubmissionSucceeded(false); }}
                     />
                   </li>)
                 )}
@@ -229,7 +229,7 @@ export default function PayPeriodForm(props: PayPeriodFormProps) {
                 className={buttonClass}
                 onClick={() => {
                   append({ date: getValues("start_date"), name: "New expense", cost: 0 });
-                  setMessage("");
+                  setFormSubmissionSucceeded(false);
                 }}
               >
                 + Add new expense
@@ -237,23 +237,31 @@ export default function PayPeriodForm(props: PayPeriodFormProps) {
             </div>
           )}
 
-          <div className="mt-4 flex justify-end gap-2">
-            {onCancel && (
+          <div className="mt-4 flex gap-2 justify-end">
+            {formSubmissionSucceeded && (
+              <p role="status" className="mt-2 text-sm text-green-600 dark:text-green-400">
+                ✔ Pay period saved
+              </p>
+            )}
+
+            <div className="flex gap-2">
+              {onCancel && (
+                <button
+                  type="button"
+                  onClick={onCancel}
+                  className={buttonClass}
+                >
+                    Cancel
+                </button>
+              )}
               <button
-                type="button"
-                onClick={onCancel}
+                type="submit"
+                disabled={pending || requiresReload || (original ? !isDirty : false)}
                 className={buttonClass}
               >
-                  Cancel
+                {pending ? "Saving…" : "Save"}
               </button>
-            )}
-            <button
-              type="submit"
-              disabled={pending || requiresReload || (original ? !isDirty : false)}
-              className={buttonClass}
-            >
-              {pending ? "Saving…" : "Save"}
-            </button>
+            </div>
           </div>
         </fieldset>
 
@@ -273,10 +281,6 @@ export default function PayPeriodForm(props: PayPeriodFormProps) {
             {original ? "Reload this pay period" : "Reload pay periods"}
           </button>
         )}
-
-        <p role="status" className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-          {message}
-        </p>
       </form>
     </FormProvider>
   );
