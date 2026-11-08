@@ -37,3 +37,22 @@ h3, h4 {
 button {
   @apply cursor-pointer hover:brightness-105 active:brightness-90 disabled:cursor-not-allowed disabled:opacity-50;
 }
+
+/* Keep controls comfortable to use on touch screens and under browser zoom. */
+@layer base {
+  button,
+  input {
+    min-height: 2.75rem;
+  }
+
+  input[type="date"] {
+    max-width: 100%;
+  }
+
+}
+
+@media (width < 40rem) {
+  input:not([type="color"]) {
+    font-size: 1rem;
+  }
+}

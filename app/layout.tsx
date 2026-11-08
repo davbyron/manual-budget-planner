@@ -28,14 +28,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${instrumentSerif.variable} ${instrumentSans.variable} antialiased`}
     >
-      <body className="flex flex-col">
+      <body className="flex min-h-dvh min-w-0 flex-col">
         <header>
-          <h1 className="w-full py-8 bg-neutral-950 text-white text-center text-6xl font-instrument-serif">
+          <h1 className="w-full bg-neutral-950 px-4 py-6 text-center font-instrument-serif text-4xl text-white sm:py-8 sm:text-5xl lg:text-6xl">
             Manual Budget Planner
           </h1>
         </header>
         {children}
-        <footer className="w-full py-8 text-center text-white font-instrument-serif bg-neutral-950">
+        <footer className="mt-auto w-full px-4 py-6 text-center text-white font-instrument-serif bg-neutral-950">
           &copy; 2026 David Byron
         </footer>
       </body>

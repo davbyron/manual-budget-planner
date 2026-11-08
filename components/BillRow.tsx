@@ -46,13 +46,14 @@ export default function BillRow(props: BillRowProps) {
   return (
     <div
       className={`
-        px-2 py-4 min-w-0 flex flex-wrap items-start gap-3
+        px-2 py-4 min-w-0 grid grid-cols-[repeat(auto-fit,minmax(min(100%,10rem),1fr))] items-start gap-3
+        sm:grid-cols-[3.5rem_minmax(0,1fr)_6rem_5.5rem_5.5rem_max-content] sm:gap-2
         border-t border-zinc-200 dark:border-zinc-800
         ${isEven ? "bg-zinc-100 dark:bg-zinc-900" : ""}
       `}
     >
       {/* Day */}
-      <label htmlFor={`${id}-day`} className="w-20 text-sm font-medium">
+      <label htmlFor={`${id}-day`} className="min-w-0 text-sm font-medium">
         Day
         <input
           id={`${id}-day`}
@@ -61,7 +62,7 @@ export default function BillRow(props: BillRowProps) {
           max={28}
           step={1}
           placeholder="—"
-          className={inputClass}
+          className={`${inputClass} sm:px-2`}
           aria-invalid={!!rowErrors?.day}
           aria-describedby={rowErrors?.day ? `${id}-day-error` : undefined}
           {...register(`bills.${index}.day`, {
@@ -81,7 +82,7 @@ export default function BillRow(props: BillRowProps) {
       </label>
 
       {/* Name */}
-      <label htmlFor={`${id}-name`} className="min-w-32 flex-1 text-sm font-medium">
+      <label htmlFor={`${id}-name`} className="min-w-0 text-sm font-medium">
         Name
         <input
           id={`${id}-name`}
@@ -105,7 +106,7 @@ export default function BillRow(props: BillRowProps) {
       </label>
 
       {/* Amount */}
-      <label htmlFor={`${id}-cost`} className="w-28 text-sm font-medium">
+      <label htmlFor={`${id}-cost`} className="min-w-0 text-sm font-medium">
         Amount
         <input
           id={`${id}-cost`}
@@ -141,7 +142,7 @@ export default function BillRow(props: BillRowProps) {
       </label>
 
       {/* Start date */}
-      <label htmlFor={`${id}-start-date`} className="w-25 text-sm font-medium">
+      <label htmlFor={`${id}-start-date`} className="min-w-0 text-sm font-medium">
         Start date
         <input
           id={`${id}-start-date`}
@@ -167,7 +168,7 @@ export default function BillRow(props: BillRowProps) {
       </label>
 
       {/* End date */}
-      <label htmlFor={`${id}-end-date`} className="w-25 text-sm font-medium">
+      <label htmlFor={`${id}-end-date`} className="min-w-0 text-sm font-medium">
         End date
         <input
           id={`${id}-end-date`}
@@ -191,7 +192,7 @@ export default function BillRow(props: BillRowProps) {
         )}
       </label>
 
-      <div className="pt-6">
+      <div className="self-end">
         <button
           type="button"
           onClick={onRemove}

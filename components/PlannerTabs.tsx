@@ -1,11 +1,11 @@
 "use client";
 
+import type { IncomeSource } from "@/types";
+import type { PlannerTabsProps } from "@/types/props";
 import { useId, useState } from "react";
 import Bills from "@/components/Bills";
 import IncomeSources from "@/components/IncomeSources";
 import PayPeriods from "@/components/PayPeriods";
-import type { IncomeSource } from "@/types";
-import type { PlannerTabsProps } from "@/types/props";
 
 const tabs = [
   { id: "pay-periods", label: "Pay Periods & Expenses" },
@@ -20,11 +20,11 @@ export default function PlannerTabs(props: PlannerTabsProps) {
   const [incomeSources, setIncomeSources] = useState<IncomeSource[] | null>(null);
 
   return (
-    <div className="flex flex-1">
+    <div className="flex min-w-0 flex-col sm:h-full sm:flex-row">
       <div
         role="tablist"
         aria-label="Financial planner sections"
-        className="flex flex-col gap-1 h-fit rounded-l-xl border border-zinc-200 bg-zinc-100 p-1 dark:border-zinc-800 dark:bg-zinc-900"
+        className="flex shrink-0 flex-wrap gap-1 rounded-t-xl border sm:h-fit sm:flex-col sm:rounded-t-none sm:rounded-l-xl border-zinc-200 bg-zinc-100 p-1 dark:border-zinc-800 dark:bg-zinc-900"
       >
         {tabs.map((tab, index) => (
           <button
@@ -36,7 +36,7 @@ export default function PlannerTabs(props: PlannerTabsProps) {
             aria-controls={`${id}-${tab.id}-panel`}
             tabIndex={activeTab === index ? 0 : -1}
             className={`
-              [writing-mode:vertical-rl] rotate-180 rounded-lg px-3 py-2 text-sm font-medium whitespace-nowrap
+              min-w-0 flex-1 rounded-lg px-3 py-2 text-sm font-medium sm:flex-none sm:[writing-mode:vertical-rl] sm:rotate-180
               focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600
               ${activeTab === index ?
                 "bg-white text-zinc-900 shadow-sm dark:bg-zinc-800 dark:text-zinc-100" :
@@ -46,8 +46,8 @@ export default function PlannerTabs(props: PlannerTabsProps) {
             onClick={() => setActiveTab(index)}
             onKeyDown={(event) => {
               let next = index;
-              if (event.key === "ArrowRight") next = (index + 1) % tabs.length;
-              else if (event.key === "ArrowLeft") next = (index + tabs.length - 1) % tabs.length;
+              if (event.key === "ArrowRight" || event.key === "ArrowDown") next = (index + 1) % tabs.length;
+              else if (event.key === "ArrowLeft" || event.key === "ArrowUp") next = (index + tabs.length - 1) % tabs.length;
               else if (event.key === "Home") next = 0;
               else if (event.key === "End") next = tabs.length - 1;
               else return;
@@ -69,7 +69,7 @@ export default function PlannerTabs(props: PlannerTabsProps) {
           aria-labelledby={`${id}-pay-periods-tab`}
           hidden={activeTab !== 0}
           tabIndex={0}
-          className="flex-1"
+          className="min-w-0 flex-1"
         >
           <PayPeriods
             bills={bills}
@@ -85,7 +85,7 @@ export default function PlannerTabs(props: PlannerTabsProps) {
           aria-labelledby={`${id}-bills-tab`}
           hidden={activeTab !== 1}
           tabIndex={0}
-          className="flex-1"
+          className="min-w-0 flex-1"
         >
           <Bills onBillsChange={onBillsChange} />
         </div>
@@ -96,7 +96,7 @@ export default function PlannerTabs(props: PlannerTabsProps) {
           aria-labelledby={`${id}-income-sources-tab`}
           hidden={activeTab !== 2}
           tabIndex={0}
-          className="flex-1"
+          className="min-w-0 flex-1"
         >
           <IncomeSources onIncomeSourcesChange={setIncomeSources} />
         </div>

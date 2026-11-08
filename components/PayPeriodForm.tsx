@@ -14,7 +14,7 @@ import { validateBillDates } from "@/lib/utils/bills";
 import ExpenseRow from "@/components/ExpenseRow";
 
 const buttonClass = "rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-700 dark:hover:bg-zinc-800";
-const inputClass = "mt-1 w-full rounded-lg border border-zinc-300 bg-transparent px-3 py-2 text-sm focus-visible:outline-2 focus-visible:outline-blue-600 dark:border-zinc-700";
+const inputClass = "mt-1 w-full min-w-0 rounded-lg border border-zinc-300 bg-transparent px-3 py-2 text-sm focus-visible:outline-2 focus-visible:outline-blue-600 dark:border-zinc-700";
 
 export default function PayPeriodForm(props: PayPeriodFormProps) {
   const { payPeriod, onSaved, onCancel, onReload } = props;
@@ -138,8 +138,8 @@ export default function PayPeriodForm(props: PayPeriodFormProps) {
         onChange={() => setFormSubmissionSucceeded(false)}
       >
         <fieldset disabled={pending} className="min-w-0">
-          <div className="flex flex-wrap gap-3">
-            <label htmlFor={`${id}-start`} className="min-w-40 flex-1 text-sm font-medium">
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,10rem),1fr))] gap-3">
+            <label htmlFor={`${id}-start`} className="min-w-0 text-sm font-medium">
               Start date
               <input
                 id={`${id}-start`}
@@ -163,7 +163,7 @@ export default function PayPeriodForm(props: PayPeriodFormProps) {
               )}
             </label>
 
-            <label htmlFor={`${id}-end`} className="min-w-40 flex-1 text-sm font-medium">
+            <label htmlFor={`${id}-end`} className="min-w-0 text-sm font-medium">
               End date
               <input
                 id={`${id}-end`}
@@ -234,7 +234,7 @@ export default function PayPeriodForm(props: PayPeriodFormProps) {
             </div>
           )}
 
-          <div className="mt-4 flex items-center justify-between">
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
             {originalPayPeriodData && (
               <button
                 type="button"
@@ -248,14 +248,14 @@ export default function PayPeriodForm(props: PayPeriodFormProps) {
               </button>
             )}
 
-            <div className="ml-auto flex items-center gap-2">
+            <div className="ml-auto flex min-w-0 flex-wrap items-center gap-2">
               {formSubmissionSucceeded && (
                 <p role="status" className="text-sm text-green-600 dark:text-green-400">
                   ✔ Pay period saved
                 </p>
               )}
 
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 {onCancel && (
                   <button
                     type="button"

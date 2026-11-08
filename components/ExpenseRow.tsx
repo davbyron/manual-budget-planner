@@ -45,12 +45,13 @@ export default function ExpenseRow(props: ExpenseRowProps) {
   return (
     <div
       className={`
-        px-2 py-4 min-w-0 flex flex-wrap items-start gap-3
+        px-2 py-4 min-w-0 grid grid-cols-[repeat(auto-fit,minmax(min(100%,10rem),1fr))] items-start gap-3
+        sm:grid-cols-[9rem_minmax(0,1fr)_7rem_max-content]
         border-t border-zinc-200 dark:border-zinc-800
         ${isEven ? "bg-zinc-100 dark:bg-zinc-900" : ""}
       `}
     >
-      <label htmlFor={`${id}-date`} className="w-40 text-sm font-medium">
+      <label htmlFor={`${id}-date`} className="min-w-0 text-sm font-medium">
         Date
         <input
           id={`${id}-date`}
@@ -73,7 +74,7 @@ export default function ExpenseRow(props: ExpenseRowProps) {
         )}
       </label>
 
-      <label htmlFor={`${id}-name`} className="min-w-32 flex-1 text-sm font-medium">
+      <label htmlFor={`${id}-name`} className="min-w-0 text-sm font-medium">
         Name
         <input
           id={`${id}-name`}
@@ -95,7 +96,7 @@ export default function ExpenseRow(props: ExpenseRowProps) {
         )}
       </label>
 
-      <label htmlFor={`${id}-cost`} className="w-28 text-sm font-medium">
+      <label htmlFor={`${id}-cost`} className="min-w-0 text-sm font-medium">
         Amount
         <input
           id={`${id}-cost`}
@@ -131,7 +132,7 @@ export default function ExpenseRow(props: ExpenseRowProps) {
         type="button"
         onClick={onRemove}
         aria-label={`Remove expense ${index + 1}`}
-        className="mt-6 rounded-lg border border-zinc-300 px-3 py-2 text-sm text-red-600 disabled:opacity-50 dark:border-zinc-700 dark:text-red-400"
+        className="justify-self-start self-end rounded-lg border border-zinc-300 px-3 py-2 text-sm text-red-600 disabled:opacity-50 dark:border-zinc-700 dark:text-red-400"
       >
         Remove
       </button>

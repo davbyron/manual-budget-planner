@@ -35,7 +35,7 @@ export default function PayPeriodAccordion(props: PayPeriodAccordionProps) {
             background: `radial-gradient(circle at left, ${payPeriod.color}, white)`
           }}
         >
-          <div className="flex gap-3 items-center">
+          <div className="flex min-w-0 flex-col items-start sm:flex-row sm:items-center gap-2 sm:gap-3">
             <span>
               {formatDate(payPeriod.start_date)} - {formatDate(payPeriod.end_date)}
             </span>
@@ -44,7 +44,7 @@ export default function PayPeriodAccordion(props: PayPeriodAccordionProps) {
             </span>
           </div>
 
-          <span aria-hidden="true">
+          <span aria-hidden="true" className="shrink-0">
             {open ? "-" : "+"}
           </span>
         </button>
@@ -54,7 +54,7 @@ export default function PayPeriodAccordion(props: PayPeriodAccordionProps) {
         role="region"
         aria-labelledby={`${id}-trigger`}
         hidden={!open}
-        className="border-t p-4"
+        className="border-t p-3 sm:p-4"
         style={{ borderColor: payPeriod.color }}
       >
         <PayPeriodForm payPeriod={payPeriod} onSaved={onSaved} />

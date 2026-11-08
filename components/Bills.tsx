@@ -98,7 +98,7 @@ export default function Bills(props: BillsProps) {
   return (
     <section
       aria-labelledby={headingId}
-      className="w-full h-full rounded-r-2xl border border-zinc-200 bg-white p-4 text-zinc-900 shadow-sm sm:p-6 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100"
+      className="w-full h-full rounded-b-2xl sm:rounded-bl-none sm:rounded-r-2xl border border-zinc-200 bg-white p-4 text-zinc-900 shadow-sm sm:p-6 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100"
     >
       <h2 id={headingId} className="mb-2">Bills</h2>
       
@@ -129,7 +129,7 @@ export default function Bills(props: BillsProps) {
             aria-label="Bills"
             onChange={() => setFormSubmissionSucceeded(false)}
           >
-            <fieldset disabled={pending}>
+            <fieldset disabled={pending} className="min-w-0">
               {fields.length === 0 && (
                 <p className="py-3 text-sm text-zinc-500 dark:text-zinc-400">
                   No bills.
@@ -159,7 +159,7 @@ export default function Bills(props: BillsProps) {
                   + Add new bill
                 </button>
 
-                <div className="flex items-center gap-2">
+                <div className="flex min-w-0 flex-wrap items-center gap-2">
                   {formSubmissionSucceeded && (
                     <p role="status" className="text-sm text-green-600 dark:text-green-400">
                       ✔ Bills saved
