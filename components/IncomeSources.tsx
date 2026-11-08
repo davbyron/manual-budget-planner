@@ -18,7 +18,7 @@ export default function IncomeSources(props: IncomeSourcesProps) {
   const [loaded, setLoaded] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
-  const [message, setMessage] = useState("");
+  const [formSubmissionSucceeded, setFormSubmissionSucceeded] = useState(false);
   const [requiresReload, setRequiresReload] = useState(false);
 
   const [pending, startTransition] = useTransition();
@@ -70,7 +70,7 @@ export default function IncomeSources(props: IncomeSourcesProps) {
     if (requiresReload) return;
 
     clearErrors("root");
-    setMessage("");
+    setFormSubmissionSucceeded(false);
 
     startTransition(async () => {
       try {
@@ -85,7 +85,7 @@ export default function IncomeSources(props: IncomeSourcesProps) {
         reset({ incomeSources: result.data });
         setOriginalIncomeSources(result.data);
         onIncomeSourcesChange?.(result.data);
-        setMessage("Income sources saved.");
+        setFormSubmissionSucceeded(true);
       } catch {
         setRequiresReload(true);
         setError("root", {
@@ -127,7 +127,7 @@ export default function IncomeSources(props: IncomeSourcesProps) {
             onSubmit={save}
             noValidate
             aria-label="Income sources"
-            onChange={() => setMessage("")}
+            onChange={() => setFormSubmissionSucceeded(false)}
           >
             <fieldset disabled={pending}>
               {fields.length === 0 && (
@@ -141,7 +141,7 @@ export default function IncomeSources(props: IncomeSourcesProps) {
                   <li key={field.formKey}>
                     <IncomeSourceRow
                       index={index}
-                      onRemove={() => { remove(index); setMessage(""); }}
+                      onRemove={() => { remove(index); setFormSubmissionSucceeded(false); }}
                     />
                   </li>
                 ))}
@@ -150,19 +150,27 @@ export default function IncomeSources(props: IncomeSourcesProps) {
               <div className="mt-4 flex flex-wrap justify-between gap-3">
                 <button
                   type="button"
-                  onClick={() => { append({ name: "New income source", amount: 0 }); setMessage(""); }}
+                  onClick={() => { append({ name: "New income source", amount: 0 }); setFormSubmissionSucceeded(false); }}
                   className={buttonClass}
                 >
                   + Add new income source
                 </button>
 
-                <button
-                  type="submit"
-                  disabled={pending || !isDirty || requiresReload}
-                  className={buttonClass}
-                >
-                  {pending ? "Saving…" : "Save"}
-                </button>
+                <div className="flex items-center gap-2">
+                  {formSubmissionSucceeded && (
+                    <p role="status" className="text-sm text-green-600 dark:text-green-400">
+                      ✔ Income sources saved
+                    </p>
+                  )}
+
+                  <button
+                    type="submit"
+                    disabled={pending || !isDirty || requiresReload}
+                    className={buttonClass}
+                  >
+                    {pending ? "Saving…" : "Save"}
+                  </button>
+                </div>
               </div>
             </fieldset>
 
@@ -181,15 +189,13 @@ export default function IncomeSources(props: IncomeSourcesProps) {
                   if (!window.confirm("Reload saved income sources? This will discard the unsaved edits in this form.")) return;
                   setLoaded(false);
                   setRequiresReload(false);
-                  setMessage("");
+                  setFormSubmissionSucceeded(false);
                   setAttempt((value) => value + 1);
                 }}
               >
                 Reload saved income sources
               </button>
             )}
-
-            <p role="status" className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">{message}</p>
           </form>
         </FormProvider>
       )}
