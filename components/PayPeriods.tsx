@@ -117,7 +117,7 @@ export default function PayPeriods(props: PayPeriodsProps) {
               <PayPeriodAccordion
                 key={period.id}
                 remainingBalance={remainingBalances?.get(period.id) ?? null}
-                period={period}
+                payPeriod={period}
                 open={openIds.has(period.id)}
                 onSaved={saved}
                 onToggle={() => setOpenIds((current) => {

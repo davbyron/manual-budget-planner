@@ -10,7 +10,7 @@ const dollars = new Intl.NumberFormat("en-US", { style: "currency", currency: "U
 export default function PayPeriodAccordion(props: PayPeriodAccordionProps) {
   const {
     remainingBalance,
-    period,
+    payPeriod,
     open,
     onToggle,
     onSaved
@@ -21,7 +21,7 @@ export default function PayPeriodAccordion(props: PayPeriodAccordionProps) {
   return (
     <div
       className={`rounded-xl border overflow-hidden`}
-      style={{ borderColor: period.color }}
+      style={{ borderColor: payPeriod.color }}
     >
       <h3>
         <button
@@ -32,12 +32,12 @@ export default function PayPeriodAccordion(props: PayPeriodAccordionProps) {
           onClick={onToggle}
           className="w-full flex items-center justify-between gap-3 p-4 text-left font-medium hover:bg-zinc-50 focus-visible:outline-2 focus-visible:outline-blue-600 dark:hover:bg-zinc-900"
           style={{
-            background: `radial-gradient(circle at left, ${period.color}, white)`
+            background: `radial-gradient(circle at left, ${payPeriod.color}, white)`
           }}
         >
           <div className="flex gap-3 items-center">
             <span>
-              {formatDate(period.start_date)} - {formatDate(period.end_date)}
+              {formatDate(payPeriod.start_date)} - {formatDate(payPeriod.end_date)}
             </span>
             <span className="text-xs text-center bg-white/75 py-0.5 px-2.5 rounded-full text-zinc-500 dark:text-zinc-400">
               {remainingBalance === null ? "Loading remaining balance…" : `${dollars.format(remainingBalance)} remaining`}
@@ -55,9 +55,9 @@ export default function PayPeriodAccordion(props: PayPeriodAccordionProps) {
         aria-labelledby={`${id}-trigger`}
         hidden={!open}
         className="border-t p-4"
-        style={{ borderColor: period.color }}
+        style={{ borderColor: payPeriod.color }}
       >
-        <PayPeriodForm period={period} onSaved={onSaved} />
+        <PayPeriodForm payPeriod={payPeriod} onSaved={onSaved} />
       </div>
     </div>
   );

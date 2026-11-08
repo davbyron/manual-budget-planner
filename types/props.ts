@@ -16,7 +16,7 @@ export type ExpenseRowProps = {
 };
 
 export type PayPeriodFormProps = {
-  period?: PayPeriodWithExpenses;
+  payPeriod?: PayPeriodWithExpenses;
   onSaved: (period: PayPeriodWithExpenses) => void;
   onCancel?: () => void;
   onReload?: () => void;
@@ -24,7 +24,7 @@ export type PayPeriodFormProps = {
 
 export type PayPeriodAccordionProps = {
   remainingBalance: number | null;
-  period: PayPeriodWithExpenses;
+  payPeriod: PayPeriodWithExpenses;
   open: boolean;
   onToggle: () => void;
   onSaved: (period: PayPeriodWithExpenses) => void;

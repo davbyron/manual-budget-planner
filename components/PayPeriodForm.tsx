@@ -1,32 +1,39 @@
 "use client";
 
-import { useId, useState, useTransition } from "react";
+import type { PayPeriodFormValues } from "@/types";
+import type { PayPeriodFormProps } from "@/types/props";
+import {
+  useId,
+  useMemo,
+  useState,
+  useTransition
+} from "react";
 import { FormProvider, useController, useFieldArray, useForm } from "react-hook-form";
 import { createPayPeriod, getPayPeriod, savePayPeriod } from "@/lib/actions/pay-periods";
 import { validateBillDates } from "@/lib/utils/bills";
 import ExpenseRow from "@/components/ExpenseRow";
-import type { PayPeriodFormValues } from "@/types";
-import type { PayPeriodFormProps } from "@/types/props";
 
 const buttonClass = "rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-700 dark:hover:bg-zinc-800";
 const inputClass = "mt-1 w-full rounded-lg border border-zinc-300 bg-transparent px-3 py-2 text-sm focus-visible:outline-2 focus-visible:outline-blue-600 dark:border-zinc-700";
 
 export default function PayPeriodForm(props: PayPeriodFormProps) {
-  const { period, onSaved, onCancel, onReload } = props;
+  const { payPeriod, onSaved, onCancel, onReload } = props;
+
+  const todaysDateString = useMemo(() => new Date().toISOString().split("T")[0], []);
 
   const id = useId();
 
-  const [original, setOriginal] = useState(period);
+  const [originalPayPeriodData, setOriginalPayPeriodData] = useState(payPeriod);
   const [pending, startTransition] = useTransition();
   const [requiresReload, setRequiresReload] = useState(false);
   const [formSubmissionSucceeded, setFormSubmissionSucceeded] = useState(false);
 
   const form = useForm<PayPeriodFormValues>({
     defaultValues: {
-      start_date: period?.start_date ?? "",
-      end_date: period?.end_date ?? "",
-      color: period?.color || "#3b82f6",
-      expenses: period?.expenses ?? [],
+      start_date: payPeriod?.start_date ?? "",
+      end_date: payPeriod?.end_date ?? "",
+      color: payPeriod?.color || "#3b82f6",
+      expenses: payPeriod?.expenses ?? [],
   }});
 
   const {
@@ -34,7 +41,6 @@ export default function PayPeriodForm(props: PayPeriodFormProps) {
     control,
     reset,
     handleSubmit,
-    getValues,
     setError,
     clearErrors,
     formState: { errors, isDirty }
@@ -68,8 +74,8 @@ export default function PayPeriodForm(props: PayPeriodFormProps) {
 
     startTransition(async () => {
       try {
-        const result = original
-          ? await savePayPeriod(original.id, values, original)
+        const result = originalPayPeriodData
+          ? await savePayPeriod(originalPayPeriodData.id, values, originalPayPeriodData)
           : await createPayPeriod({ start_date: values.start_date, end_date: values.end_date, color: values.color });
 
         if (result.error !== undefined) {
@@ -84,7 +90,7 @@ export default function PayPeriodForm(props: PayPeriodFormProps) {
           color: result.data.color,
           expenses: result.data.expenses
         });
-        setOriginal(result.data);
+        setOriginalPayPeriodData(result.data);
         setFormSubmissionSucceeded(true);
         onSaved(result.data);
       } catch {
@@ -97,11 +103,11 @@ export default function PayPeriodForm(props: PayPeriodFormProps) {
   function reload() {
     if (!window.confirm("Reload saved data? Unsaved changes in this form will be discarded.")) return;
 
-    if (!original) { onReload?.(); return; }
+    if (!originalPayPeriodData) { onReload?.(); return; }
 
     startTransition(async () => {
       try {
-        const result = await getPayPeriod(original.id);
+        const result = await getPayPeriod(originalPayPeriodData.id);
 
         if (result.error !== undefined) {
           setError("root", { message: result.error }); return;
@@ -113,7 +119,7 @@ export default function PayPeriodForm(props: PayPeriodFormProps) {
           color: result.data.color,
           expenses: result.data.expenses
         });
-        setOriginal(result.data);
+        setOriginalPayPeriodData(result.data);
         setRequiresReload(false);
         setFormSubmissionSucceeded(false);
         onSaved(result.data);
@@ -128,7 +134,7 @@ export default function PayPeriodForm(props: PayPeriodFormProps) {
       <form
         onSubmit={save}
         noValidate
-        aria-label={original ? `Edit pay period ${original.start_date} to ${original.end_date}` : "New pay period"}
+        aria-label={originalPayPeriodData ? `Edit pay period ${originalPayPeriodData.start_date} to ${originalPayPeriodData.end_date}` : "New pay period"}
         onChange={() => setFormSubmissionSucceeded(false)}
       >
         <fieldset disabled={pending} className="min-w-0">
@@ -165,7 +171,9 @@ export default function PayPeriodForm(props: PayPeriodFormProps) {
                 className={inputClass}
                 aria-invalid={!!errors.end_date}
                 aria-describedby={errors.end_date ? `${id}-end-error` : undefined}
-                {...register("end_date", { validate: (date, values) => !date ? "Enter an end date." : validateBillDates(values.start_date || null, date) ?? true })}
+                {...register("end_date", {
+                  validate: (date, values) => !date ? "Enter an end date." : validateBillDates(values.start_date || null, date) ?? true
+                })}
               />
               {errors.end_date && (
                 <span
@@ -204,12 +212,12 @@ export default function PayPeriodForm(props: PayPeriodFormProps) {
             </label>
           </div>
 
-          {original && (
+          {originalPayPeriodData && (
             <div className="mt-6">
               <h4 className="mb-2">Expenses</h4>
               {fields.length === 0 && (
-                <p className="py-3 text-sm text-zinc-500 dark:text-zinc-400">
-                  No expenses.
+                <p className="py-3 text-sm italic text-zinc-500 dark:text-zinc-400">
+                  No expenses for this pay period.
                 </p>
               )}
 
@@ -223,44 +231,48 @@ export default function PayPeriodForm(props: PayPeriodFormProps) {
                   </li>)
                 )}
               </ul>
+            </div>
+          )}
 
+          <div className="mt-4 flex items-center justify-between">
+            {originalPayPeriodData && (
               <button
                 type="button"
                 className={buttonClass}
                 onClick={() => {
-                  append({ date: getValues("start_date"), name: "New expense", cost: 0 });
+                  append({ date: todaysDateString, name: "New expense", cost: 0 });
                   setFormSubmissionSucceeded(false);
                 }}
               >
                 + Add new expense
               </button>
-            </div>
-          )}
-
-          <div className="mt-4 flex items-center gap-2 justify-end">
-            {formSubmissionSucceeded && (
-              <p role="status" className="text-sm text-green-600 dark:text-green-400">
-                ✔ Pay period saved
-              </p>
             )}
 
-            <div className="flex gap-2">
-              {onCancel && (
+            <div className="ml-auto flex items-center gap-2">
+              {formSubmissionSucceeded && (
+                <p role="status" className="text-sm text-green-600 dark:text-green-400">
+                  ✔ Pay period saved
+                </p>
+              )}
+
+              <div className="flex gap-2">
+                {onCancel && (
+                  <button
+                    type="button"
+                    onClick={onCancel}
+                    className={buttonClass}
+                  >
+                      Cancel
+                  </button>
+                )}
                 <button
-                  type="button"
-                  onClick={onCancel}
+                  type="submit"
+                  disabled={pending || requiresReload || (originalPayPeriodData ? !isDirty : false)}
                   className={buttonClass}
                 >
-                    Cancel
+                  {pending ? "Saving…" : "Save"}
                 </button>
-              )}
-              <button
-                type="submit"
-                disabled={pending || requiresReload || (original ? !isDirty : false)}
-                className={buttonClass}
-              >
-                {pending ? "Saving…" : "Save"}
-              </button>
+              </div>
             </div>
           </div>
         </fieldset>
@@ -278,7 +290,7 @@ export default function PayPeriodForm(props: PayPeriodFormProps) {
             onClick={reload}
             className={`${buttonClass} mt-3`}
           >
-            {original ? "Reload this pay period" : "Reload pay periods"}
+            {originalPayPeriodData ? "Reload this pay period" : "Reload pay periods"}
           </button>
         )}
       </form>
