@@ -17,10 +17,12 @@
     "pg": "^8.23.1",
     "react": "19.3.0",
     "react-dom": "19.3.0",
+    "react-email": "^6.11.8",
     "react-hook-form": "7.91.0",
     "server-only": "0.0.1"
   },
   "devDependencies": {
+    "@react-email/ui": "^6.11.8",
     "@tailwindcss/turbopack": "^4",
     "@types/node": "^20",
     "@types/react": "^19",

@@ -54,3 +54,12 @@ export type PayPeriodsProps = {
 export type PlannerTabsProps = PayPeriodsProps & {
   onBillsChange: (bills: Bill[]) => void;
 };
+
+export interface EmailTemplateBaseProps {
+  previewText: string;
+  children: React.ReactNode;
+}
+
+export interface EmailTemplateProps {
+  url: string;
+}
