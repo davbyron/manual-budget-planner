@@ -237,9 +237,9 @@ export default function PayPeriodForm(props: PayPeriodFormProps) {
             </div>
           )}
 
-          <div className="mt-4 flex gap-2 justify-end">
+          <div className="mt-4 flex items-center gap-2 justify-end">
             {formSubmissionSucceeded && (
-              <p role="status" className="mt-2 text-sm text-green-600 dark:text-green-400">
+              <p role="status" className="text-sm text-green-600 dark:text-green-400">
                 ✔ Pay period saved
               </p>
             )}

@@ -159,9 +159,9 @@ export default function Bills(props: BillsProps) {
                   + Add new bill
                 </button>
 
-                <div className="flex gap-2">
+                <div className="flex items-center gap-2">
                   {formSubmissionSucceeded && (
-                    <p role="status" className="mt-2 text-sm text-green-600 dark:text-green-400">
+                    <p role="status" className="text-sm text-green-600 dark:text-green-400">
                       ✔ Bills saved
                     </p>
                   )}
