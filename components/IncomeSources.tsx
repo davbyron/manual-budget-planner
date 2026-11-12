@@ -131,7 +131,7 @@ export default function IncomeSources(props: IncomeSourcesProps) {
           >
             <fieldset disabled={pending} className="min-w-0">
               {fields.length === 0 && (
-                <p className="py-3 text-sm text-zinc-500 dark:text-zinc-400">
+                <p className="py-3 text-sm text-zinc-500 italic dark:text-zinc-400">
                   No income sources.
                 </p>
               )}

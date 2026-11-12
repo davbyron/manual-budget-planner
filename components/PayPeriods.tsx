@@ -96,12 +96,6 @@ export default function PayPeriods(props: PayPeriodsProps) {
 
       {loaded && (
         <>
-          {periods.length === 0 && (
-            <p className="py-3 text-sm text-zinc-500 dark:text-zinc-400">
-              No pay periods.
-            </p>
-          )}
-
           <div className="space-y-3">
              {creating ? (
               <div className="rounded-xl border border-zinc-200 p-4 dark:border-zinc-800">
@@ -128,6 +122,12 @@ export default function PayPeriods(props: PayPeriodsProps) {
               />
             ))}
           </div>
+
+          {periods.length === 0 && (
+            <p className="py-3 text-sm text-zinc-500 italic dark:text-zinc-400">
+              No pay periods.
+            </p>
+          )}
         </>
       )}
     </section>
