@@ -1,20 +1,18 @@
 "use server";
 
-import { createAdminClient } from "@/lib/supabase/admin";
+import { getPlannerDatabase } from "@/lib/supabase/admin";
 import { validateBill } from "@/lib/utils/bills";
 import type { Bill, BillDraft, BillInput, BillResult, BillSaveResult } from "@/types";
 
 const columns = "id, day, name, cost, startDate, endDate";
 
-// This personal app is local-only. The admin client bypasses RLS;
-// add authorization here before exposing these actions on a hosted app.
 export async function getBills(): Promise<BillResult<Bill[]>> {
   try {
-    const client = createAdminClient();
+    const { client, userId } = await getPlannerDatabase();
     const bills: Bill[] = [];
     const pageSize = 500;
     for (let offset = 0; ; offset += pageSize) {
-      const { data, error } = await client.from("Bill").select(columns)
+      const { data, error } = await client.from("Bill").select(columns).eq("user_id", userId)
         .order("id").range(offset, offset + pageSize - 1);
       if (error) return { error: "Could not load bills. Please try again." };
       bills.push(...data);
@@ -30,9 +28,10 @@ export async function createBill(input: BillInput): Promise<BillResult<Bill>> {
   const validationError = validateBill(input);
   if (validationError) return { error: validationError };
   try {
-    const { data, error } = await createAdminClient().from("Bill")
-      .insert({ day: input.day, name: input.name.trim(), cost: input.cost, startDate: input.startDate, endDate: input.endDate })
-      .select(columns).single();
+    const { client, userId } = await getPlannerDatabase();
+    const { data, error } = await client.from("Bill")
+      .insert({ user_id: userId, day: input.day, name: input.name.trim(), cost: input.cost, startDate: input.startDate, endDate: input.endDate })
+      .select(columns).eq("user_id", userId).single();
     if (error) return { error: "Could not add the bill. Please try again." };
     return { data };
   } catch {
@@ -45,8 +44,9 @@ export async function updateBill(id: number, input: BillInput): Promise<BillResu
   const validationError = validateBill(input);
   if (validationError) return { error: validationError };
   try {
-    const { data, error } = await createAdminClient().from("Bill")
-      .update({ day: input.day, name: input.name.trim(), cost: input.cost, startDate: input.startDate, endDate: input.endDate, updated_at: new Date().toISOString() })
+    const { client, userId } = await getPlannerDatabase();
+    const { data, error } = await client.from("Bill")
+      .update({ day: input.day, name: input.name.trim(), cost: input.cost, startDate: input.startDate, endDate: input.endDate, updated_at: new Date().toISOString() }).eq("user_id", userId)
       .eq("id", id).select(columns).single();
     if (error) return { error: "Could not save the bill. It may have been removed." };
     return { data };
@@ -58,8 +58,9 @@ export async function updateBill(id: number, input: BillInput): Promise<BillResu
 export async function deleteBill(id: number): Promise<BillResult<number>> {
   if (!Number.isSafeInteger(id) || id < 1) return { error: "Invalid bill ID." };
   try {
-    const { data, error } = await createAdminClient().from("Bill")
-      .delete().eq("id", id).select("id").single();
+    const { client, userId } = await getPlannerDatabase();
+    const { data, error } = await client.from("Bill")
+      .delete().eq("user_id", userId).eq("id", id).select("id").single();
     if (error) return { error: "Could not delete the bill. It may have been removed." };
     return { data: data.id };
   } catch {
@@ -107,7 +108,7 @@ export async function saveBills(drafts: BillDraft[], original: Bill[]): Promise<
     requiresReload: true,
   };
   try {
-    const client = createAdminClient();
+    const { client, userId } = await getPlannerDatabase();
     // Keep existing IDs and unrelated columns. Only write edited rows.
     for (const draft of drafts) {
       if (draft.id === undefined) continue;
@@ -115,7 +116,7 @@ export async function saveBills(drafts: BillDraft[], original: Bill[]): Promise<
       const name = draft.name.trim();
       if (saved.day === draft.day && saved.name === name && saved.cost === draft.cost && saved.startDate === draft.startDate && saved.endDate === draft.endDate) continue;
       const { error } = await client.from("Bill")
-        .update({ day: draft.day, name, cost: draft.cost, startDate: draft.startDate, endDate: draft.endDate, updated_at: new Date().toISOString() })
+        .update({ day: draft.day, name, cost: draft.cost, startDate: draft.startDate, endDate: draft.endDate, updated_at: new Date().toISOString() }).eq("user_id", userId)
         .eq("id", draft.id).select("id").single();
       if (error) return interrupted;
     }
@@ -124,12 +125,12 @@ export async function saveBills(drafts: BillDraft[], original: Bill[]): Promise<
     const removed = current.data.filter((bill) => !seen.has(bill.id)).map((bill) => bill.id);
     for (let offset = 0; offset < removed.length; offset += 100) {
       const ids = removed.slice(offset, offset + 100);
-      const { data, error } = await client.from("Bill").delete().in("id", ids).select("id");
+      const { data, error } = await client.from("Bill").delete().eq("user_id", userId).in("id", ids).select("id");
       if (error || data.length !== ids.length) return interrupted;
     }
 
     const added = drafts.filter((bill) => bill.id === undefined)
-      .map((bill) => ({ day: bill.day, name: bill.name.trim(), cost: bill.cost, startDate: bill.startDate, endDate: bill.endDate }));
+      .map((bill) => ({ user_id: userId, day: bill.day, name: bill.name.trim(), cost: bill.cost, startDate: bill.startDate, endDate: bill.endDate }));
     if (added.length) {
       const { error } = await client.from("Bill").insert(added);
       if (error) return interrupted;

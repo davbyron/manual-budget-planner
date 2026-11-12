@@ -1,6 +1,6 @@
 "use server";
 
-import { createAdminClient } from "@/lib/supabase/admin";
+import { getPlannerDatabase } from "@/lib/supabase/admin";
 import { payPeriodMatches, validateExpense, validatePayPeriod } from "@/lib/utils/pay-periods";
 import type { Expense, PayPeriod, PayPeriodFormValues, PayPeriodInput, PayPeriodResult, PayPeriodWithExpenses } from "@/types";
 
@@ -8,20 +8,19 @@ const periodColumns = "id, start_date, end_date, color";
 const expenseColumns = "id, date, name, cost, pay_period_id";
 const pageSize = 500;
 
-// Local-only personal app: the server-only client uses the secret key.
 export async function getPayPeriods(): Promise<PayPeriodResult<PayPeriodWithExpenses[]>> {
   try {
-    const client = createAdminClient();
+    const { client, userId } = await getPlannerDatabase();
     const periods: PayPeriod[] = [];
     const expenses: Expense[] = [];
     for (let offset = 0; ; offset += pageSize) {
-      const { data, error } = await client.from("PayPeriod").select(periodColumns).order("id").range(offset, offset + pageSize - 1);
+      const { data, error } = await client.from("PayPeriod").select(periodColumns).eq("user_id", userId).order("id").range(offset, offset + pageSize - 1);
       if (error) return { error: "Could not load pay periods. Please try again." };
       periods.push(...data);
       if (data.length < pageSize) break;
     }
     for (let offset = 0; periods.length; offset += pageSize) {
-      const { data, error } = await client.from("Expense").select(expenseColumns).not("pay_period_id", "is", null).order("id").range(offset, offset + pageSize - 1);
+      const { data, error } = await client.from("Expense").select(expenseColumns).eq("user_id", userId).not("pay_period_id", "is", null).order("id").range(offset, offset + pageSize - 1);
       if (error) return { error: "Could not load expenses. Please try again." };
       expenses.push(...data);
       if (data.length < pageSize) break;
@@ -44,12 +43,12 @@ export async function getPayPeriods(): Promise<PayPeriodResult<PayPeriodWithExpe
 export async function getPayPeriod(id: number): Promise<PayPeriodResult<PayPeriodWithExpenses>> {
   if (!Number.isSafeInteger(id) || id < 1) return { error: "Invalid pay period ID." };
   try {
-    const client = createAdminClient();
-    const { data: period, error } = await client.from("PayPeriod").select(periodColumns).eq("id", id).single();
+    const { client, userId } = await getPlannerDatabase();
+    const { data: period, error } = await client.from("PayPeriod").select(periodColumns).eq("user_id", userId).eq("id", id).single();
     if (error) return { error: "Could not load this pay period. It may have been removed." };
     const expenses: Expense[] = [];
     for (let offset = 0; ; offset += pageSize) {
-      const { data, error } = await client.from("Expense").select(expenseColumns).eq("pay_period_id", id).order("date").order("id").range(offset, offset + pageSize - 1);
+      const { data, error } = await client.from("Expense").select(expenseColumns).eq("user_id", userId).eq("pay_period_id", id).order("date").order("id").range(offset, offset + pageSize - 1);
       if (error) return { error: "Could not load expenses. Please try again." };
       expenses.push(...data);
       if (data.length < pageSize) break;
@@ -64,8 +63,9 @@ export async function createPayPeriod(input: PayPeriodInput): Promise<PayPeriodR
   const validationError = validatePayPeriod(input);
   if (validationError) return { error: validationError };
   try {
-    const { data, error } = await createAdminClient().from("PayPeriod")
-      .insert({ start_date: input.start_date, end_date: input.end_date, color: input.color }).select(periodColumns).single();
+    const { client, userId } = await getPlannerDatabase();
+    const { data, error } = await client.from("PayPeriod")
+      .insert({ user_id: userId, start_date: input.start_date, end_date: input.end_date, color: input.color }).select(periodColumns).eq("user_id", userId).single();
     if (error) return { error: "Could not confirm the new pay period. Reload pay periods before trying again.", requiresReload: true };
     return { data: { ...data, expenses: [] } };
   } catch {
@@ -105,9 +105,9 @@ export async function savePayPeriod(id: number, input: PayPeriodFormValues, orig
     error: "The save could not be completed. Some changes may have been saved. Reload this pay period before trying again.", requiresReload: true,
   };
   try {
-    const client = createAdminClient();
+    const { client, userId } = await getPlannerDatabase();
     if (input.start_date !== current.data.start_date || input.end_date !== current.data.end_date || input.color !== current.data.color) {
-      const { error } = await client.from("PayPeriod").update({ start_date: input.start_date, end_date: input.end_date, color: input.color, updated_at: new Date().toISOString() })
+      const { error } = await client.from("PayPeriod").update({ start_date: input.start_date, end_date: input.end_date, color: input.color, updated_at: new Date().toISOString() }).eq("user_id", userId)
         .eq("id", id).select("id").single();
       if (error) return interrupted;
     }
@@ -115,18 +115,18 @@ export async function savePayPeriod(id: number, input: PayPeriodFormValues, orig
       if (expense.id === undefined) continue;
       const saved = byId.get(expense.id)!;
       if (saved.name === expense.name.trim() && saved.date === expense.date && saved.cost === expense.cost) continue;
-      const { error } = await client.from("Expense").update({ date: expense.date, name: expense.name.trim(), cost: expense.cost, updated_at: new Date().toISOString() })
+      const { error } = await client.from("Expense").update({ date: expense.date, name: expense.name.trim(), cost: expense.cost, updated_at: new Date().toISOString() }).eq("user_id", userId)
         .eq("id", expense.id).eq("pay_period_id", id).select("id").single();
       if (error) return interrupted;
     }
     const removed = current.data.expenses.filter((expense) => !ids.has(expense.id)).map((expense) => expense.id);
     for (let offset = 0; offset < removed.length; offset += 100) {
       const batch = removed.slice(offset, offset + 100);
-      const { data, error } = await client.from("Expense").delete().eq("pay_period_id", id).in("id", batch).select("id");
+      const { data, error } = await client.from("Expense").delete().eq("user_id", userId).eq("pay_period_id", id).in("id", batch).select("id");
       if (error || data.length !== batch.length) return interrupted;
     }
     const added = input.expenses.filter((expense) => expense.id === undefined)
-      .map((expense) => ({ date: expense.date, name: expense.name.trim(), cost: expense.cost, pay_period_id: id }));
+      .map((expense) => ({ user_id: userId, date: expense.date, name: expense.name.trim(), cost: expense.cost, pay_period_id: id }));
     if (added.length) {
       const { error } = await client.from("Expense").insert(added);
       if (error) return interrupted;

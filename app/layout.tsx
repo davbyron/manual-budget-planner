@@ -30,7 +30,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="flex min-h-dvh min-w-0 flex-col">
         <header>
-          <h1 className="w-full bg-neutral-950 px-4 py-6 text-center font-instrument-serif text-4xl text-white sm:py-8 sm:text-5xl lg:text-6xl">
+          <h1
+            className="
+              px-4 py-6 w-full text-3xl text-white font-instrument-serif bg-neutral-950
+              sm:py-8 sm:text-5xl
+              lg:text-6xl lg:text-center
+            "
+          >
             Manual Budget Planner
           </h1>
         </header>

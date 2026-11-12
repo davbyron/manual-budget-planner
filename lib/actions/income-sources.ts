@@ -1,19 +1,18 @@
 "use server";
 
-import { createAdminClient } from "@/lib/supabase/admin";
+import { getPlannerDatabase } from "@/lib/supabase/admin";
 import { validateIncomeSource } from "@/lib/utils/income-sources";
 import type { IncomeSource, IncomeSourceDraft, IncomeSourceResult } from "@/types";
 
 const columns = "id, name, amount";
 
-// Local-only personal app: all database access uses the server-only secret-key client.
 export async function getIncomeSources(): Promise<IncomeSourceResult<IncomeSource[]>> {
   try {
-    const client = createAdminClient();
+    const { client, userId } = await getPlannerDatabase();
     const sources: IncomeSource[] = [];
     const pageSize = 500;
     for (let offset = 0; ; offset += pageSize) {
-      const { data, error } = await client.from("IncomeSource").select(columns).order("id").range(offset, offset + pageSize - 1);
+      const { data, error } = await client.from("IncomeSource").select(columns).eq("user_id", userId).order("id").range(offset, offset + pageSize - 1);
       if (error) return { error: "Could not load income sources. Please try again." };
       sources.push(...data);
       if (data.length < pageSize) break;
@@ -56,26 +55,26 @@ export async function saveIncomeSources(drafts: IncomeSourceDraft[], original: I
     error: "The save could not be completed. Some changes may have been saved. Reload income sources before trying again.", requiresReload: true,
   };
   try {
-    const client = createAdminClient();
+    const { client, userId } = await getPlannerDatabase();
     for (const source of drafts) {
       if (source.id === undefined) continue;
       const saved = byId.get(source.id)!;
       if (saved.name === source.name.trim() && saved.amount === source.amount) continue;
       const { error } = await client.from("IncomeSource")
-        .update({ name: source.name.trim(), amount: source.amount, updated_at: new Date().toISOString() })
+        .update({ name: source.name.trim(), amount: source.amount, updated_at: new Date().toISOString() }).eq("user_id", userId)
         .eq("id", source.id).select("id").single();
       if (error) return interrupted;
     }
     const removed = current.data.filter((source) => !ids.has(source.id)).map((source) => source.id);
     for (let offset = 0; offset < removed.length; offset += 100) {
       const batch = removed.slice(offset, offset + 100);
-      const { data, error } = await client.from("IncomeSource").delete().in("id", batch).select("id");
+      const { data, error } = await client.from("IncomeSource").delete().eq("user_id", userId).in("id", batch).select("id");
       if (error?.code === "23503") return {
         error: "An income source is still linked to a pay period and cannot be deleted. Some edits may have been saved; reload income sources.", requiresReload: true,
       };
       if (error || data.length !== batch.length) return interrupted;
     }
-    const added = drafts.filter((source) => source.id === undefined).map((source) => ({ name: source.name.trim(), amount: source.amount }));
+    const added = drafts.filter((source) => source.id === undefined).map((source) => ({ user_id: userId, name: source.name.trim(), amount: source.amount }));
     if (added.length) {
       const { error } = await client.from("IncomeSource").insert(added);
       if (error) return interrupted;

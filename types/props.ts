@@ -63,3 +63,7 @@ export interface EmailTemplateBaseProps {
 export interface EmailTemplateProps {
   url: string;
 }
+
+export type AuthFormProps = {
+  mode: "sign-in" | "sign-up" | "forgot-password" | "reset-password";
+};

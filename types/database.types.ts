@@ -14,6 +14,62 @@ export type Database = {
   }
   public: {
     Tables: {
+      Account: {
+        Row: {
+          accessToken: string | null
+          accessTokenExpiresAt: string | null
+          accountId: string
+          createdAt: string
+          id: string
+          idToken: string | null
+          password: string | null
+          providerId: string
+          refreshToken: string | null
+          refreshTokenExpiresAt: string | null
+          scope: string | null
+          updatedAt: string
+          userId: string
+        }
+        Insert: {
+          accessToken?: string | null
+          accessTokenExpiresAt?: string | null
+          accountId: string
+          createdAt: string
+          id: string
+          idToken?: string | null
+          password?: string | null
+          providerId: string
+          refreshToken?: string | null
+          refreshTokenExpiresAt?: string | null
+          scope?: string | null
+          updatedAt: string
+          userId: string
+        }
+        Update: {
+          accessToken?: string | null
+          accessTokenExpiresAt?: string | null
+          accountId?: string
+          createdAt?: string
+          id?: string
+          idToken?: string | null
+          password?: string | null
+          providerId?: string
+          refreshToken?: string | null
+          refreshTokenExpiresAt?: string | null
+          scope?: string | null
+          updatedAt?: string
+          userId?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "Account_userId_fkey"
+            columns: ["userId"]
+            isOneToOne: false
+            referencedRelation: "User"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       Bill: {
         Row: {
           cost: number
@@ -25,6 +81,7 @@ export type Database = {
           name: string
           startDate: string | null
           updated_at: string | null
+          user_id: string | null
         }
         Insert: {
           cost?: number
@@ -36,6 +93,7 @@ export type Database = {
           name?: string
           startDate?: string | null
           updated_at?: string | null
+          user_id?: string | null
         }
         Update: {
           cost?: number
@@ -47,8 +105,17 @@ export type Database = {
           name?: string
           startDate?: string | null
           updated_at?: string | null
+          user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "Bill_better_auth_user_fk"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "User"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       Expense: {
         Row: {
@@ -59,6 +126,7 @@ export type Database = {
           name: string
           pay_period_id: number | null
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           cost?: number
@@ -68,6 +136,7 @@ export type Database = {
           name?: string
           pay_period_id?: number | null
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           cost?: number
@@ -77,8 +146,23 @@ export type Database = {
           name?: string
           pay_period_id?: number | null
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "Expense_better_auth_user_fk"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "User"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expense_owner_pay_period_fk"
+            columns: ["pay_period_id", "user_id"]
+            isOneToOne: false
+            referencedRelation: "PayPeriod"
+            referencedColumns: ["id", "user_id"]
+          },
           {
             foreignKeyName: "Expense_pay_period_id_fkey"
             columns: ["pay_period_id"]
@@ -95,6 +179,7 @@ export type Database = {
           id: number
           name: string
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           amount?: number
@@ -102,6 +187,7 @@ export type Database = {
           id?: number
           name?: string
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           amount?: number
@@ -109,8 +195,17 @@ export type Database = {
           id?: number
           name?: string
           updated_at?: string
+          user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "IncomeSource_better_auth_user_fk"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "User"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       PayPeriod: {
         Row: {
@@ -121,6 +216,7 @@ export type Database = {
           leftover: number
           start_date: string
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           color?: string
@@ -130,6 +226,7 @@ export type Database = {
           leftover?: number
           start_date?: string
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           color?: string
@@ -139,23 +236,42 @@ export type Database = {
           leftover?: number
           start_date?: string
           updated_at?: string
+          user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "PayPeriod_better_auth_user_fk"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "User"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       PayPeriodIncomeSource: {
         Row: {
           income_source_id: number
           pay_period_id: number
+          user_id: string | null
         }
         Insert: {
           income_source_id: number
           pay_period_id: number
+          user_id?: string | null
         }
         Update: {
           income_source_id?: number
           pay_period_id?: number
+          user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "PayPeriodIncomeSource_better_auth_user_fk"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "User"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "PayPeriodIncomeSource_income_source_id_fkey"
             columns: ["income_source_id"]
@@ -170,7 +286,119 @@ export type Database = {
             referencedRelation: "PayPeriod"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "ppis_owner_income_source_fk"
+            columns: ["income_source_id", "user_id"]
+            isOneToOne: false
+            referencedRelation: "IncomeSource"
+            referencedColumns: ["id", "user_id"]
+          },
+          {
+            foreignKeyName: "ppis_owner_pay_period_fk"
+            columns: ["pay_period_id", "user_id"]
+            isOneToOne: false
+            referencedRelation: "PayPeriod"
+            referencedColumns: ["id", "user_id"]
+          },
         ]
+      }
+      Session: {
+        Row: {
+          createdAt: string
+          expiresAt: string
+          id: string
+          ipAddress: string | null
+          token: string
+          updatedAt: string
+          userAgent: string | null
+          userId: string
+        }
+        Insert: {
+          createdAt: string
+          expiresAt: string
+          id: string
+          ipAddress?: string | null
+          token: string
+          updatedAt: string
+          userAgent?: string | null
+          userId: string
+        }
+        Update: {
+          createdAt?: string
+          expiresAt?: string
+          id?: string
+          ipAddress?: string | null
+          token?: string
+          updatedAt?: string
+          userAgent?: string | null
+          userId?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "Session_userId_fkey"
+            columns: ["userId"]
+            isOneToOne: false
+            referencedRelation: "User"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      User: {
+        Row: {
+          createdAt: string
+          email: string
+          emailVerified: boolean
+          id: string
+          image: string | null
+          name: string
+          updatedAt: string
+        }
+        Insert: {
+          createdAt: string
+          email: string
+          emailVerified: boolean
+          id: string
+          image?: string | null
+          name: string
+          updatedAt: string
+        }
+        Update: {
+          createdAt?: string
+          email?: string
+          emailVerified?: boolean
+          id?: string
+          image?: string | null
+          name?: string
+          updatedAt?: string
+        }
+        Relationships: []
+      }
+      Verification: {
+        Row: {
+          createdAt: string
+          expiresAt: string
+          id: string
+          identifier: string
+          updatedAt: string
+          value: string
+        }
+        Insert: {
+          createdAt: string
+          expiresAt: string
+          id: string
+          identifier: string
+          updatedAt: string
+          value: string
+        }
+        Update: {
+          createdAt?: string
+          expiresAt?: string
+          id?: string
+          identifier?: string
+          updatedAt?: string
+          value?: string
+        }
+        Relationships: []
       }
     }
     Views: {
