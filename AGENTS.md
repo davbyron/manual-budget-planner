@@ -67,4 +67,4 @@ import { validateBillDates } from "@/lib/utils/bills";
 import { Calendar } from "@/lib/utils/Calendar";
 ```
 
-- Tailwind class names should follow this general order: group, margin, padding, width, height, flex, grid, text, font, background, border radius, hover pseudo class, active pseudo class, focus pseudo class. Any unclear categories for styles should go between border radius and hover pseudo class. Group together similar styles (e.g., `items-center` and `gap-4` go before `bg-cover`).
+- Tailwind class names should follow this general order: group, position, margin, padding, width, height, display, text, font, background, border radius, z-index, hover pseudo class, active pseudo class, focus pseudo class. Any unclear categories for styles would fall between z-index and hover pseudo class. Group together similar styles (e.g., `items-center` and `gap-4` go before `bg-cover`).
