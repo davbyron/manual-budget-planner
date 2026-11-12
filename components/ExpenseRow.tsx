@@ -102,7 +102,11 @@ export default function ExpenseRow(props: ExpenseRowProps) {
           id={`${id}-cost`}
           type="text"
           inputMode="decimal"
-          className={inputClass}
+          className={`${inputClass} ${Number.isFinite(value) && value < 0
+            ? "text-green-600 dark:text-green-400"
+            : Number.isFinite(value) && value > 0
+              ? "text-red-600 dark:text-red-400"
+              : ""}`}
           name={name}
           ref={amountRef}
           value={draft ?? (Number.isFinite(value) ? dollars.format(value) : "")}
