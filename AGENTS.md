@@ -53,4 +53,18 @@ export default function PayPeriodForm(props: PayPeriodFormProps) {
 }
 ```
 
-- Always import types before all other imports.
+- Imports should follow the structure of the example below. Generally, the order of imports should be: directives, types, imports from installed packages, local functions, local components. Directives should always be followed by an empty line. Order each import alphabetically within their respective groups (i.e., order type imports alphabetically, packages alphabetically, etc.).
+
+Imports example:
+```
+"use client";
+
+import type { BillsFormValues } from "@/types";
+import type { BillRowProps } from "@/types/props";
+import { useId, useState, useMemo } from "react";
+import { useController, useFormContext } from "react-hook-form";
+import { validateBillDates } from "@/lib/utils/bills";
+import { Calendar } from "@/lib/utils/Calendar";
+```
+
+- Tailwind class names should follow this general order: group, margin, padding, width, height, flex, grid, text, font, background, border radius, hover pseudo class, active pseudo class, focus pseudo class. Any unclear categories for styles should go between border radius and hover pseudo class. Group together similar styles (e.g., `items-center` and `gap-4` go before `bg-cover`).
