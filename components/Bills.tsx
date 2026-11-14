@@ -153,12 +153,27 @@ export default function Bills(props: BillsProps) {
             noValidate
             aria-label="Bills"
             onChange={() => setFormSubmissionSucceeded(false)}
+            className="relative"
           >
             <fieldset disabled={pending} className="min-w-0">
-              {fields.length === 0 && (
+              {fields.length === 0 ? (
                 <p className="py-3 text-sm text-zinc-500 italic dark:text-zinc-400">
                   No bills.
                 </p>
+              ) : (
+                <div
+                  className="
+                    sticky top-0 font-semibold bg-white shadow-below
+                    px-2 py-4 min-w-0 grid grid-cols-[repeat(auto-fit,minmax(min(100%,10rem),1fr))] items-start gap-3
+                    sm:grid-cols-[3.5rem_minmax(0,1fr)_6rem_5.5rem_5.5rem_4.75rem] sm:gap-2
+                  "
+                >
+                  <p>Day</p>
+                  <p>Name</p>
+                  <p>Amount</p>
+                  <p>Start Date</p>
+                  <p>End Date</p>
+                </div>
               )}
 
               <ul className="list-none">

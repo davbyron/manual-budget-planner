@@ -54,7 +54,7 @@ export default function BillRow(props: BillRowProps) {
     >
       {/* Day */}
       <label htmlFor={`${id}-day`} className="min-w-0 text-sm font-medium">
-        Day
+        <span className="sr-only">Day</span>
         <input
           id={`${id}-day`}
           type="number"
@@ -83,7 +83,7 @@ export default function BillRow(props: BillRowProps) {
 
       {/* Name */}
       <label htmlFor={`${id}-name`} className="min-w-0 text-sm font-medium">
-        Name
+        <span className="sr-only">Name</span>
         <input
           id={`${id}-name`}
           className={inputClass}
@@ -107,7 +107,7 @@ export default function BillRow(props: BillRowProps) {
 
       {/* Amount */}
       <label htmlFor={`${id}-cost`} className="min-w-0 text-sm font-medium">
-        Amount
+        <span className="sr-only">Amount</span>
         <input
           id={`${id}-cost`}
           type="text"
@@ -143,7 +143,7 @@ export default function BillRow(props: BillRowProps) {
 
       {/* Start date */}
       <label htmlFor={`${id}-start-date`} className="min-w-0 text-sm font-medium">
-        Start date
+        <span className="sr-only">Start date</span>
         <input
           id={`${id}-start-date`}
           type="date"
@@ -169,7 +169,7 @@ export default function BillRow(props: BillRowProps) {
 
       {/* End date */}
       <label htmlFor={`${id}-end-date`} className="min-w-0 text-sm font-medium">
-        End date
+        <span className="sr-only">End date</span>
         <input
           id={`${id}-end-date`}
           type="date"
