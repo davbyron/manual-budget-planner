@@ -101,7 +101,7 @@ export default function Bills(props: BillsProps) {
       aria-labelledby={headingId}
       className="
         p-4 w-full h-full flex flex-col gap-4 text-zinc-900
-        bg-white rounded-b-2xl border border-zinc-200 shadow-sm
+        bg-white rounded-b-2xl border border-zinc-200 shadow-sm overflow-x-hidden
         sm:p-6 sm:rounded-bl-none sm:rounded-r-2xl
         dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100
       "
@@ -156,41 +156,43 @@ export default function Bills(props: BillsProps) {
             className="relative"
           >
             <fieldset disabled={pending} className="min-w-0">
-              {fields.length === 0 ? (
-                <p className="py-3 text-sm text-zinc-500 italic dark:text-zinc-400">
-                  No bills.
-                </p>
-              ) : (
-                <div
-                  className="
-                    sticky top-0 font-semibold bg-white shadow-below
-                    mb-0.5 py-2 min-w-0 grid grid-cols-[repeat(auto-fit,minmax(min(100%,10rem),1fr))]
-                    sm:grid-cols-[4rem_minmax(0,1fr)_7rem_9.2rem_9rem_1.9rem]
-                    xl:grid-cols-[3.3rem_minmax(0,1fr)_5.8rem_5.5rem_5.9rem_1.9rem]
-                    2xl:grid-cols-[4rem_minmax(0,1fr)_7rem_9.2rem_9rem_1.9rem]
-                  "
-                >
-                  <p>Day</p>
-                  <p>Name</p>
-                  <p>Amount</p>
-                  <p>Start Date</p>
-                  <p>End Date</p>
-                </div>
-              )}
-
-              <ul className="list-none">
-                {fields.map((field, index) => (
-                  <li
-                    key={field.formKey}
-                    className="border-b last:border-b-0 border-zinc-200 bg-white hover:bg-gray-100"
+              <div className="overflow-x-auto">
+                {fields.length === 0 ? (
+                  <p className="py-3 text-sm text-zinc-500 italic dark:text-zinc-400">
+                    No bills.
+                  </p>
+                ) : (
+                  <div
+                    className="
+                      sticky top-0 min-w-fit mb-0.5 py-2
+                      font-semibold bg-white shadow-below
+                      grid grid-cols-[4rem_minmax(20ch,1fr)_7rem_9.2rem_9rem_1.9rem]
+                      xl:grid-cols-[3.3rem_minmax(20ch,1fr)_5.8rem_5.5rem_5.9rem_1.9rem]
+                      2xl:grid-cols-[4rem_minmax(20ch,1fr)_7rem_9.2rem_9rem_1.9rem]
+                    "
                   >
-                    <BillRow
-                      index={index}
-                      onRemove={() => { remove(index); setFormSubmissionSucceeded(false); }}
-                    />
-                  </li>
-                ))}
-              </ul>
+                    <p>Day</p>
+                    <p>Name</p>
+                    <p>Amount</p>
+                    <p>Start Date</p>
+                    <p>End Date</p>
+                  </div>
+                )}
+
+                <ul className="list-none">
+                  {fields.map((field, index) => (
+                    <li
+                      key={field.formKey}
+                      className="min-w-fit border-b last:border-b-0 border-zinc-200 bg-white hover:bg-gray-100"
+                    >
+                      <BillRow
+                        index={index}
+                        onRemove={() => { remove(index); setFormSubmissionSucceeded(false); }}
+                      />
+                    </li>
+                  ))}
+                </ul>
+              </div>
 
               <div className="mt-4 flex flex-wrap justify-between gap-3">
                 <button

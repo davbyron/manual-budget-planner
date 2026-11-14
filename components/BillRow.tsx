@@ -2,7 +2,7 @@
 
 import type { BillsFormValues } from "@/types";
 import type { BillRowProps } from "@/types/props";
-import { useId, useState, useMemo } from "react";
+import { useId, useState } from "react";
 import { useController, useFormContext } from "react-hook-form";
 import { validateBillDates } from "@/lib/utils/bills";
 import { PiTrashDuotone } from "react-icons/pi";
@@ -17,8 +17,6 @@ const inputClass = "\
 
 export default function BillRow(props: BillRowProps) {
   const { index, onRemove } = props;
-
-  const isEven = useMemo(() => index % 2 === 0, [index]);
 
   const id = useId();
 
@@ -51,10 +49,9 @@ export default function BillRow(props: BillRowProps) {
   return (
     <div
       className={`
-        min-w-0 grid grid-cols-[repeat(auto-fit,minmax(min(100%,10rem),1fr))]
-        sm:grid-cols-[3.5rem_minmax(0,1fr)_7rem_9rem_9rem_max-content]
-        xl:grid-cols-[3rem_minmax(0,1fr)_5.8rem_5.5rem_5.5rem_max-content]
-        2xl:grid-cols-[3.5rem_minmax(0,1fr)_7rem_9rem_9rem_max-content]
+        grid grid-cols-[3.5rem_minmax(20ch,1fr)_7rem_9rem_9rem_max-content]
+        xl:grid-cols-[3rem_minmax(20ch,1fr)_5.8rem_5.5rem_5.5rem_max-content]
+        2xl:grid-cols-[3.5rem_minmax(20ch,1fr)_7rem_9rem_9rem_max-content]
       `}
     >
       {/* Day */}
@@ -87,7 +84,7 @@ export default function BillRow(props: BillRowProps) {
       </label>
 
       {/* Name */}
-      <label htmlFor={`${id}-name`} className="min-w-0 text-sm font-medium border-r border-zinc-200">
+      <label htmlFor={`${id}-name`} className="min-w-[20ch] text-sm font-medium border-r border-zinc-200">
         <span className="sr-only">Name</span>
         <input
           id={`${id}-name`}
