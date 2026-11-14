@@ -6,6 +6,7 @@ import { useEffect, useId, useState, useTransition } from "react";
 import { FormProvider, useFieldArray, useForm } from "react-hook-form";
 import { getBills, saveBills } from "@/lib/actions/bills";
 import BillRow from "@/components/BillRow";
+import Dialog from "@/components/Dialog";
 
 const buttonClass = "rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-700 dark:hover:bg-zinc-800";
 
@@ -98,9 +99,33 @@ export default function Bills(props: BillsProps) {
   return (
     <section
       aria-labelledby={headingId}
-      className="w-full h-full rounded-b-2xl sm:rounded-bl-none sm:rounded-r-2xl border border-zinc-200 bg-white p-4 text-zinc-900 shadow-sm sm:p-6 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100"
+      className="
+        p-4 w-full h-full flex flex-col gap-4 text-zinc-900
+        bg-white rounded-b-2xl border border-zinc-200 shadow-sm
+        sm:p-6 sm:rounded-bl-none sm:rounded-r-2xl
+        dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100
+      "
     >
-      <h2 id={headingId} className="mb-2">Bills</h2>
+      <h2 id={headingId}>Bills</h2>
+
+      <Dialog
+        level="info"
+        content={(
+          <div className="flex flex-col gap-2">
+            <p>
+              Bills are recurring monthly payments on a scheduled day.
+              Bills are automatically deducted from the amount left in
+              a pay period if the bill&apos;s day falls within the
+              pay period.
+            </p>
+            <p>
+              Add an optional start or end date to indicate when the
+              bill should be deductd from the remaining balance in
+              your pay periods.
+            </p>
+          </div>
+        )}
+      />
       
       {!loaded && !loadError && <p role="status">Loading bills…</p>}
 

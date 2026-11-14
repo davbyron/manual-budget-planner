@@ -6,6 +6,7 @@ import { useEffect, useId, useState, useTransition } from "react";
 import { FormProvider, useFieldArray, useForm } from "react-hook-form";
 import { getIncomeSources, saveIncomeSources } from "@/lib/actions/income-sources";
 import IncomeSourceRow from "@/components/IncomeSourceRow";
+import Dialog from "@/components/Dialog";
 
 const buttonClass = "rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-700 dark:hover:bg-zinc-800";
 
@@ -98,9 +99,33 @@ export default function IncomeSources(props: IncomeSourcesProps) {
   return (
     <section
       aria-labelledby={headingId}
-      className="w-full h-full rounded-b-2xl sm:rounded-bl-none sm:rounded-r-2xl border border-zinc-200 bg-white p-4 text-zinc-900 shadow-sm sm:p-6 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100"
+      className="
+        p-4 w-full h-full flex flex-col gap-4 text-zinc-900
+        bg-white border border-zinc-200 rounded-b-2xl shadow-sm
+        sm:p-6 sm:rounded-bl-none sm:rounded-r-2xl
+        dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100
+      "
     >
-      <h2 id={headingId} className="mb-2">Income sources</h2>
+      <h2 id={headingId}>Income sources</h2>
+
+      <Dialog 
+        level="info"
+        content={(
+          <div className="flex flex-col gap-2">            
+            <p>
+              An income source is recurring pay that you receive each
+              pay period. Pay periods are defined by you in the
+              Pay Periods and Expenses tab.
+            </p>
+
+            <p>
+              If you have irregular income, it is recommended to add each
+              payment you receive as a negative expense in the pay period
+              for which the payment occurs in the Pay Periods & Expenses tab.
+            </p>
+          </div>
+        )}
+      />
 
       {!loaded && !loadError && <p role="status">Loading income sources…</p>}
 
