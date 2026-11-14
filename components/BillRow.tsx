@@ -5,10 +5,15 @@ import type { BillRowProps } from "@/types/props";
 import { useId, useState, useMemo } from "react";
 import { useController, useFormContext } from "react-hook-form";
 import { validateBillDates } from "@/lib/utils/bills";
+import { PiTrashDuotone } from "react-icons/pi";
 
 const dollarFormatter = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
 
-const inputClass = "mt-1 w-full min-w-0 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm focus-visible:outline-2 focus-visible:outline-blue-600 dark:border-zinc-700";
+const inputClass = "\
+  px-3 py-2 w-full min-w-0 text-sm \
+  focus-visible:outline-2 focus-visible:outline-blue-600 \
+  dark:border-zinc-700 \
+";
 
 export default function BillRow(props: BillRowProps) {
   const { index, onRemove } = props;
@@ -46,11 +51,10 @@ export default function BillRow(props: BillRowProps) {
   return (
     <div
       className={`
-        px-2 py-4 min-w-0 grid grid-cols-[repeat(auto-fit,minmax(min(100%,10rem),1fr))] items-start gap-3
-        sm:grid-cols-[3.5rem_minmax(0,1fr)_6rem_5.5rem_5.5rem_max-content] sm:gap-2
-        border-t border-zinc-200 dark:border-zinc-800
-        ${isEven ? "bg-zinc-100 dark:bg-zinc-900" : ""}
-      `}
+        px-2 min-w-0 grid grid-cols-[repeat(auto-fit,minmax(min(100%,10rem),1fr))] items-start gap-3
+        sm:grid-cols-[3.5rem_minmax(0,1fr)_7rem_9rem_9rem_max-content]`}
+      //   ${isEven ? "bg-zinc-100 dark:bg-zinc-900" : ""}
+      // `}
     >
       {/* Day */}
       <label htmlFor={`${id}-day`} className="min-w-0 text-sm font-medium">
@@ -197,9 +201,14 @@ export default function BillRow(props: BillRowProps) {
           type="button"
           onClick={onRemove}
           aria-label={`Remove bill ${index + 1}`}
-          className="rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium text-red-600 hover:bg-zinc-100 disabled:opacity-50 dark:border-zinc-700 dark:text-red-400 dark:hover:bg-zinc-800"
+          className="
+            px-3 py-2 text-sm font-medium text-red-600
+            hover:bg-red-100
+            disabled:opacity-50
+            dark:text-red-400 dark:border-zinc-700 dark:hover:bg-zinc-800
+          "
         >
-          Remove
+          <PiTrashDuotone className="text-lg" />
         </button>
       </div>
     </div>

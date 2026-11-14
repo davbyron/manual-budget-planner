@@ -164,8 +164,8 @@ export default function Bills(props: BillsProps) {
                 <div
                   className="
                     sticky top-0 font-semibold bg-white shadow-below
-                    px-2 py-4 min-w-0 grid grid-cols-[repeat(auto-fit,minmax(min(100%,10rem),1fr))] items-start gap-3
-                    sm:grid-cols-[3.5rem_minmax(0,1fr)_6rem_5.5rem_5.5rem_4.75rem] sm:gap-2
+                    mb-0.5 px-3 py-2 min-w-0 grid grid-cols-[repeat(auto-fit,minmax(min(100%,10rem),1fr))] items-start gap-3
+                    sm:grid-cols-[4.1rem_minmax(0,1fr)_7.3rem_9.3rem_9rem_1.9rem] sm:gap-2
                   "
                 >
                   <p>Day</p>
@@ -178,7 +178,10 @@ export default function Bills(props: BillsProps) {
 
               <ul className="list-none">
                 {fields.map((field, index) => (
-                  <li key={field.formKey}>
+                  <li
+                    key={field.formKey}
+                    className="border-b last:border-b-0 border-zinc-200 bg-white hover:bg-gray-100"
+                  >
                     <BillRow
                       index={index}
                       onRemove={() => { remove(index); setFormSubmissionSucceeded(false); }}
