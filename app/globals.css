@@ -10,6 +10,8 @@
   --color-foreground: var(--foreground);
   --font-instrument-serif: var(--font-instrument-serif);
   --font-instrument-sans: var(--font-instrument-sans);
+
+  --shadow-below: 0 0.75rem 1rem -1rem rgba(0,0,0,0.25);
 }
 
 @media (prefers-color-scheme: dark) {
