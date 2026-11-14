@@ -10,6 +10,11 @@ export type BillRowProps = {
   onRemove: () => void;
 };
 
+export type DialogProps = {
+  level: "info" | "warn" | "error";
+  content: React.ReactNode;
+}
+
 export type ExpenseRowProps = {
   index: number;
   onRemove: () => void;
