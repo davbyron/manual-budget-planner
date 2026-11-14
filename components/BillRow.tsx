@@ -3,9 +3,9 @@
 import type { BillsFormValues } from "@/types";
 import type { BillRowProps } from "@/types/props";
 import { useId, useState } from "react";
-import { useController, useFormContext } from "react-hook-form";
+import { useController, useFormContext, useWatch } from "react-hook-form";
+import { PiAlarmDuotone, PiSealWarningDuotone, PiTrashDuotone } from "react-icons/pi";
 import { validateBillDates } from "@/lib/utils/bills";
-import { PiTrashDuotone } from "react-icons/pi";
 
 const dollarFormatter = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
 
@@ -27,6 +27,12 @@ export default function BillRow(props: BillRowProps) {
   } = useFormContext<BillsFormValues>();
 
   const rowErrors = errors.bills?.[index];
+
+  const startDate = useWatch({ control, name: `bills.${index}.startDate` });
+  const endDate = useWatch({ control, name: `bills.${index}.endDate` });
+  const today = new Date();
+  const startsInFuture = !!startDate && new Date(`${startDate}T00:00:00`) > today;
+  const endedInPast = !!endDate && new Date(`${endDate}T00:00:00`) < today;
 
   const [amountDraft, setAmountDraft] = useState<string | null>(null);
 
@@ -86,16 +92,34 @@ export default function BillRow(props: BillRowProps) {
       {/* Name */}
       <label htmlFor={`${id}-name`} className="min-w-[20ch] text-sm font-medium border-r border-zinc-200">
         <span className="sr-only">Name</span>
-        <input
-          id={`${id}-name`}
-          className={inputClass}
-          placeholder="Bill name"
-          aria-invalid={!!rowErrors?.name}
-          aria-describedby={rowErrors?.name ? `${id}-name-error` : undefined}
-          {...register(`bills.${index}.name`, {
-            validate: (value) => !!value.trim() || "Enter a name."
-          })}
-        />
+        <div className="flex items-center">
+          {startsInFuture && (
+            <PiAlarmDuotone
+              className="ml-3 shrink-0 text-lg text-blue-600"
+              role="img"
+              aria-label="This bill is planned for the future"
+              title="This bill is planned for the future"
+            />
+          )}
+          {endedInPast && (
+            <PiSealWarningDuotone
+              className="ml-3 shrink-0 text-lg text-yellow-600"
+              role="img"
+              aria-label="This bill is past its end date"
+              title="This bill is past its end date"
+            />
+          )}
+          <input
+            id={`${id}-name`}
+            className={inputClass}
+            placeholder="Bill name"
+            aria-invalid={!!rowErrors?.name}
+            aria-describedby={rowErrors?.name ? `${id}-name-error` : undefined}
+            {...register(`bills.${index}.name`, {
+              validate: (value) => !!value.trim() || "Enter a name."
+            })}
+          />
+        </div>
         {rowErrors?.name && (
           <span
             id={`${id}-name-error`}
