@@ -51,13 +51,14 @@ export default function BillRow(props: BillRowProps) {
   return (
     <div
       className={`
-        px-2 min-w-0 grid grid-cols-[repeat(auto-fit,minmax(min(100%,10rem),1fr))] items-start gap-3
-        sm:grid-cols-[3.5rem_minmax(0,1fr)_7rem_9rem_9rem_max-content]`}
-      //   ${isEven ? "bg-zinc-100 dark:bg-zinc-900" : ""}
-      // `}
+        min-w-0 grid grid-cols-[repeat(auto-fit,minmax(min(100%,10rem),1fr))]
+        sm:grid-cols-[3.5rem_minmax(0,1fr)_7rem_9rem_9rem_max-content]
+        xl:grid-cols-[3rem_minmax(0,1fr)_5.8rem_5.5rem_5.5rem_max-content]
+        2xl:grid-cols-[3.5rem_minmax(0,1fr)_7rem_9rem_9rem_max-content]
+      `}
     >
       {/* Day */}
-      <label htmlFor={`${id}-day`} className="min-w-0 text-sm font-medium">
+      <label htmlFor={`${id}-day`} className="min-w-0 text-sm font-medium border-r border-zinc-200">
         <span className="sr-only">Day</span>
         <input
           id={`${id}-day`}
@@ -86,7 +87,7 @@ export default function BillRow(props: BillRowProps) {
       </label>
 
       {/* Name */}
-      <label htmlFor={`${id}-name`} className="min-w-0 text-sm font-medium">
+      <label htmlFor={`${id}-name`} className="min-w-0 text-sm font-medium border-r border-zinc-200">
         <span className="sr-only">Name</span>
         <input
           id={`${id}-name`}
@@ -110,7 +111,7 @@ export default function BillRow(props: BillRowProps) {
       </label>
 
       {/* Amount */}
-      <label htmlFor={`${id}-cost`} className="min-w-0 text-sm font-medium">
+      <label htmlFor={`${id}-cost`} className="min-w-0 text-sm font-medium border-r border-zinc-200">
         <span className="sr-only">Amount</span>
         <input
           id={`${id}-cost`}
@@ -146,7 +147,7 @@ export default function BillRow(props: BillRowProps) {
       </label>
 
       {/* Start date */}
-      <label htmlFor={`${id}-start-date`} className="min-w-0 text-sm font-medium">
+      <label htmlFor={`${id}-start-date`} className="min-w-0 text-sm font-medium border-r border-zinc-200">
         <span className="sr-only">Start date</span>
         <input
           id={`${id}-start-date`}
@@ -172,7 +173,7 @@ export default function BillRow(props: BillRowProps) {
       </label>
 
       {/* End date */}
-      <label htmlFor={`${id}-end-date`} className="min-w-0 text-sm font-medium">
+      <label htmlFor={`${id}-end-date`} className="min-w-0 text-sm font-medium border-r border-zinc-200">
         <span className="sr-only">End date</span>
         <input
           id={`${id}-end-date`}

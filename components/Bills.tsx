@@ -164,8 +164,10 @@ export default function Bills(props: BillsProps) {
                 <div
                   className="
                     sticky top-0 font-semibold bg-white shadow-below
-                    mb-0.5 px-3 py-2 min-w-0 grid grid-cols-[repeat(auto-fit,minmax(min(100%,10rem),1fr))] items-start gap-3
-                    sm:grid-cols-[4.1rem_minmax(0,1fr)_7.3rem_9.3rem_9rem_1.9rem] sm:gap-2
+                    mb-0.5 py-2 min-w-0 grid grid-cols-[repeat(auto-fit,minmax(min(100%,10rem),1fr))]
+                    sm:grid-cols-[4rem_minmax(0,1fr)_7rem_9.2rem_9rem_1.9rem]
+                    xl:grid-cols-[3.3rem_minmax(0,1fr)_5.8rem_5.5rem_5.9rem_1.9rem]
+                    2xl:grid-cols-[4rem_minmax(0,1fr)_7rem_9.2rem_9rem_1.9rem]
                   "
                 >
                   <p>Day</p>
