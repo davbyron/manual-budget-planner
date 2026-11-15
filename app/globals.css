@@ -40,6 +40,14 @@ button {
   @apply cursor-pointer hover:brightness-105 active:brightness-90 disabled:cursor-not-allowed disabled:opacity-50;
 }
 
+th {
+  @apply py-1;
+}
+
+th, td {
+  @apply px-2 text-left;
+}
+
 /* Keep controls comfortable to use on touch screens and under browser zoom. */
 @layer base {
   button,

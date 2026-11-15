@@ -2,7 +2,7 @@
 
 import type { Bill, BillsFormValues } from "@/types";
 import type { BillsProps } from "@/types/props";
-import { useEffect, useId, useState, useTransition } from "react";
+import { Fragment, useEffect, useId, useState, useTransition } from "react";
 import { FormProvider, useFieldArray, useForm } from "react-hook-form";
 import { getBills, saveBills } from "@/lib/actions/bills";
 import BillRow from "@/components/BillRow";
@@ -69,6 +69,8 @@ export default function Bills(props: BillsProps) {
 
   const save = handleSubmit(({ bills }) => {
     if (requiresReload) return;
+
+    console.log("bills", bills)
 
     clearErrors("root");
     setFormSubmissionSucceeded(false);
@@ -150,49 +152,42 @@ export default function Bills(props: BillsProps) {
         <FormProvider {...form}>
           <form
             onSubmit={save}
-            noValidate
             aria-label="Bills"
             onChange={() => setFormSubmissionSucceeded(false)}
             className="relative"
           >
             <fieldset disabled={pending} className="min-w-0">
-              <div className="overflow-x-auto">
-                {fields.length === 0 ? (
-                  <p className="py-3 text-sm text-zinc-500 italic dark:text-zinc-400">
-                    No bills.
-                  </p>
-                ) : (
-                  <div
-                    className="
-                      sticky top-0 min-w-fit mb-0.5 py-2
-                      font-semibold bg-white shadow-below
-                      grid grid-cols-[4rem_minmax(20ch,1fr)_7rem_9.2rem_9rem_1.9rem]
-                      xl:grid-cols-[3.3rem_minmax(20ch,1fr)_5.8rem_5.5rem_5.9rem_1.9rem]
-                      2xl:grid-cols-[4rem_minmax(20ch,1fr)_7rem_9.2rem_9rem_1.9rem]
-                    "
-                  >
-                    <p>Day</p>
-                    <p>Name</p>
-                    <p>Amount</p>
-                    <p>Start Date</p>
-                    <p>End Date</p>
-                  </div>
-                )}
+              {fields.length === 0 ? (
+                <p className="py-3 text-sm text-zinc-500 italic dark:text-zinc-400">
+                  No bills.
+                </p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="table-fixed min-w-full" tabIndex={0}>
+                    <caption className="sr-only">Bills Table</caption>
+                    <thead className="border-b-2">
+                      <tr>
+                        <th scope="col" className="min-w-[5ch]">Day</th>
+                        <th scope="col" className="min-w-[20ch]">Name</th>
+                        <th scope="col" className="min-w-[10ch]">Amount</th>
+                        <th scope="col">Start Date</th>
+                        <th scope="col">End Date</th>
+                      </tr>
+                    </thead>
 
-                <ul className="list-none">
-                  {fields.map((field, index) => (
-                    <li
-                      key={field.formKey}
-                      className="min-w-fit border-b last:border-b-0 border-zinc-200 bg-white hover:bg-gray-100"
-                    >
-                      <BillRow
-                        index={index}
-                        onRemove={() => { remove(index); setFormSubmissionSucceeded(false); }}
-                      />
-                    </li>
-                  ))}
-                </ul>
-              </div>
+                    <tbody>
+                      {fields.map((field, index) => (
+                        <Fragment key={field.formKey}>
+                          <BillRow
+                            index={index}
+                            onRemove={() => { remove(index); setFormSubmissionSucceeded(false); }}
+                          />
+                        </Fragment>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
 
               <div className="mt-4 flex flex-wrap justify-between gap-3">
                 <button
