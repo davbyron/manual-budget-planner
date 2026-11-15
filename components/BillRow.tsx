@@ -9,12 +9,6 @@ import { validateBillDates } from "@/lib/utils/bills";
 
 const dollarFormatter = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
 
-const inputClass = "\
-  w-full min-w-0 text-sm \
-  focus-visible:outline-2 focus-visible:outline-blue-600 \
-  dark:border-zinc-700 \
-";
-
 export default function BillRow(props: BillRowProps) {
   const { index, onRemove } = props;
 
@@ -65,7 +59,6 @@ export default function BillRow(props: BillRowProps) {
             max={28}
             step={1}
             placeholder="—"
-            className={`${inputClass}`}
             aria-invalid={!!rowErrors?.day}
             aria-describedby={rowErrors?.day ? `${id}-day-error` : undefined}
             {...register(`bills.${index}.day`, {
@@ -108,7 +101,6 @@ export default function BillRow(props: BillRowProps) {
             )}
             <input
               id={`${id}-name`}
-              className={inputClass}
               placeholder="Bill name"
               aria-invalid={!!rowErrors?.name}
               aria-describedby={rowErrors?.name ? `${id}-name-error` : undefined}
@@ -137,7 +129,6 @@ export default function BillRow(props: BillRowProps) {
             id={`${id}-cost`}
             type="text"
             inputMode="decimal"
-            className={inputClass}
             name={amountName}
             ref={amountRef}
             value={amountDraft ?? (Number.isFinite(amountValue) ? dollarFormatter.format(amountValue) : "")}
@@ -174,7 +165,6 @@ export default function BillRow(props: BillRowProps) {
           <input
             id={`${id}-start-date`}
             type="date"
-            className={inputClass}
             aria-invalid={!!rowErrors?.startDate}
             aria-describedby={rowErrors?.startDate ? `${id}-start-date-error` : undefined}
             {...register(`bills.${index}.startDate`, {
@@ -202,7 +192,6 @@ export default function BillRow(props: BillRowProps) {
           <input
             id={`${id}-end-date`}
             type="date"
-            className={inputClass}
             aria-invalid={!!rowErrors?.endDate}
             aria-describedby={rowErrors?.endDate ? `${id}-end-date-error` : undefined}
             {...register(`bills.${index}.endDate`, {
@@ -222,7 +211,7 @@ export default function BillRow(props: BillRowProps) {
         </label>
       </td>
 
-      <td className="">
+      <td>
         <button
           type="button"
           onClick={onRemove}
