@@ -9,7 +9,15 @@ export default function BudgetPlanner() {
   const [bills, setBills] = useState<Bill[] | null>(null);
   const [payPeriods, setPayPeriods] = useState<PayPeriodWithExpenses[]>([]);
   return (
-    <main className="mx-auto grid w-full min-w-0 max-w-[120rem] grid-cols-1 items-start gap-6 p-3 sm:p-6 lg:p-8 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+    <main
+      className="
+        p-3 mx-auto w-full min-w-0 max-w-[120rem]
+        grid grid-cols-1 items-start gap-6
+        sm:p-6
+        lg:p-8
+        xl:grid-cols-2
+      "
+    >
       <PlannerTabs
         periods={payPeriods}
         onPeriodsChange={setPayPeriods}
