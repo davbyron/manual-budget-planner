@@ -3,6 +3,7 @@
 import type { PayPeriodFormValues } from "@/types";
 import type { PayPeriodFormProps } from "@/types/props";
 import {
+  Fragment,
   useId,
   useMemo,
   useState,
@@ -11,10 +12,11 @@ import {
 import { FormProvider, useController, useFieldArray, useForm } from "react-hook-form";
 import { createPayPeriod, getPayPeriod, savePayPeriod } from "@/lib/actions/pay-periods";
 import { validateBillDates } from "@/lib/utils/bills";
+import Dialog from "@/components/Dialog";
 import ExpenseRow from "@/components/ExpenseRow";
+import Table from "@/components/Table";
 
 const buttonClass = "rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-700 dark:hover:bg-zinc-800";
-const inputClass = "mt-1 w-full min-w-0 rounded-lg border border-zinc-300 bg-transparent px-3 py-2 text-sm focus-visible:outline-2 focus-visible:outline-blue-600 dark:border-zinc-700";
 
 export default function PayPeriodForm(props: PayPeriodFormProps) {
   const { payPeriod, onSaved, onCancel, onReload } = props;
@@ -138,60 +140,17 @@ export default function PayPeriodForm(props: PayPeriodFormProps) {
         onChange={() => setFormSubmissionSucceeded(false)}
       >
         <fieldset disabled={pending} className="min-w-0">
-          <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,10rem),1fr))] gap-3">
-            <label htmlFor={`${id}-start`} className="min-w-0 text-sm font-medium">
-              Start date
-              <input
-                id={`${id}-start`}
-                type="date"
-                className={inputClass}
-                aria-invalid={!!errors.start_date}
-                aria-describedby={errors.start_date ? `${id}-start-error` : undefined}
-                {...register("start_date", {
-                  validate: (date) => !!date && !validateBillDates(date, null) || "Enter a valid start date.",
-                  deps: ["end_date"]
-                })}
-              />
-              {errors.start_date && (
-                <span
-                  id={`${id}-start-error`}
-                  role="alert"
-                  className="text-xs text-red-600 dark:text-red-400"
-                >
-                    {errors.start_date.message}
-                </span>
-              )}
-            </label>
-
-            <label htmlFor={`${id}-end`} className="min-w-0 text-sm font-medium">
-              End date
-              <input
-                id={`${id}-end`}
-                type="date"
-                className={inputClass}
-                aria-invalid={!!errors.end_date}
-                aria-describedby={errors.end_date ? `${id}-end-error` : undefined}
-                {...register("end_date", {
-                  validate: (date, values) => !date ? "Enter an end date." : validateBillDates(values.start_date || null, date) ?? true
-                })}
-              />
-              {errors.end_date && (
-                <span
-                  id={`${id}-end-error`}
-                  role="alert"
-                  className="text-xs text-red-600 dark:text-red-400"
-                >
-                  {errors.end_date.message}
-                </span>
-              )}
-            </label>
-
-            <label htmlFor={`${id}-color`} className="w-20 text-sm font-medium">
-              Color
+          <div className="flex gap-3">
+            <label htmlFor={`${id}-color`} className="w-20">
+              <span className="text-sm font-medium">Color</span>
               <input
                 id={`${id}-color`}
                 type="color"
-                className="mt-1 h-10 w-full cursor-pointer rounded-lg border border-zinc-300 bg-transparent p-1 focus-visible:outline-2 focus-visible:outline-blue-600 dark:border-zinc-700"
+                className="
+                  w-full cursor-pointer border border-zinc-200
+                  focus-visible:outline-2 focus-visible:outline-blue-600
+                  dark:border-zinc-700
+                "
                 aria-invalid={!!errors.color}
                 aria-describedby={errors.color ? `${id}-color-error` : undefined}
                 name={colorName}
@@ -210,27 +169,94 @@ export default function PayPeriodForm(props: PayPeriodFormProps) {
                 </span>
               )}
             </label>
+
+            <label htmlFor={`${id}-start`} className="min-w-0">
+              <span className="text-sm font-medium">Start date</span>
+              <input
+                id={`${id}-start`}
+                type="date"
+                className="border border-zinc-200"
+                aria-invalid={!!errors.start_date}
+                aria-describedby={errors.start_date ? `${id}-start-error` : undefined}
+                {...register("start_date", {
+                  validate: (date) => !!date && !validateBillDates(date, null) || "Enter a valid start date.",
+                  deps: ["end_date"]
+                })}
+              />
+              {errors.start_date && (
+                <span
+                  id={`${id}-start-error`}
+                  role="alert"
+                  className="text-xs text-red-600 dark:text-red-400"
+                >
+                    {errors.start_date.message}
+                </span>
+              )}
+            </label>
+
+            <label htmlFor={`${id}-end`} className="min-w-0">
+              <span className="text-sm font-medium">End date</span>
+              <input
+                id={`${id}-end`}
+                type="date"
+                className="border border-zinc-200"
+                aria-invalid={!!errors.end_date}
+                aria-describedby={errors.end_date ? `${id}-end-error` : undefined}
+                {...register("end_date", {
+                  validate: (date, values) => !date ? "Enter an end date." : validateBillDates(values.start_date || null, date) ?? true
+                })}
+              />
+              {errors.end_date && (
+                <span
+                  id={`${id}-end-error`}
+                  role="alert"
+                  className="text-xs text-red-600 dark:text-red-400"
+                >
+                  {errors.end_date.message}
+                </span>
+              )}
+            </label>
           </div>
 
           {originalPayPeriodData && (
             <div className="mt-6">
-              <h4 className="mb-2">Expenses</h4>
-              {fields.length === 0 && (
+              <h4>Expenses</h4>
+
+              <div className="my-2">
+                <Dialog
+                  level="info"
+                  content={"\
+                    List completed payments that you make during this pay period here. \
+                    Use negative values in the Amount field to record one-time income that \
+                    occurs during this pay period."
+                }
+                />
+              </div>
+
+              {fields.length === 0 ? (
                 <p className="py-3 text-sm italic text-zinc-500 dark:text-zinc-400">
                   No expenses for this pay period.
                 </p>
+              ) : (
+                <Table
+                  caption="Expenses Table"
+                  theadContents={
+                    <tr>
+                      <th scope="col" className="w-10">Date</th>
+                      <th scope="col" className="min-w-[20ch]">Name</th>
+                      <th scope="col" className="min-w-[10ch]">Amount</th>
+                    </tr>
+                  }
+                  tbodyContents={fields.map((field, index) => (
+                    <Fragment key={field.formKey}>
+                      <ExpenseRow
+                        index={index}
+                        onRemove={() => { remove(index); setFormSubmissionSucceeded(false); }}
+                      />
+                    </Fragment>
+                  ))}
+                />
               )}
-
-              <ul className="list-none">
-                {fields.map((field, index) => (
-                  <li key={field.formKey}>
-                    <ExpenseRow
-                      index={index}
-                      onRemove={() => { remove(index); setFormSubmissionSucceeded(false); }}
-                    />
-                  </li>)
-                )}
-              </ul>
             </div>
           )}
 

@@ -54,9 +54,10 @@ export default function PayPeriodAccordion(props: PayPeriodAccordionProps) {
         role="region"
         aria-labelledby={`${id}-trigger`}
         hidden={!open}
-        className="border-t p-3 sm:p-4"
+        className="border-t p-3 sm:p-4 flex flex-col gap-2"
         style={{ borderColor: payPeriod.color }}
       >
+        <h4>Pay Period Settings</h4>
         <PayPeriodForm payPeriod={payPeriod} onSaved={onSaved} />
       </div>
     </div>

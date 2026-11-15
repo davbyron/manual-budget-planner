@@ -168,8 +168,8 @@ export default function Bills(props: BillsProps) {
                       <th scope="col" className="min-w-[5ch]">Day</th>
                       <th scope="col" className="min-w-[20ch]">Name</th>
                       <th scope="col" className="min-w-[10ch]">Amount</th>
-                      <th scope="col">Start Date</th>
-                      <th scope="col">End Date</th>
+                      <th scope="col" className="w-10">Start Date</th>
+                      <th scope="col" className="w-10">End Date</th>
                     </tr>
                   }
                   tbodyContents={fields.map((field, index) => (

@@ -32,8 +32,12 @@ h2 {
   @apply text-3xl font-normal font-instrument-serif;
 }
 
-h3, h4 {
+h3 {
   @apply font-semibold;
+}
+
+h4 {
+  @apply font-instrument-serif font-normal text-2xl;
 }
 
 button {

@@ -103,7 +103,7 @@ export default function IncomeSourceRow(props: IncomeSourceRowProps) {
         <button
           type="button"
           onClick={onRemove}
-          aria-label={`Remove bill ${index + 1}`}
+          aria-label={`Remove income source ${index + 1}`}
           className="
             px-2 w-full h-fit flex items-center justify-center
             text-sm text-red-600 font-medium
