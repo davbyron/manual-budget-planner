@@ -7,6 +7,7 @@ import { FormProvider, useFieldArray, useForm } from "react-hook-form";
 import { getBills, saveBills } from "@/lib/actions/bills";
 import BillRow from "@/components/BillRow";
 import Dialog from "@/components/Dialog";
+import Table from "@/components/Table";
 
 const buttonClass = "rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-700 dark:hover:bg-zinc-800";
 
@@ -69,8 +70,6 @@ export default function Bills(props: BillsProps) {
 
   const save = handleSubmit(({ bills }) => {
     if (requiresReload) return;
-
-    console.log("bills", bills)
 
     clearErrors("root");
     setFormSubmissionSucceeded(false);
@@ -162,31 +161,26 @@ export default function Bills(props: BillsProps) {
                   No bills.
                 </p>
               ) : (
-                <div className="overflow-x-auto">
-                  <table className="table-fixed min-w-full" tabIndex={0}>
-                    <caption className="sr-only">Bills Table</caption>
-                    <thead className="border-b-2">
-                      <tr>
-                        <th scope="col" className="min-w-[5ch]">Day</th>
-                        <th scope="col" className="min-w-[20ch]">Name</th>
-                        <th scope="col" className="min-w-[10ch]">Amount</th>
-                        <th scope="col">Start Date</th>
-                        <th scope="col">End Date</th>
-                      </tr>
-                    </thead>
-
-                    <tbody>
-                      {fields.map((field, index) => (
-                        <Fragment key={field.formKey}>
-                          <BillRow
-                            index={index}
-                            onRemove={() => { remove(index); setFormSubmissionSucceeded(false); }}
-                          />
-                        </Fragment>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                <Table
+                  caption="Bills Table"
+                  theadContents={
+                    <tr>
+                      <th scope="col" className="min-w-[5ch]">Day</th>
+                      <th scope="col" className="min-w-[20ch]">Name</th>
+                      <th scope="col" className="min-w-[10ch]">Amount</th>
+                      <th scope="col">Start Date</th>
+                      <th scope="col">End Date</th>
+                    </tr>
+                  }
+                  tbodyContents={fields.map((field, index) => (
+                    <Fragment key={field.formKey}>
+                      <BillRow
+                        index={index}
+                        onRemove={() => { remove(index); setFormSubmissionSucceeded(false); }}
+                      />
+                    </Fragment>
+                  ))}
+                />
               )}
 
               <div className="mt-4 flex flex-wrap justify-between gap-3">

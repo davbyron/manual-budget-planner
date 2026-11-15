@@ -72,3 +72,9 @@ export interface EmailTemplateProps {
 export type AuthFormProps = {
   mode: "sign-in" | "sign-up" | "forgot-password" | "reset-password";
 };
+
+export type TableProps = {
+  caption: string;
+  theadContents: React.ReactNode;
+  tbodyContents: React.ReactNode;
+}
