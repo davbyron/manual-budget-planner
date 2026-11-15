@@ -2,16 +2,14 @@
 
 import type { IncomeSourcesFormValues } from "@/types";
 import type { IncomeSourceRowProps } from "@/types/props";
-import { useId, useState, useMemo } from "react";
+import { useId, useState } from "react";
 import { useController, useFormContext } from "react-hook-form";
+import { PiTrashDuotone } from "react-icons/pi";
 
-const inputClass = "mt-1 w-full min-w-0 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm focus-visible:outline-2 focus-visible:outline-blue-600 dark:border-zinc-700";
 const dollars = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
 
 export default function IncomeSourceRow(props: IncomeSourceRowProps) {
   const { index, onRemove } = props;
-
-  const isEven = useMemo(() => index % 2 === 0, [index]);
 
   const id = useId();
 
@@ -37,81 +35,86 @@ export default function IncomeSourceRow(props: IncomeSourceRowProps) {
     control,
     name: `incomeSources.${index}.amount`,
     rules: {
-      validate: (amount) => Number.isFinite(amount) || "Enter a valid amount."
+      validate: (amount) => Number.isFinite(amount) || "Invalid amount"
     },
   });
 
   return (
-    <div
-      className={`
-        px-2 py-4 min-w-0 grid grid-cols-[repeat(auto-fit,minmax(min(100%,10rem),1fr))] items-start gap-3
-        sm:grid-cols-[minmax(0,1fr)_7rem_max-content]
-        border-t border-zinc-200 dark:border-zinc-800
-        ${isEven ? "bg-zinc-100 dark:bg-zinc-900" : ""}
-      `}
-    >
-      <label htmlFor={`${id}-name`} className="min-w-0 text-sm font-medium">
-        Name
-        <input
-          id={`${id}-name`}
-          className={inputClass}
-          aria-invalid={!!error?.name}
-          aria-describedby={error?.name ? `${id}-name-error` : undefined}
-          {...register(`incomeSources.${index}.name`, {
-            validate: (text) => !!text.trim() || "Enter a name." 
-          })}
-        />
-        {error?.name && (
-          <span
-            id={`${id}-name-error`}
-            role="alert"
-            className="text-xs text-red-600 dark:text-red-400"
-          >
-            {error.name.message}
-          </span>
-        )}
-      </label>
+    <tr className="border-b border-zinc-200 hover:bg-zinc-200 [&>*:not(:last-child)]:border-r [&>*:not(:last-child)]:border-r-zinc-200">
+      {/* Name */}
+      <td>
+        <label htmlFor={`${id}-name`}>
+          <span className="sr-only">Name</span>
+          <input
+            id={`${id}-name`}
+            aria-invalid={!!error?.name}
+            aria-describedby={error?.name ? `${id}-name-error` : undefined}
+            {...register(`incomeSources.${index}.name`, {
+              validate: (text) => !!text.trim() || "Required"
+            })}
+          />
+          {error?.name && (
+            <span
+              id={`${id}-name-error`}
+              role="alert"
+              className="text-xs text-red-500"
+            >
+              {error.name.message}
+            </span>
+          )}
+        </label>
+      </td>
 
-      <label htmlFor={`${id}-amount`} className="min-w-0 text-sm font-medium">
-        Amount
-        <input
-          id={`${id}-amount`}
-          type="text"
-          inputMode="decimal"
-          className={inputClass}
-          name={name}
-          ref={amountRef}
-          value={draft ?? (Number.isFinite(value) ? dollars.format(value) : "")}
-          aria-invalid={!!error?.amount}
-          aria-describedby={error?.amount ? `${id}-amount-error` : undefined}
-          onFocus={() => setDraft(Number.isFinite(value) ? value.toFixed(2) : "")}
-          onChange={(event) => {
-            const text = event.target.value.replace(/[$,]/g, "").trim();
-            if (!/^-?\d*(\.\d{0,2})?$/.test(text)) return;
-            setDraft(text);
-            onChange(text === "" ? NaN : Number(text));
-          }}
-          onBlur={() => { setDraft(null); onBlur(); }}
-        />
-        {error?.amount && (
-          <span
-            id={`${id}-amount-error`}
-            role="alert"
-            className="text-xs text-red-600 dark:text-red-400"
-          >
-            {error.amount.message}
-          </span>
-        )}
-      </label>
+      {/* Amount */}
+      <td>
+        <label htmlFor={`${id}-amount`}>
+          <span className="sr-only">Amount</span>
+          <input
+            id={`${id}-amount`}
+            type="text"
+            inputMode="decimal"
+            name={name}
+            ref={amountRef}
+            value={draft ?? (Number.isFinite(value) ? dollars.format(value) : "")}
+            aria-invalid={!!error?.amount}
+            aria-describedby={error?.amount ? `${id}-amount-error` : undefined}
+            onFocus={() => setDraft(Number.isFinite(value) ? value.toFixed(2) : "")}
+            onChange={(event) => {
+              const text = event.target.value.replace(/[$,]/g, "").trim();
+              if (!/^-?\d*(\.\d{0,2})?$/.test(text)) return;
+              setDraft(text);
+              onChange(text === "" ? NaN : Number(text));
+            }}
+            onBlur={() => { setDraft(null); onBlur(); }}
+          />
+          {error?.amount && (
+            <span
+              id={`${id}-amount-error`}
+              role="alert"
+              className="text-xs text-red-500"
+            >
+              {error.amount.message}
+            </span>
+          )}
+        </label>
+      </td>
 
-      <button
-        type="button"
-        onClick={onRemove}
-        aria-label={`Remove income source ${index + 1}`}
-        className="justify-self-start self-end rounded-lg border border-zinc-300 px-3 py-2 text-sm text-red-600 disabled:opacity-50 dark:border-zinc-700 dark:text-red-400"
-      >
-        Remove
-      </button>
-    </div>
+      <td>
+        <button
+          type="button"
+          onClick={onRemove}
+          aria-label={`Remove bill ${index + 1}`}
+          className="
+            px-2 w-full h-fit flex items-center justify-center
+            text-sm text-red-600 font-medium
+            hover:bg-red-100
+            disabled:opacity-50
+            dark:text-red-400 dark:border-zinc-700 dark:hover:bg-zinc-800
+          "
+        >
+          <PiTrashDuotone className="size-5" />
+        </button>
+      </td>
+    </tr>
   );
 }

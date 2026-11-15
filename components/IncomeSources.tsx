@@ -2,11 +2,12 @@
 
 import type { IncomeSource, IncomeSourcesFormValues } from "@/types";
 import type { IncomeSourcesProps } from "@/types/props";
-import { useEffect, useId, useState, useTransition } from "react";
+import { Fragment, useEffect, useId, useState, useTransition } from "react";
 import { FormProvider, useFieldArray, useForm } from "react-hook-form";
 import { getIncomeSources, saveIncomeSources } from "@/lib/actions/income-sources";
 import IncomeSourceRow from "@/components/IncomeSourceRow";
 import Dialog from "@/components/Dialog";
+import Table from "@/components/Table";
 
 const buttonClass = "rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-700 dark:hover:bg-zinc-800";
 
@@ -155,22 +156,29 @@ export default function IncomeSources(props: IncomeSourcesProps) {
             onChange={() => setFormSubmissionSucceeded(false)}
           >
             <fieldset disabled={pending} className="min-w-0">
-              {fields.length === 0 && (
+              {fields.length === 0 ? (
                 <p className="py-3 text-sm text-zinc-500 italic dark:text-zinc-400">
                   No income sources.
                 </p>
+              ) : (
+                <Table
+                  caption="Income Sources Table"
+                  theadContents={
+                    <tr>
+                      <th scope="col" className="min-w-[20ch]">Name</th>
+                      <th scope="col" className="min-w-[10ch]">Amount</th>
+                    </tr>
+                  }
+                  tbodyContents={fields.map((field, index) => (
+                    <Fragment key={field.formKey}>
+                      <IncomeSourceRow
+                        index={index}
+                        onRemove={() => { remove(index); setFormSubmissionSucceeded(false); }}
+                      />
+                    </Fragment>
+                  ))}
+                />
               )}
-
-              <ul className="list-none">
-                {fields.map((field, index) => (
-                  <li key={field.formKey}>
-                    <IncomeSourceRow
-                      index={index}
-                      onRemove={() => { remove(index); setFormSubmissionSucceeded(false); }}
-                    />
-                  </li>
-                ))}
-              </ul>
 
               <div className="mt-4 flex flex-wrap justify-between gap-3">
                 <button
