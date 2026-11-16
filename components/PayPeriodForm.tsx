@@ -140,7 +140,7 @@ export default function PayPeriodForm(props: PayPeriodFormProps) {
         onChange={() => setFormSubmissionSucceeded(false)}
       >
         <fieldset disabled={pending} className="min-w-0">
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-3">
             <label htmlFor={`${id}-color`} className="w-20">
               <span className="text-sm font-medium">Color</span>
               <input
@@ -245,6 +245,7 @@ export default function PayPeriodForm(props: PayPeriodFormProps) {
                       <th scope="col" className="w-10">Date</th>
                       <th scope="col" className="min-w-[20ch]">Name</th>
                       <th scope="col" className="min-w-[10ch]">Amount</th>
+                      <th scope="col"></th>
                     </tr>
                   }
                   tbodyContents={fields.map((field, index) => (

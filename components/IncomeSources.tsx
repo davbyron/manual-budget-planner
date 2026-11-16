@@ -167,6 +167,7 @@ export default function IncomeSources(props: IncomeSourcesProps) {
                     <tr>
                       <th scope="col" className="min-w-[20ch]">Name</th>
                       <th scope="col" className="min-w-[10ch]">Amount</th>
+                      <th scope="col"></th>
                     </tr>
                   }
                   tbodyContents={fields.map((field, index) => (
