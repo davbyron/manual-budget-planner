@@ -18,7 +18,7 @@ const months = [
 ];
 const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const navigationClassName = "\
-  px-3 min-h-6 min-w-6 text-xs font-medium \
+  px-1.5 sm:px-3 min-h-6 min-w-6 text-xs font-medium \
   rounded-xs border border-zinc-200 transition-colors \
   hover:bg-zinc-100 \
   focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 \
@@ -66,8 +66,7 @@ export default function Calendar(props: CalendarProps) {
     <section
       aria-labelledby={headingId}
       className="
-        p-3
-        flex flex-col gap-6
+        p-3 flex flex-col gap-6
         border border-zinc-200 bg-white
         text-zinc-900 shadow-sm
         sm:p-4
