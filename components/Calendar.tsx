@@ -66,10 +66,12 @@ export default function Calendar(props: CalendarProps) {
     <section
       aria-labelledby={headingId}
       className="
-        p-3 sm:p-4 w-1/2 h-full
+        p-3
         flex flex-col gap-6
         border border-zinc-200 bg-white
         text-zinc-900 shadow-sm
+        sm:p-4
+        xl:h-full xl:w-1/2
         dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100
       "
     >
@@ -162,7 +164,7 @@ export default function Calendar(props: CalendarProps) {
                   <div
                     key={day}
                     style={{ backgroundColor }}
-                    className="px-1 py-2 text-sm align-top border-t border-zinc-100 dark:border-zinc-800"
+                    className="h-32 sm:h-40 xl:h-auto px-1 py-2 text-sm align-top border-t border-zinc-100 dark:border-zinc-800"
                   >
                     {isCurrentMonth ? (
                       <div className="min-w-0 flex flex-col items-start gap-1">
@@ -178,7 +180,7 @@ export default function Calendar(props: CalendarProps) {
                         </div>
 
                         {dayBills.length > 0 && (
-                          <ul className="h-10 w-full space-y-1 text-left text-xs overflow-scroll scrollbar-none">
+                          <ul className="h-20 sm:h-28 xl:h-10 w-full space-y-1 text-left text-[0.55rem] sm:text-xs overflow-scroll scrollbar-none">
                             {dayBills.map((bill) => (
                               <li
                                 key={bill.id}

@@ -28,7 +28,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${instrumentSerif.variable} ${instrumentSans.variable} antialiased`}
     >
-      <body className="flex h-dvh min-w-0 flex-col overflow-hidden">
+      <body className="flex min-w-0 flex-col xl:h-dvh xl:overflow-hidden">
         <header className="shrink-0">
           <h1
             className="
