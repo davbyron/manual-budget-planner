@@ -66,8 +66,7 @@ export default function Calendar(props: CalendarProps) {
     <section
       aria-labelledby={headingId}
       className="
-        min-w-1/3
-        p-3 sm:p-4 w-fit h-full
+        p-3 sm:p-4 w-1/2 h-full
         flex flex-col gap-6
         border border-zinc-200 bg-white
         text-zinc-900 shadow-sm

@@ -11,11 +11,11 @@ export default function BudgetPlanner() {
   return (
     <main
       className="
-        p-3 mx-auto w-full min-w-0 max-w-[120rem]
+        p-3 mx-auto w-full min-w-0 max-w-[120rem] min-h-0
         grid grid-cols-1 items-start gap-6
         sm:p-6
         lg:p-8
-        xl:flex
+        xl:flex xl:flex-1 xl:items-stretch
       "
     >
       <PlannerTabs

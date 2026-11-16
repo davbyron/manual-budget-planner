@@ -20,17 +20,22 @@ export default function PayPeriodAccordion(props: PayPeriodAccordionProps) {
 
   return (
     <div
-      className={`rounded-xl border overflow-hidden`}
+      className="border"
       style={{ borderColor: payPeriod.color }}
     >
-      <h3>
+      <h3 className="sticky top-0 z-10">
         <button
           id={`${id}-trigger`}
           type="button"
           aria-expanded={open}
           aria-controls={`${id}-panel`}
           onClick={onToggle}
-          className="w-full flex items-center justify-between gap-3 p-4 text-left font-medium hover:bg-zinc-50 focus-visible:outline-2 focus-visible:outline-blue-600 dark:hover:bg-zinc-900"
+          className="
+            p-2 w-full min-h-0! flex items-center justify-between gap-3
+            text-left font-medium
+            hover:bg-zinc-50
+            dark:hover:bg-zinc-900
+          "
           style={{
             background: `radial-gradient(circle at left, ${payPeriod.color}, white)`
           }}
@@ -57,7 +62,7 @@ export default function PayPeriodAccordion(props: PayPeriodAccordionProps) {
         className="border-t p-3 sm:p-4 flex flex-col gap-2"
         style={{ borderColor: payPeriod.color }}
       >
-        <h4>Pay Period Settings</h4>
+        <h4>Options</h4>
         <PayPeriodForm payPeriod={payPeriod} onSaved={onSaved} />
       </div>
     </div>

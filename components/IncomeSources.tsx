@@ -103,7 +103,7 @@ export default function IncomeSources(props: IncomeSourcesProps) {
       className="
         p-4 w-full h-full flex flex-col gap-4 text-zinc-900
         bg-white border border-zinc-200 rounded-b-2xl shadow-sm
-        sm:p-6 sm:rounded-bl-none sm:rounded-r-2xl
+        sm:p-6 sm:rounded-none
         dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100
       "
     >
@@ -151,9 +151,9 @@ export default function IncomeSources(props: IncomeSourcesProps) {
         <FormProvider {...form}>
           <form
             onSubmit={save}
-            noValidate
             aria-label="Income sources"
             onChange={() => setFormSubmissionSucceeded(false)}
+            className="relative overflow-auto"
           >
             <fieldset disabled={pending} className="min-w-0">
               {fields.length === 0 ? (
@@ -180,7 +180,7 @@ export default function IncomeSources(props: IncomeSourcesProps) {
                 />
               )}
 
-              <div className="mt-4 flex flex-wrap justify-between gap-3">
+              <div className="sticky bottom-0 pt-4 flex flex-wrap justify-between gap-3 bg-white">
                 <button
                   type="button"
                   onClick={() => { append({ name: "New income source", amount: 0 }); setFormSubmissionSucceeded(false); }}

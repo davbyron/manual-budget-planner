@@ -28,8 +28,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${instrumentSerif.variable} ${instrumentSans.variable} antialiased`}
     >
-      <body className="flex min-h-dvh min-w-0 flex-col">
-        <header>
+      <body className="flex h-dvh min-w-0 flex-col overflow-hidden">
+        <header className="shrink-0">
           <h1
             className="
               px-4 py-6 w-full text-3xl text-white font-instrument-serif bg-neutral-950
@@ -41,7 +41,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           </h1>
         </header>
         {children}
-        <footer className="mt-auto w-full px-4 py-6 text-center text-white font-instrument-serif bg-neutral-950">
+        <footer className="shrink-0 mt-auto w-full px-4 py-6 text-center text-white font-instrument-serif bg-neutral-950">
           &copy; 2026 David Byron
         </footer>
       </body>

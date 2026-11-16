@@ -55,7 +55,7 @@ export default function PayPeriods(props: PayPeriodsProps) {
       className="
         p-4 w-full h-full min-w-0 flex flex-col gap-4 text-zinc-900
         bg-white rounded-b-2xl border border-zinc-200 shadow-sm
-        sm:p-6 sm:rounded-bl-none sm:rounded-r-2xl
+        sm:p-6 sm:rounded-none
         dark:text-zinc-100 dark:bg-zinc-950 dark:border-zinc-800
       "
     >
@@ -129,17 +129,18 @@ export default function PayPeriods(props: PayPeriodsProps) {
 
       {loaded && (
         <>
-          <div className="space-y-3">
-             {creating ? (
-              <div className="rounded-xl border border-zinc-200 p-4 dark:border-zinc-800">
-                <h3 className="mb-3">New pay period</h3>
-                <PayPeriodForm onCancel={() => setCreating(false)} onReload={() => { setCreating(false); setAttempt((value) => value + 1); }} onSaved={(period) => {
-                  saved(period);
-                  setOpenIds((current) => new Set(current).add(period.id));
-                  setCreating(false);
-                }} />
-              </div>
-            ) : null }
+          {creating ? (
+            <div className="rounded-xl border border-zinc-200 p-4 dark:border-zinc-800">
+              <h3 className="mb-3">New pay period</h3>
+              <PayPeriodForm onCancel={() => setCreating(false)} onReload={() => { setCreating(false); setAttempt((value) => value + 1); }} onSaved={(period) => {
+                saved(period);
+                setOpenIds((current) => new Set(current).add(period.id));
+                setCreating(false);
+              }} />
+            </div>
+          ) : null }
+
+          <div id="accordion-container" className="min-h-0 flex-1 overflow-y-auto">
             {periods.map((period) => (
               <PayPeriodAccordion
                 key={period.id}

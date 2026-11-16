@@ -20,7 +20,7 @@ export default function PlannerTabs(props: PlannerTabsProps) {
   const [incomeSources, setIncomeSources] = useState<IncomeSource[] | null>(null);
 
   return (
-    <div className="flex min-w-0 flex-col sm:h-full sm:flex-row">
+    <div className="flex min-w-0 min-h-0 flex-col sm:flex-row xl:h-auto">
       <div
         role="tablist"
         aria-label="Financial planner sections"
@@ -69,7 +69,7 @@ export default function PlannerTabs(props: PlannerTabsProps) {
           aria-labelledby={`${id}-pay-periods-tab`}
           hidden={activeTab !== 0}
           tabIndex={0}
-          className="min-w-0 flex-1"
+          className="min-w-0 min-h-0 flex-1"
         >
           <PayPeriods
             bills={bills}
@@ -85,7 +85,7 @@ export default function PlannerTabs(props: PlannerTabsProps) {
           aria-labelledby={`${id}-bills-tab`}
           hidden={activeTab !== 1}
           tabIndex={0}
-          className="min-w-0 flex-1"
+          className="min-w-0 min-h-0 flex-1"
         >
           <Bills onBillsChange={onBillsChange} />
         </div>
@@ -96,7 +96,7 @@ export default function PlannerTabs(props: PlannerTabsProps) {
           aria-labelledby={`${id}-income-sources-tab`}
           hidden={activeTab !== 2}
           tabIndex={0}
-          className="min-w-0 flex-1"
+          className="min-w-0 min-h-0 flex-1"
         >
           <IncomeSources onIncomeSourcesChange={setIncomeSources} />
         </div>

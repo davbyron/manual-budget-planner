@@ -175,7 +175,7 @@ export default function PayPeriodForm(props: PayPeriodFormProps) {
               <input
                 id={`${id}-start`}
                 type="date"
-                className="border border-zinc-200"
+                className="px-2 border border-zinc-200"
                 aria-invalid={!!errors.start_date}
                 aria-describedby={errors.start_date ? `${id}-start-error` : undefined}
                 {...register("start_date", {
@@ -199,7 +199,7 @@ export default function PayPeriodForm(props: PayPeriodFormProps) {
               <input
                 id={`${id}-end`}
                 type="date"
-                className="border border-zinc-200"
+                className="px-2 border border-zinc-200"
                 aria-invalid={!!errors.end_date}
                 aria-describedby={errors.end_date ? `${id}-end-error` : undefined}
                 {...register("end_date", {
