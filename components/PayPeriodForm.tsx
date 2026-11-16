@@ -260,7 +260,7 @@ export default function PayPeriodForm(props: PayPeriodFormProps) {
             </div>
           )}
 
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+          <div className="sticky bottom-0 pt-4 flex flex-wrap justify-between gap-3 bg-white">
             {originalPayPeriodData && (
               <button
                 type="button"
