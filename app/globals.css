@@ -41,7 +41,7 @@ h4 {
 }
 
 button {
-  @apply cursor-pointer hover:brightness-105 active:brightness-90 disabled:cursor-not-allowed disabled:opacity-50;
+  @apply min-h-11 cursor-pointer hover:brightness-105 active:brightness-90 disabled:cursor-not-allowed disabled:opacity-50;
 }
 
 th {
@@ -54,22 +54,9 @@ th, td {
 
 input {
   @apply
-    w-full min-w-0 text-sm
+    w-full min-w-0 min-h-11 text-sm
     focus-visible:outline-2 focus-visible:outline-blue-600
     dark:border-zinc-700;
-}
-
-/* Keep controls comfortable to use on touch screens and under browser zoom. */
-@layer base {
-  button,
-  input {
-    min-height: 2.75rem;
-  }
-
-  input[type="date"] {
-    max-width: 100%;
-  }
-
 }
 
 @media (width < 40rem) {

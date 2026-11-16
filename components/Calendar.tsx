@@ -3,6 +3,12 @@
 import type { CalendarProps } from "@/types/props";
 import { useEffect, useId, useState } from "react";
 import { getBillsForDate, getPayPeriodColor } from "@/lib/utils/calendar";
+import {
+  PiCaretRightBold,
+  PiCaretDoubleRightBold,
+  PiCaretLeftBold,
+  PiCaretDoubleLeftBold
+} from "react-icons/pi";
 
 const dollarFormatter = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
 
@@ -11,7 +17,13 @@ const months = [
   "July", "August", "September", "October", "November", "December",
 ];
 const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-const navigationClassName = "min-h-6 min-w-6 rounded-lg border border-zinc-200 px-3 py-2 text-sm font-medium transition-colors hover:bg-zinc-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 dark:border-zinc-700 dark:hover:bg-zinc-800";
+const navigationClassName = "\
+  px-3 min-h-6 min-w-6 text-xs font-medium \
+  rounded-xs border border-zinc-200 transition-colors \
+  hover:bg-zinc-100 \
+  focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 \
+  dark:border-zinc-700 dark:hover:bg-zinc-800\
+";
 
 export default function Calendar(props: CalendarProps) {
   const { payPeriods, bills } = props;
@@ -54,10 +66,10 @@ export default function Calendar(props: CalendarProps) {
     <section
       aria-labelledby={headingId}
       className="
-        min-w-0 xl:sticky xl:top-5
-        p-3 sm:p-4 w-full h-fit
+        min-w-1/3
+        p-3 sm:p-4 w-fit h-full
         flex flex-col gap-6
-        rounded-2xl border border-zinc-200 bg-white
+        border border-zinc-200 bg-white
         text-zinc-900 shadow-sm
         dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100
       "
@@ -67,94 +79,130 @@ export default function Calendar(props: CalendarProps) {
           {months[month]} {year}
         </h2>
         <div role="group" aria-label="Calendar navigation" className="flex flex-wrap gap-2">
-          <button type="button" aria-label="Previous year" title="Previous year" onClick={() => navigate(-12)} className={navigationClassName}>
-            <span aria-hidden="true">«</span>
+          <button
+            type="button"
+            aria-label="Previous year"
+            title="Previous year"
+            onClick={() => navigate(-12)}
+            className={navigationClassName}
+          >
+            <PiCaretDoubleLeftBold />
           </button>
-          <button type="button" aria-label="Previous month" title="Previous month" onClick={() => navigate(-1)} className={navigationClassName}>
-            <span aria-hidden="true">‹</span>
+          <button
+            type="button"
+            aria-label="Previous month"
+            title="Previous month"
+            onClick={() => navigate(-1)}
+            className={navigationClassName}
+          >
+            <PiCaretLeftBold />
           </button>
-          <button type="button" aria-label="Next month" title="Next month" onClick={() => navigate(1)} className={navigationClassName}>
-            <span aria-hidden="true">›</span>
+          <button
+            type="button"
+            aria-label="Next month"
+            title="Next month"
+            onClick={() => navigate(1)}
+            className={navigationClassName}
+          >
+            <PiCaretRightBold />
           </button>
-          <button type="button" aria-label="Next year" title="Next year" onClick={() => navigate(12)} className={navigationClassName}>
-            <span aria-hidden="true">»</span>
+          <button
+            type="button"
+            aria-label="Next year"
+            title="Next year"
+            onClick={() => navigate(12)}
+            className={navigationClassName}
+          >
+            <PiCaretDoubleRightBold />
           </button>
         </div>
       </div>
 
-      <div
-        role="region"
-        aria-label="Monthly calendar days"
-        aria-describedby={`${headingId}-scroll-hint`}
-        tabIndex={0}
-        className="min-w-0 overflow-x-auto rounded-lg focus-visible:outline-2 focus-visible:outline-blue-600"
-      >
-        <table aria-labelledby={headingId} className="w-full min-w-[35rem] table-fixed border-collapse text-center">
-          <thead>
-            <tr>
-              {weekdays.map((day) => (
-                <th key={day} scope="col" className="pb-3 text-xs font-medium text-zinc-500 dark:text-zinc-400">
-                  <abbr title={day} className="no-underline">{day.slice(0, 3)}</abbr>
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {Array.from({ length: weekCount }, (_, week) => (
-              <tr key={week}>
-                {weekdays.map((day, weekday) => {
-                  const date = week * 7 + weekday - firstWeekday + 1;
-                  const isCurrentDate = date === today.getDate() && month === today.getMonth() && year === today.getFullYear();
-                  const isCurrentMonth = date >= 1 && date <= daysInMonth;
-                  const dateKey = `${String(year).padStart(4, "0")}-${String(month + 1).padStart(2, "0")}-${String(date).padStart(2, "0")}`;
-                  const backgroundColor = isCurrentMonth ? getPayPeriodColor(dateKey, payPeriods) : undefined;
-                  const dayBills = isCurrentMonth ? getBillsForDate(dateKey, bills) : [];
+      <div className="flex-1 w-full flex flex-col">
+        <div className="flex">
+          {weekdays.map((day) => (
+            <div
+              key={day}
+              className="
+                pb-3 w-1/7 text-xs font-medium text-zinc-500
+                dark:text-zinc-400
+              "
+            >
+              <abbr title={day} className="no-underline">
+                {day.slice(0, 3)}
+              </abbr>
+            </div>
+          ))}
+        </div>
 
-                  return (
-                    <td
-                      key={day}
-                      style={{ backgroundColor }}
-                      className="px-1 py-2 text-sm align-top border-t border-zinc-100 dark:border-zinc-800"
-                    >
-                      {isCurrentMonth ? (
-                        <div className="min-h-28 min-w-0 flex flex-col items-start gap-1">
+        <div
+          role="region"
+          aria-label="Monthly calendar days"
+          aria-describedby={`${headingId}-scroll-hint`}
+          tabIndex={0}
+          className="
+            min-w-0 min-h-0 flex-1
+            grid overflow-x-auto rounded-lg
+            focus-visible:outline-2 focus-visible:outline-blue-600
+          "
+          style={{
+            gridTemplateRows: `repeat(${weekCount}, minmax(0, 1fr))`
+          }}
+        >
+          {Array.from({ length: weekCount }, (_, week) => (
+            <div key={week} className="w-full grid grid-cols-7">
+              {weekdays.map((day, weekday) => {
+                const date = week * 7 + weekday - firstWeekday + 1;
+                const isCurrentDate = date === today.getDate() && month === today.getMonth() && year === today.getFullYear();
+                const isCurrentMonth = date >= 1 && date <= daysInMonth;
+                const dateKey = `${String(year).padStart(4, "0")}-${String(month + 1).padStart(2, "0")}-${String(date).padStart(2, "0")}`;
+                const backgroundColor = isCurrentMonth ? getPayPeriodColor(dateKey, payPeriods) : undefined;
+                const dayBills = isCurrentMonth ? getBillsForDate(dateKey, bills) : [];
+
+                return (
+                  <div
+                    key={day}
+                    style={{ backgroundColor }}
+                    className="px-1 py-2 text-sm align-top border-t border-zinc-100 dark:border-zinc-800"
+                  >
+                    {isCurrentMonth ? (
+                      <div className="min-w-0 flex flex-col items-start gap-1">
+                        <div
+                          className="px-1 pb-1 w-full text-left text-xs"
+                          style={{ backgroundColor: backgroundColor ?? "transparent" }}
+                        >
                           <div
-                            className="px-1 pb-1 w-full text-left text-xs"
-                            style={{ backgroundColor: backgroundColor ?? "transparent" }}
+                            className={isCurrentDate ? `bg-red-600 text-white rounded-full size-4 flex items-center justify-center` : ""}
                           >
-                            <div
-                              className={isCurrentDate ? `bg-red-600 text-white rounded-full size-4 flex items-center justify-center` : ""}
-                            >
-                              {date}
-                            </div>
+                            {date}
                           </div>
-
-                          {dayBills.length > 0 && (
-                            <ul className="w-full space-y-1 text-left text-xs">
-                              {dayBills.map((bill) => (
-                                <li
-                                  key={bill.id}
-                                  className="rounded bg-white/70 p-1 text-zinc-900 dark:bg-zinc-950/80 dark:text-zinc-100"
-                                >
-                                  <span className="block [overflow-wrap:anywhere]">
-                                    {bill.name}
-                                  </span>
-                                  <span className="block [overflow-wrap:anywhere] font-medium">
-                                    {dollarFormatter.format(bill.cost)}
-                                  </span>
-                                </li>
-                              ))}
-                            </ul>
-                          )}
                         </div>
-                      ) : null}
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+
+                        {dayBills.length > 0 && (
+                          <ul className="h-10 w-full space-y-1 text-left text-xs overflow-scroll scrollbar-none">
+                            {dayBills.map((bill) => (
+                              <li
+                                key={bill.id}
+                                className="rounded bg-white/70 p-1 text-zinc-900 dark:bg-zinc-950/80 dark:text-zinc-100"
+                              >
+                                <span className="block wrap-anywhere">
+                                  {bill.name}
+                                </span>
+                                <span className="block wrap-anywhere font-medium">
+                                  {dollarFormatter.format(bill.cost)}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    ) : null}
+                  </div>
+                );
+              })}
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );
