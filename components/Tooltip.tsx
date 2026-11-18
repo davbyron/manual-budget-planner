@@ -62,6 +62,7 @@ export default function Tooltip(props: TooltipProps) {
   return (
     <>
       <button
+        type="button"
         ref={refs.setReference}
         {...getReferenceProps()}
       >

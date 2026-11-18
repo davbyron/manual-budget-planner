@@ -4,8 +4,10 @@ import type { BillsFormValues } from "@/types";
 import type { BillRowProps } from "@/types/props";
 import { useId, useState } from "react";
 import { useController, useFormContext, useWatch } from "react-hook-form";
-import { PiAlarmDuotone, PiSealWarningDuotone, PiTrashDuotone } from "react-icons/pi";
+import { PiTrashDuotone } from "react-icons/pi";
 import { validateBillDates } from "@/lib/utils/bills";
+import FutureBillTooltip from "@/components/FutureBillTooltip";
+import PastBillTooltip from "@/components/PastBillTooltip";
 
 const dollarFormatter = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
 
@@ -80,24 +82,14 @@ export default function BillRow(props: BillRowProps) {
 
       {/* Name */}
       <td>
-        <label htmlFor={`${id}-name`} className="">
-          <span className="sr-only">Name</span>
+        <div>
+          <label htmlFor={`${id}-name`} className="sr-only">Name</label>
           <div className="flex items-center gap-2 ">
             {startsInFuture && (
-              <PiAlarmDuotone
-                className="shrink-0 text-lg text-blue-600"
-                role="img"
-                aria-label="This bill is planned for the future"
-                title="This bill is planned for the future"
-              />
+              <FutureBillTooltip />
             )}
             {endedInPast && (
-              <PiSealWarningDuotone
-                className="shrink-0 text-lg text-yellow-600"
-                role="img"
-                aria-label="This bill is past its end date"
-                title="This bill is past its end date"
-              />
+              <PastBillTooltip />
             )}
             <input
               id={`${id}-name`}
@@ -118,7 +110,7 @@ export default function BillRow(props: BillRowProps) {
               {rowErrors.name.message}
             </span>
           )}
-        </label>
+        </div>
       </td>
 
       {/* Amount */}
