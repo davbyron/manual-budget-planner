@@ -10,6 +10,7 @@
     "generate-types": "supabase gen types --remote=zfyoktgqqtewbpoqwguc > types/database.types.ts"
   },
   "dependencies": {
+    "@floating-ui/react": "^0.27.20",
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.119.0",
     "@types/pg": "^8.23.1",
