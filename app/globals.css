@@ -1,29 +1,15 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --font-instrument-serif: var(--font-instrument-serif);
   --font-instrument-sans: var(--font-instrument-sans);
 
   --shadow-below: 0 0.75rem 1rem -1rem rgba(0,0,0,0.25);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: white;
+  color: #171717;
 
   @apply font-instrument-sans;
 }
