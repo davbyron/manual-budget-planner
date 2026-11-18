@@ -19,6 +19,13 @@ export type HelpTooltipProps = {
   children: React.ReactNode;
 };
 
+export type TooltipProps = {
+  trigger: React.ReactNode;
+  className?: string;
+  arrowFill?: string;
+  children: React.ReactNode;
+};
+
 export type ExpenseRowProps = {
   index: number;
   onRemove: () => void;
