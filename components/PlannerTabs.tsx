@@ -20,7 +20,7 @@ export default function PlannerTabs(props: PlannerTabsProps) {
   const [incomeSources, setIncomeSources] = useState<IncomeSource[] | null>(null);
 
   return (
-    <div className="flex min-w-0 min-h-0 flex-col sm:flex-row xl:h-auto">
+    <div className="min-w-0 min-h-0 flex flex-col sm:flex-row xl:h-auto xl:flex-1">
       <div
         role="tablist"
         aria-label="Financial planner sections"
