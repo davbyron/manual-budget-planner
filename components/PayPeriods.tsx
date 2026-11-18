@@ -2,18 +2,22 @@
 
 import type { PayPeriodsProps } from "@/types/props";
 import type { PayPeriodWithExpenses } from "@/types";
-import { useEffect, useId, useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { getPayPeriods } from "@/lib/actions/pay-periods";
 import { getPayPeriodRemainingBalances } from "@/lib/utils/pay-periods";
 import PayPeriodAccordion from "@/components/PayPeriodAccordion";
 import PayPeriodForm from "@/components/PayPeriodForm";
-import Dialog from "@/components/Dialog";
+import HelpTooltip from "@/components/HelpTooltip";
 
 const buttonClass = "rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium hover:bg-zinc-100 disabled:opacity-50 dark:border-zinc-700 dark:hover:bg-zinc-800";
 
 export default function PayPeriods(props: PayPeriodsProps) {
-  const { bills = null, incomeSources = null, periods, onPeriodsChange } = props;
-  const headingId = useId();
+  const {
+    bills = null,
+    incomeSources = null,
+    periods, onPeriodsChange
+  } = props;
+
   const [openIds, setOpenIds] = useState<Set<number>>(() => new Set());
   const [creating, setCreating] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -51,7 +55,6 @@ export default function PayPeriods(props: PayPeriodsProps) {
 
   return (
     <section
-      aria-labelledby={headingId}
       className="
         p-4 w-full h-full min-w-0 flex flex-col gap-4 text-zinc-900
         bg-white rounded-b-2xl border border-zinc-200 shadow-sm
@@ -60,7 +63,33 @@ export default function PayPeriods(props: PayPeriodsProps) {
       "
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 id={headingId}>Pay Periods & Expenses</h2>
+        <div className="flex items-center gap-2">
+          <h2>Pay Periods & Expenses</h2>
+          <HelpTooltip>
+            <div className="flex flex-col gap-3">
+              <p>
+                Pay periods are ranges of dates in which
+                you plan to receive some amount of income.
+                List regularly occurring income in the Income
+                Sources tab. For one-time or irregular payments,
+                add a negative expense to the pay period.
+              </p>
+              <p>
+                In each pay period, you can see how much you start with,
+                list expenses, and see how much you have
+                remaining. The remaining balance is calculated
+                with the following equation. Note that each pay
+                period compounds onto the next.
+              </p>
+              <p className="max-w-4/5 self-center text-center italic font-serif">
+                Remaining Balance = SUM(Income Sources)
+                - SUM(Bills during pay period)
+                - SUM(Expenses listed for pay period)
+                + Remaining Balance from previous pay period
+              </p>
+            </div>
+          </HelpTooltip>
+        </div>
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
@@ -80,33 +109,6 @@ export default function PayPeriods(props: PayPeriodsProps) {
           </button>
         </div>
       </div>
-
-      <Dialog
-        level="info"
-        content={(
-          <div className="flex flex-col gap-2">
-            <p>
-              Pay periods are ranges of dates in which
-              you plan to receive some amount of payment.
-              Each pay period lists the remaining amount left
-              for that pay period. This is calculated
-              with the following equation:
-            </p>
-            <p className="max-w-3/4 self-center text-center italic font-serif">
-              Remaining Balance = SUM(Income Sources)
-              - SUM(Bills during pay period)
-              - SUM(Expenses listed for pay period)
-              + Remaining Balance from previous pay period
-            </p>
-            <p>
-              Each pay period compounds onto the next. I.e., the
-              remaining balance for each pay period is the same equation
-              as above with the previous pay period&apos;s remaining
-              balance added.
-            </p>
-          </div>
-  )     }
-      />
 
       {!loaded && !error && <p role="status">Loading pay periods…</p>}
 

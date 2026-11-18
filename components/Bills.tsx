@@ -2,19 +2,17 @@
 
 import type { Bill, BillsFormValues } from "@/types";
 import type { BillsProps } from "@/types/props";
-import { Fragment, useEffect, useId, useState, useTransition } from "react";
+import { Fragment, useEffect, useState, useTransition } from "react";
 import { FormProvider, useFieldArray, useForm } from "react-hook-form";
 import { getBills, saveBills } from "@/lib/actions/bills";
 import BillRow from "@/components/BillRow";
-import Dialog from "@/components/Dialog";
+import HelpTooltip from "@/components/HelpTooltip";
 import Table from "@/components/Table";
 
 const buttonClass = "rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-700 dark:hover:bg-zinc-800";
 
 export default function Bills(props: BillsProps) {
   const { onBillsChange } = props;
-
-  const headingId = useId();
 
   const [originalBills, setOriginalBills] = useState<Bill[]>([]);
   const [loaded, setLoaded] = useState(false);
@@ -99,20 +97,17 @@ export default function Bills(props: BillsProps) {
 
   return (
     <section
-      aria-labelledby={headingId}
       className="
         p-4 w-full h-full flex flex-col gap-4 text-zinc-900
-        bg-white rounded-b-2xl border border-zinc-200 shadow-sm overflow-x-hidden
+        bg-white border border-zinc-200 rounded-b-2xl shadow-sm
         sm:p-6 sm:rounded-none
         dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100
       "
     >
-      <h2 id={headingId}>Bills</h2>
-
-      <Dialog
-        level="info"
-        content={(
-          <div className="flex flex-col gap-2">
+      <div className="flex item-center gap-2">
+        <h2>Bills</h2>
+        <HelpTooltip>
+          <div className="flex flex-col gap-3">
             <p>
               Bills are recurring monthly payments on a scheduled day.
               Bills are automatically deducted from the amount left in
@@ -121,12 +116,18 @@ export default function Bills(props: BillsProps) {
             </p>
             <p>
               Add an optional start or end date to indicate when the
-              bill should be deductd from the remaining balance in
+              bill should be deducted from the remaining balance in
               your pay periods.
             </p>
+            <p>
+              When a bill is removed, if the bill occurs on or after today&apos;s
+              date and is in the current pay period, it will
+              {" "}<span className="italic">not</span>{" "}
+              be deducted from the current pay period.
+            </p>
           </div>
-        )}
-      />
+        </HelpTooltip>
+      </div>
       
       {!loaded && !loadError && <p role="status">Loading bills…</p>}
 

@@ -2,19 +2,17 @@
 
 import type { IncomeSource, IncomeSourcesFormValues } from "@/types";
 import type { IncomeSourcesProps } from "@/types/props";
-import { Fragment, useEffect, useId, useState, useTransition } from "react";
+import { Fragment, useEffect, useState, useTransition } from "react";
 import { FormProvider, useFieldArray, useForm } from "react-hook-form";
 import { getIncomeSources, saveIncomeSources } from "@/lib/actions/income-sources";
 import IncomeSourceRow from "@/components/IncomeSourceRow";
-import Dialog from "@/components/Dialog";
+import HelpTooltip from "@/components/HelpTooltip";
 import Table from "@/components/Table";
 
 const buttonClass = "rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-700 dark:hover:bg-zinc-800";
 
 export default function IncomeSources(props: IncomeSourcesProps) {
   const { onIncomeSourcesChange } = props;
-
-  const headingId = useId();
 
   const [originalIncomeSources, setOriginalIncomeSources] = useState<IncomeSource[]>([]);
   const [loaded, setLoaded] = useState(false);
@@ -99,7 +97,6 @@ export default function IncomeSources(props: IncomeSourcesProps) {
 
   return (
     <section
-      aria-labelledby={headingId}
       className="
         p-4 w-full h-full flex flex-col gap-4 text-zinc-900
         bg-white border border-zinc-200 rounded-b-2xl shadow-sm
@@ -107,12 +104,10 @@ export default function IncomeSources(props: IncomeSourcesProps) {
         dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100
       "
     >
-      <h2 id={headingId}>Income sources</h2>
-
-      <Dialog 
-        level="info"
-        content={(
-          <div className="flex flex-col gap-2">            
+      <div className="flex items-center gap-2">
+        <h2>Income Sources</h2>
+        <HelpTooltip>
+          <div className="flex flex-col gap-3">
             <p>
               An income source is recurring pay that you receive each
               pay period. Pay periods are defined by you in the
@@ -125,8 +120,8 @@ export default function IncomeSources(props: IncomeSourcesProps) {
               for which the payment occurs in the Pay Periods & Expenses tab.
             </p>
           </div>
-        )}
-      />
+        </HelpTooltip>
+      </div>
 
       {!loaded && !loadError && <p role="status">Loading income sources…</p>}
 
