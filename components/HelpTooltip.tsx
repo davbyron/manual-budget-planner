@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import type { HelpTooltipProps } from "@/types/props";
 import {
   useFloating,
   useInteractions,
@@ -16,18 +16,17 @@ import {
   FloatingPortal,
   FloatingArrow,
 } from "@floating-ui/react";
+import { useRef, useState } from "react";
 import { PiQuestionBold } from "react-icons/pi";
+import { useMediaQuery } from "@/lib/hooks/useMediaQuery";
 
-export type HelpTooltipProps = {
-  children: React.ReactNode;
-}
- 
 export default function HelpTooltip(props: HelpTooltipProps) {
   const { children } = props;
 
   const arrowRef = useRef(null);
+  const isLargeScreen = useMediaQuery("(min-width: 64rem)");
 
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
 
   const {refs, floatingStyles, context} = useFloating({
     open: isOpen,
@@ -36,12 +35,14 @@ export default function HelpTooltip(props: HelpTooltipProps) {
       offset(10),
       flip(),
       shift(),
+      // Floating UI reads this ref during positioning.
+      // eslint-disable-next-line react-hooks/refs
       arrow({
         element: arrowRef,
       })
     ],
     whileElementsMounted: autoUpdate,
-    placement: "right",
+    placement: isLargeScreen ? "right" : "bottom",
   });
 
   const hover = useHover(context, {move: false});
@@ -69,10 +70,12 @@ export default function HelpTooltip(props: HelpTooltipProps) {
       <FloatingPortal>
         {isOpen && (
           <div
+            // Floating UI exposes a callback setter here.
+            // eslint-disable-next-line react-hooks/refs
             ref={refs.setFloating}
             style={floatingStyles}
             {...getFloatingProps()}
-            className=" max-w-140 p-3 flex gap-3 text-sm bg-blue-100 shadow z-100"
+            className=" max-w-110 p-3 flex gap-3 text-sm bg-blue-100 shadow z-100"
           >
             <FloatingArrow ref={arrowRef} context={context} fill="#dbeafe" />
             {children}

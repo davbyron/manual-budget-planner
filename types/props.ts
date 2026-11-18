@@ -15,6 +15,10 @@ export type DialogProps = {
   content: React.ReactNode;
 }
 
+export type HelpTooltipProps = {
+  children: React.ReactNode;
+};
+
 export type ExpenseRowProps = {
   index: number;
   onRemove: () => void;
