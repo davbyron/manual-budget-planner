@@ -117,7 +117,12 @@ export default function IncomeSources(props: IncomeSourcesProps) {
             <p>
               If you have irregular income, it is recommended to add each
               payment you receive as a negative expense in the pay period
-              for which the payment occurs in the Pay Periods & Expenses tab.
+              for which the payment occurs.
+            </p>
+
+            <p>
+              When an income source is removed,
+              it will not be included in the current pay period.
             </p>
           </div>
         </HelpTooltip>
