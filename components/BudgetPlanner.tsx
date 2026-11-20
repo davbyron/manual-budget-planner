@@ -11,7 +11,7 @@ export default function BudgetPlanner() {
   return (
     <main
       className="
-        p-3 w-full min-w-0 max-w-[120rem]
+        mx-auto p-3 w-full min-w-0 max-w-[120rem]
         flex flex-col gap-6
         sm:p-6
         lg:p-8
