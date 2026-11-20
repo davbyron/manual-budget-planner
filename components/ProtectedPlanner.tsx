@@ -8,7 +8,13 @@ export default async function ProtectedPlanner() {
 
   return (
     <>
-      <div className="absolute right-5 top-5 md:right-8.5 lg:right-10 md:top-8.5 lg:top-10">
+      <div
+        className="
+          absolute right-5 top-6
+          sm:top-5
+          md:top-6
+        "
+      >
         <SignOutButton />
       </div>
       <BudgetPlanner />
