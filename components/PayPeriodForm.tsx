@@ -15,6 +15,7 @@ import { validateBillDates } from "@/lib/utils/bills";
 import Dialog from "@/components/Dialog";
 import ExpenseRow from "@/components/ExpenseRow";
 import Table from "@/components/Table";
+import HelpTooltip from "@/components/HelpTooltip";
 
 const buttonClass = "rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-700 dark:hover:bg-zinc-800";
 
@@ -220,17 +221,14 @@ export default function PayPeriodForm(props: PayPeriodFormProps) {
 
           {originalPayPeriodData && (
             <div className="mt-6">
-              <h4>Expenses</h4>
-
-              <div className="my-2">
-                <Dialog
-                  level="info"
-                  content={"\
-                    List completed payments that you make during this pay period here. \
-                    Use negative values in the Amount field to record one-time income that \
-                    occurs during this pay period."
-                }
-                />
+              <div className="flex items-center gap-2">
+                <h4>Expenses</h4>
+                <HelpTooltip>
+                  <p>
+                    List completed payments that you make during this pay period here.
+                    Use negative values in the Amount field to record one-time income.
+                  </p>
+                </HelpTooltip>
               </div>
 
               {fields.length === 0 ? (
