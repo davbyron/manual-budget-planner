@@ -271,7 +271,7 @@ export default function PayPeriodForm(props: PayPeriodFormProps) {
                   setFormSubmissionSucceeded(false);
                 }}
               >
-                + Add new expense
+                + New expense
               </button>
             )}
 

@@ -194,7 +194,7 @@ export default function Bills(props: BillsProps) {
                   }}
                   className={buttonClass}
                 >
-                  + Add new bill
+                  + New bill
                 </button>
 
                 <div className="flex min-w-0 flex-wrap items-center gap-2">

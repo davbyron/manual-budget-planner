@@ -97,7 +97,7 @@ export default function PayPeriods(props: PayPeriodsProps) {
             className={buttonClass}
             disabled={creating}
           >
-            + Add new pay period
+            + New pay period
           </button>
           <button
             type="button"
@@ -105,7 +105,7 @@ export default function PayPeriods(props: PayPeriodsProps) {
             className={buttonClass}
             onClick={() => setOpenIds(allOpen ? new Set() : new Set(periods.map((period) => period.id)))}
           >
-              {allOpen ? "Close all pay periods" : "Open all pay periods"}
+              {allOpen ? "Close all" : "Open all"}
           </button>
         </div>
       </div>

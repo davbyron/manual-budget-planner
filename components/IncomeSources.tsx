@@ -187,7 +187,7 @@ export default function IncomeSources(props: IncomeSourcesProps) {
                   onClick={() => { append({ name: "New income source", amount: 0 }); setFormSubmissionSucceeded(false); }}
                   className={buttonClass}
                 >
-                  + Add new income source
+                  + New income source
                 </button>
 
                 <div className="flex min-w-0 flex-wrap items-center gap-2">
