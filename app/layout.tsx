@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import {
-  Instrument_Serif,
   Instrument_Sans,
+  Playfair_Display,
 } from "next/font/google";
 import Image from "next/image";
 import "./globals.css";
 
-const instrumentSerif = Instrument_Serif({
-  variable: "--font-instrument-serif",
+const playfairDisplay = Playfair_Display({
+  variable: "--font-playfair-display",
   subsets: ["latin"],
   weight: ["400"]
 });
@@ -27,7 +27,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${instrumentSerif.variable} ${instrumentSans.variable} antialiased`}
+      className={`${playfairDisplay.variable} ${instrumentSans.variable} antialiased`}
     >
       <body className="flex min-w-0 flex-col xl:h-dvh xl:overflow-hidden">
         <header className="shrink-0 bg-black">
