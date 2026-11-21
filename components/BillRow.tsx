@@ -19,6 +19,7 @@ export default function BillRow(props: BillRowProps) {
   const {
     register,
     control,
+    clearErrors,
     formState: { errors }
   } = useFormContext<BillsFormValues>();
 
@@ -26,6 +27,7 @@ export default function BillRow(props: BillRowProps) {
 
   const startDate = useWatch({ control, name: `bills.${index}.startDate` });
   const endDate = useWatch({ control, name: `bills.${index}.endDate` });
+  const isCostVariable = useWatch({ control, name: `bills.${index}.isCostVariable` });
   const today = new Date();
   const startsInFuture = !!startDate && new Date(`${startDate}T00:00:00`) > today;
   const endedInPast = !!endDate && new Date(`${endDate}T00:00:00`) < today;
@@ -44,9 +46,13 @@ export default function BillRow(props: BillRowProps) {
     control,
     name: `bills.${index}.cost`,
     rules: {
-      validate: (value) => (Number.isFinite(value) && value >= 0) || "Enter an amount of 0 or more.",
+      validate: (value, values) => values.bills[index].isCostVariable ||
+        (Number.isFinite(value) && value >= 0) || "Enter an amount of 0 or more.",
     },
   });
+
+  const amountError = isCostVariable ? undefined : rowErrors?.cost;
+  const formattedAmount = Number.isFinite(amountValue) ? dollarFormatter.format(amountValue) : "";
 
   return (
     <tr className="border-b border-zinc-200 hover:bg-zinc-200 [&>*:not(:last-child)]:border-r [&>*:not(:last-child)]:border-r-zinc-200">
@@ -119,7 +125,13 @@ export default function BillRow(props: BillRowProps) {
           <input
             type="checkbox"
             className="size-4 min-h-0 cursor-pointer accent-blue-600"
-            {...register(`bills.${index}.isCostVariable`)}
+            {...register(`bills.${index}.isCostVariable`, {
+              onChange: (event) => {
+                if (!event.target.checked) return;
+                setAmountDraft(null);
+                clearErrors(amountName);
+              }
+            })}
           />
         </label>
       </td>
@@ -132,11 +144,14 @@ export default function BillRow(props: BillRowProps) {
             id={`${id}-cost`}
             type="text"
             inputMode="decimal"
+            className={isCostVariable ? "cursor-not-allowed opacity-50" : undefined}
+            title={isCostVariable ? "Variable amounts are set individually in pay periods" : ""}
             name={amountName}
             ref={amountRef}
-            value={amountDraft ?? (Number.isFinite(amountValue) ? dollarFormatter.format(amountValue) : "")}
-            aria-invalid={!!rowErrors?.cost}
-            aria-describedby={rowErrors?.cost ? `${id}-cost-error` : undefined}
+            disabled={isCostVariable}
+            value={isCostVariable ? dollarFormatter.format(0) : (amountDraft ?? formattedAmount)}
+            aria-invalid={!!amountError}
+            aria-describedby={amountError ? `${id}-cost-error` : undefined}
             onFocus={() => setAmountDraft(Number.isFinite(amountValue) ? amountValue.toFixed(2) : "")}
             onChange={(event) => {
               const value = event.target.value.replace(/[$,]/g, "").trim();
@@ -149,13 +164,13 @@ export default function BillRow(props: BillRowProps) {
               onAmountBlur();
             }}
           />
-          {rowErrors?.cost && (
+          {amountError && (
             <span
               id={`${id}-cost-error`}
               role="alert"
               className="text-xs text-red-600 dark:text-red-400"
             >
-              {rowErrors.cost.message}
+              {amountError.message}
             </span>
           )}
         </label>

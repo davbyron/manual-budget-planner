@@ -74,7 +74,8 @@ export default function Bills(props: BillsProps) {
 
     startTransition(async () => {
       try {
-        const result = await saveBills(bills, originalBills, Intl.DateTimeFormat().resolvedOptions().timeZone);
+        const drafts = bills.map((bill) => bill.isCostVariable ? { ...bill, cost: 0 } : bill);
+        const result = await saveBills(drafts, originalBills, Intl.DateTimeFormat().resolvedOptions().timeZone);
 
         if (result.error !== undefined) {
           setRequiresReload(result.requiresReload ?? false);
