@@ -1,4 +1,10 @@
-import type { BillInput } from "@/types";
+import type { Bill, BillInput } from "@/types";
+
+export function billOccursOnDate(bill: Bill, date: string): boolean {
+  return bill.day === Number(date.slice(8, 10)) &&
+    (bill.startDate === null || date >= bill.startDate) &&
+    (bill.endDate === null || date <= bill.endDate);
+}
 
 export function validateBill(input: BillInput): string | null {
   if (!input || typeof input !== "object") return "Enter the bill details.";

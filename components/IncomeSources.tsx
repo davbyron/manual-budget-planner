@@ -12,7 +12,7 @@ import Table from "@/components/Table";
 const buttonClass = "rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-700 dark:hover:bg-zinc-800";
 
 export default function IncomeSources(props: IncomeSourcesProps) {
-  const { onIncomeSourcesChange } = props;
+  const { onIncomeSourcesChange, onLeftoversChange } = props;
 
   const [originalIncomeSources, setOriginalIncomeSources] = useState<IncomeSource[]>([]);
   const [loaded, setLoaded] = useState(false);
@@ -74,7 +74,8 @@ export default function IncomeSources(props: IncomeSourcesProps) {
 
     startTransition(async () => {
       try {
-        const result = await saveIncomeSources(incomeSources, originalIncomeSources);
+        const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const result = await saveIncomeSources(incomeSources, originalIncomeSources, timeZone);
 
         if (result.error !== undefined) {
           setRequiresReload(result.requiresReload ?? false);
@@ -85,6 +86,7 @@ export default function IncomeSources(props: IncomeSourcesProps) {
         reset({ incomeSources: result.data });
         setOriginalIncomeSources(result.data);
         onIncomeSourcesChange?.(result.data);
+        if (result.leftovers) onLeftoversChange?.(result.leftovers);
         setFormSubmissionSucceeded(true);
       } catch {
         setRequiresReload(true);
@@ -109,9 +111,10 @@ export default function IncomeSources(props: IncomeSourcesProps) {
         <HelpTooltip>
           <div className="flex flex-col gap-3">
             <p>
-              An income source is recurring pay that you receive each
+              An <b>income source</b> is recurring pay that you receive each
               pay period. Pay periods are defined by you in the
-              Pay Periods and Expenses tab.
+              {" "}<b>Pay Periods & Expenses</b>{" "}
+              tab.
             </p>
 
             <p>
@@ -121,8 +124,9 @@ export default function IncomeSources(props: IncomeSourcesProps) {
             </p>
 
             <p>
-              When an income source is removed,
-              it will not be included in the current pay period.
+              Pay periods that have an end date in the past are
+              {" "}<span className="italic">not</span>{" "}
+              affected by Income Source changes.
             </p>
           </div>
         </HelpTooltip>

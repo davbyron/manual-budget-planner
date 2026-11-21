@@ -1,10 +1,10 @@
 "use client";
 
 import type { PayPeriodsProps } from "@/types/props";
-import type { PayPeriodWithExpenses } from "@/types";
+import type { PayPeriodLeftover, PayPeriodWithExpenses } from "@/types";
 import { useEffect, useState, useTransition } from "react";
 import { getPayPeriods } from "@/lib/actions/pay-periods";
-import { getPayPeriodRemainingBalances } from "@/lib/utils/pay-periods";
+import { applyPayPeriodLeftovers } from "@/lib/utils/pay-periods";
 import PayPeriodAccordion from "@/components/PayPeriodAccordion";
 import PayPeriodForm from "@/components/PayPeriodForm";
 import HelpTooltip from "@/components/HelpTooltip";
@@ -12,11 +12,7 @@ import HelpTooltip from "@/components/HelpTooltip";
 const buttonClass = "rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium hover:bg-zinc-100 disabled:opacity-50 dark:border-zinc-700 dark:hover:bg-zinc-800";
 
 export default function PayPeriods(props: PayPeriodsProps) {
-  const {
-    bills = null,
-    incomeSources = null,
-    periods, onPeriodsChange
-  } = props;
+  const { periods, onPeriodsChange } = props;
 
   const [openIds, setOpenIds] = useState<Set<number>>(() => new Set());
   const [creating, setCreating] = useState(false);
@@ -25,9 +21,6 @@ export default function PayPeriods(props: PayPeriodsProps) {
   const [attempt, setAttempt] = useState(0);
   const [pending, startTransition] = useTransition();
   const allOpen = periods.length > 0 && periods.every((period) => openIds.has(period.id));
-  const remainingBalances = bills === null || incomeSources === null
-    ? null
-    : getPayPeriodRemainingBalances(periods, bills, incomeSources);
 
   useEffect(() => {
     let active = true;
@@ -44,12 +37,12 @@ export default function PayPeriods(props: PayPeriodsProps) {
     return () => { active = false; };
   }, [attempt, onPeriodsChange]);
 
-  function saved(period: PayPeriodWithExpenses) {
+  function saved(period: PayPeriodWithExpenses, leftovers: PayPeriodLeftover[] = []) {
     onPeriodsChange((current) => {
       const next = current.some((item) => item.id === period.id)
         ? current.map((item) => item.id === period.id ? period : item)
         : [...current, period];
-      return next.sort((a, b) => b.start_date.localeCompare(a.start_date) || b.id - a.id);
+      return applyPayPeriodLeftovers(next, leftovers).sort((a, b) => b.start_date.localeCompare(a.start_date) || b.id - a.id);
     });
   }
 
@@ -68,15 +61,16 @@ export default function PayPeriods(props: PayPeriodsProps) {
           <HelpTooltip>
             <div className="flex flex-col gap-3">
               <p>
-                Pay periods are ranges of dates in which
+                <b>Pay periods</b> are ranges of dates in which
                 you plan to receive some amount of income.
-                List regularly occurring income in the Income
-                Sources tab. For one-time or irregular payments,
+                List regularly occurring income in the
+                {" "}<b>Income Sources</b>{" "}
+                tab. For one-time or irregular payments,
                 add a negative expense to the pay period.
               </p>
               <p>
                 In each pay period, you can see how much you start with,
-                list expenses, and see how much you have
+                list <b>expenses</b>, and see how much you have
                 remaining. The remaining balance is calculated
                 with the following equation. Note that each pay
                 period compounds onto the next.
@@ -134,8 +128,8 @@ export default function PayPeriods(props: PayPeriodsProps) {
           {creating ? (
             <div className="rounded-xl border border-zinc-200 p-4 dark:border-zinc-800">
               <h3 className="mb-3">New pay period</h3>
-              <PayPeriodForm onCancel={() => setCreating(false)} onReload={() => { setCreating(false); setAttempt((value) => value + 1); }} onSaved={(period) => {
-                saved(period);
+              <PayPeriodForm onCancel={() => setCreating(false)} onReload={() => { setCreating(false); setAttempt((value) => value + 1); }} onSaved={(period, leftovers) => {
+                saved(period, leftovers);
                 setOpenIds((current) => new Set(current).add(period.id));
                 setCreating(false);
               }} />
@@ -146,7 +140,7 @@ export default function PayPeriods(props: PayPeriodsProps) {
             {periods.map((period) => (
               <PayPeriodAccordion
                 key={period.id}
-                remainingBalance={remainingBalances?.get(period.id) ?? null}
+                remainingBalance={period.leftover}
                 payPeriod={period}
                 open={openIds.has(period.id)}
                 onSaved={saved}

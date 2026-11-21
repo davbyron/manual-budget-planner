@@ -12,7 +12,7 @@ import Table from "@/components/Table";
 const buttonClass = "rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-700 dark:hover:bg-zinc-800";
 
 export default function Bills(props: BillsProps) {
-  const { onBillsChange } = props;
+  const { onBillsChange, onLeftoversChange } = props;
 
   const [originalBills, setOriginalBills] = useState<Bill[]>([]);
   const [loaded, setLoaded] = useState(false);
@@ -74,7 +74,7 @@ export default function Bills(props: BillsProps) {
 
     startTransition(async () => {
       try {
-        const result = await saveBills(bills, originalBills);
+        const result = await saveBills(bills, originalBills, Intl.DateTimeFormat().resolvedOptions().timeZone);
 
         if (result.error !== undefined) {
           setRequiresReload(result.requiresReload ?? false);
@@ -85,7 +85,8 @@ export default function Bills(props: BillsProps) {
         reset({ bills: result.data });
         setOriginalBills(result.data);
         onBillsChange?.(result.data);
-       setFormSubmissionSucceeded(true);
+        onLeftoversChange?.(result.leftovers);
+        setFormSubmissionSucceeded(true);
       } catch {
         setRequiresReload(true);
         setError("root", {
@@ -109,7 +110,7 @@ export default function Bills(props: BillsProps) {
         <HelpTooltip>
           <div className="flex flex-col gap-3">
             <p>
-              Bills are recurring monthly payments on a scheduled day.
+              <b>Bills</b> are recurring monthly payments on a scheduled day.
               Bills are automatically deducted from the amount left in
               a pay period if the bill&apos;s day falls within the
               pay period.
@@ -120,10 +121,9 @@ export default function Bills(props: BillsProps) {
               your pay periods.
             </p>
             <p>
-              When a bill is removed, if the bill occurs on or after today&apos;s
-              date and is in the current pay period, it will
+              Pay periods that have an end date in the past are
               {" "}<span className="italic">not</span>{" "}
-              be deducted from the current pay period.
+              affected by Bill changes.
             </p>
           </div>
         </HelpTooltip>

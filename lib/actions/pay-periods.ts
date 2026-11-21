@@ -1,10 +1,10 @@
 "use server";
 
-import type { Expense, PayPeriod, PayPeriodBalanceInput, PayPeriodFormValues, PayPeriodInput, PayPeriodResult, PayPeriodWithExpenses } from "@/types";
-import { getBills } from "@/lib/actions/bills";
-import { getIncomeSources } from "@/lib/actions/income-sources";
+import type { Expense, PayPeriod, PayPeriodFormValues, PayPeriodInput, PayPeriodResult, PayPeriodSaveResult, PayPeriodWithExpenses } from "@/types";
 import { getPlannerDatabase } from "@/lib/supabase/admin";
-import { getPayPeriodRemainingBalances, payPeriodMatches, validateExpense, validatePayPeriod } from "@/lib/utils/pay-periods";
+import { refreshPayPeriodLeftovers, savePayPeriodLeftovers, withPlannerBalanceTransaction } from "@/lib/supabase/planner-balances";
+import { getToday } from "@/lib/utils/dates";
+import { payPeriodMatches, validateExpense, validatePayPeriod } from "@/lib/utils/pay-periods";
 
 const periodColumns = "id, start_date, end_date, color, leftover";
 const expenseColumns = "id, date, name, cost, pay_period_id";
@@ -61,41 +61,35 @@ export async function getPayPeriod(id: number): Promise<PayPeriodResult<PayPerio
   }
 }
 
-async function calculateLeftover(period: PayPeriodBalanceInput): Promise<PayPeriodResult<number>> {
-  const [periods, bills, incomeSources] = await Promise.all([getPayPeriods(), getBills(), getIncomeSources()]);
-  if (periods.error !== undefined) return { error: periods.error };
-  if (bills.error !== undefined) return { error: bills.error };
-  if (incomeSources.error !== undefined) return { error: incomeSources.error };
-
-  const precedingPeriods = periods.data.filter((saved) => saved.id !== period.id && (
-    saved.start_date < period.start_date || (saved.start_date === period.start_date && saved.id < period.id)
-  ));
-  const balances = getPayPeriodRemainingBalances([...precedingPeriods, period], bills.data, incomeSources.data);
-  const leftover = balances.get(period.id);
-  if (leftover === undefined || !Number.isFinite(leftover)) return { error: "Could not calculate the remaining balance." };
-  return { data: leftover };
-}
-
-export async function createPayPeriod(input: PayPeriodInput): Promise<PayPeriodResult<PayPeriodWithExpenses>> {
+export async function createPayPeriod(input: PayPeriodInput, timeZone = "UTC"): Promise<PayPeriodSaveResult> {
   const validationError = validatePayPeriod(input);
   if (validationError) return { error: validationError };
   try {
-    // A new period follows existing periods with the same start date.
-    const balance = await calculateLeftover({ ...input, id: Infinity, expenses: [] });
-    if (balance.error !== undefined) return { error: balance.error };
-
-    const { client, userId } = await getPlannerDatabase();
-    const { data, error } = await client.from("PayPeriod")
-      .insert({ user_id: userId, start_date: input.start_date, end_date: input.end_date, color: input.color, leftover: balance.data })
-      .select(periodColumns).eq("user_id", userId).single();
-    if (error) return { error: "Could not confirm the new pay period. Reload pay periods before trying again.", requiresReload: true };
-    return { data: { ...data, expenses: [] } };
+    const today = getToday(timeZone);
+    const { userId } = await getPlannerDatabase();
+    return await withPlannerBalanceTransaction(async (db) => {
+      const { rows: [period] } = await db.query<PayPeriod>(`
+        insert into public."PayPeriod" (user_id, start_date, end_date, color, leftover)
+        values ($1, $2, $3, $4, 0)
+        returning id::float8, start_date::text, end_date::text, color, leftover
+      `, [userId, input.start_date, input.end_date, input.color]);
+      if (!period) throw new Error("Could not create the pay period.");
+      const leftovers = await refreshPayPeriodLeftovers(db, userId, today, { editedPeriodId: period.id });
+      const saved = leftovers.find((item) => item.id === period.id);
+      if (!saved) throw new Error("Could not calculate the new pay period balance.");
+      return { data: { ...period, leftover: saved.leftover, expenses: [] }, leftovers };
+    });
   } catch {
     return { error: "Could not confirm the new pay period. Reload pay periods before trying again.", requiresReload: true };
   }
 }
 
-export async function savePayPeriod(id: number, input: PayPeriodFormValues, original: PayPeriodWithExpenses): Promise<PayPeriodResult<PayPeriodWithExpenses>> {
+export async function savePayPeriod(
+  id: number,
+  input: PayPeriodFormValues,
+  original: PayPeriodWithExpenses,
+  timeZone = "UTC",
+): Promise<PayPeriodSaveResult> {
   if (!Number.isSafeInteger(id) || id < 1 || !original || original.id !== id) return { error: "Invalid pay period ID." };
   const validationError = validatePayPeriod(input);
   if (validationError) return { error: validationError };
@@ -116,10 +110,9 @@ export async function savePayPeriod(id: number, input: PayPeriodFormValues, orig
     }
     baselineIds.add(expense.id);
   }
-  const [current, balance] = await Promise.all([getPayPeriod(id), calculateLeftover({ ...input, id })]);
+  const current = await getPayPeriod(id);
   if (current.error !== undefined) return { error: current.error };
   if (!payPeriodMatches(current.data, original)) return { error: "This pay period changed. Reload it before saving.", requiresReload: true };
-  if (balance.error !== undefined) return { error: balance.error };
   const byId = new Map(current.data.expenses.map((expense) => [expense.id, expense]));
   if (input.expenses.some((expense) => expense.id !== undefined && !byId.has(expense.id))) {
     return { error: "An expense does not belong to this pay period. Reload before saving.", requiresReload: true };
@@ -128,6 +121,7 @@ export async function savePayPeriod(id: number, input: PayPeriodFormValues, orig
     error: "The save could not be completed. Some changes may have been saved. Reload this pay period before trying again.", requiresReload: true,
   };
   try {
+    const today = getToday(timeZone);
     const { client, userId } = await getPlannerDatabase();
     for (const expense of input.expenses) {
       if (expense.id === undefined) continue;
@@ -151,19 +145,19 @@ export async function savePayPeriod(id: number, input: PayPeriodFormValues, orig
     }
     if (
       input.start_date !== current.data.start_date || input.end_date !== current.data.end_date ||
-      input.color !== current.data.color || balance.data !== current.data.leftover
+      input.color !== current.data.color
     ) {
       const { error } = await client.from("PayPeriod").update({
         start_date: input.start_date,
         end_date: input.end_date,
         color: input.color,
-        leftover: balance.data,
         updated_at: new Date().toISOString(),
       }).eq("user_id", userId).eq("id", id).select("id").single();
       if (error) return interrupted;
     }
+    const leftovers = await savePayPeriodLeftovers(userId, today, id);
     const refreshed = await getPayPeriod(id);
-    return refreshed.error !== undefined ? interrupted : refreshed;
+    return refreshed.error !== undefined ? interrupted : { data: refreshed.data, leftovers };
   } catch {
     return interrupted;
   }

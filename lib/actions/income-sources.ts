@@ -1,8 +1,10 @@
 "use server";
 
+import type { IncomeSource, IncomeSourceDraft, IncomeSourceResult, IncomeSourceSaveResult } from "@/types";
 import { getPlannerDatabase } from "@/lib/supabase/admin";
+import { savePayPeriodLeftovers } from "@/lib/supabase/planner-balances";
+import { getToday } from "@/lib/utils/dates";
 import { validateIncomeSource } from "@/lib/utils/income-sources";
-import type { IncomeSource, IncomeSourceDraft, IncomeSourceResult } from "@/types";
 
 const columns = "id, name, amount";
 
@@ -23,7 +25,11 @@ export async function getIncomeSources(): Promise<IncomeSourceResult<IncomeSourc
   }
 }
 
-export async function saveIncomeSources(drafts: IncomeSourceDraft[], original: IncomeSource[]): Promise<IncomeSourceResult<IncomeSource[]>> {
+export async function saveIncomeSources(
+  drafts: IncomeSourceDraft[],
+  original: IncomeSource[],
+  timeZone = "UTC",
+): Promise<IncomeSourceSaveResult> {
   if (!Array.isArray(drafts) || !Array.isArray(original)) return { error: "Invalid income source list." };
   const ids = new Set<number>();
   for (const source of drafts) {
@@ -51,10 +57,11 @@ export async function saveIncomeSources(drafts: IncomeSourceDraft[], original: I
   if (drafts.some((source) => source.id !== undefined && !byId.has(source.id))) {
     return { error: "An income source no longer exists. Reload before saving.", requiresReload: true };
   }
-  const interrupted: IncomeSourceResult<IncomeSource[]> = {
+  const interrupted: IncomeSourceSaveResult = {
     error: "The save could not be completed. Some changes may have been saved. Reload income sources before trying again.", requiresReload: true,
   };
   try {
+    const today = getToday(timeZone);
     const { client, userId } = await getPlannerDatabase();
     for (const source of drafts) {
       if (source.id === undefined) continue;
@@ -79,8 +86,9 @@ export async function saveIncomeSources(drafts: IncomeSourceDraft[], original: I
       const { error } = await client.from("IncomeSource").insert(added);
       if (error) return interrupted;
     }
+    const leftovers = await savePayPeriodLeftovers(userId, today);
     const refreshed = await getIncomeSources();
-    return refreshed.error !== undefined ? interrupted : refreshed;
+    return refreshed.error !== undefined ? interrupted : { data: refreshed.data, leftovers };
   } catch {
     return interrupted;
   }

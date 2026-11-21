@@ -14,18 +14,26 @@ export type BillResult<T> = { data: T; error?: never } | { data?: never; error: 
 export type BillDraft = BillInput & { id?: number };
 export type BillsFormValues = { bills: BillDraft[] };
 
-export type BillSaveResult = BillResult<Bill[]> & { requiresReload?: boolean };
+export type BillSaveResult =
+  | { data: Bill[]; leftovers: PayPeriodLeftover[]; error?: never; requiresReload?: never }
+  | { data?: never; leftovers?: never; error: string; requiresReload?: boolean };
 
 export type Expense = Pick<Tables<"Expense">, "id" | "date" | "name" | "cost" | "pay_period_id">;
 export type ExpenseDraft = Pick<Expense, "date" | "name" | "cost"> & { id?: number };
 export type PayPeriod = Pick<Tables<"PayPeriod">, "id" | "start_date" | "end_date" | "color" | "leftover">;
+export type PayPeriodLeftover = Pick<PayPeriod, "id" | "leftover">;
 export type PayPeriodInput = Pick<PayPeriod, "start_date" | "end_date" | "color">;
-export type PayPeriodBalanceInput = Pick<PayPeriod, "id" | "start_date" | "end_date"> & { expenses: Pick<Expense, "cost">[] };
+export type PayPeriodBalanceInput = Pick<PayPeriod, "id" | "start_date" | "end_date"> & {
+  leftover?: PayPeriod["leftover"];
+  expenses: Pick<Expense, "cost">[];
+};
 export type PayPeriodWithExpenses = PayPeriod & { expenses: Expense[] };
 export type PayPeriodFormValues = PayPeriodInput & { expenses: ExpenseDraft[] };
 export type PayPeriodResult<T> = { data: T; error?: never; requiresReload?: never } | { data?: never; error: string; requiresReload?: boolean };
+export type PayPeriodSaveResult = PayPeriodResult<PayPeriodWithExpenses> & { leftovers?: PayPeriodLeftover[] };
 
 export type IncomeSource = Pick<Tables<"IncomeSource">, "id" | "name" | "amount">;
 export type IncomeSourceDraft = Pick<IncomeSource, "name" | "amount"> & { id?: number };
 export type IncomeSourcesFormValues = { incomeSources: IncomeSourceDraft[] };
 export type IncomeSourceResult<T> = { data: T; error?: never; requiresReload?: never } | { data?: never; error: string; requiresReload?: boolean };
+export type IncomeSourceSaveResult = IncomeSourceResult<IncomeSource[]> & { leftovers?: PayPeriodLeftover[] };

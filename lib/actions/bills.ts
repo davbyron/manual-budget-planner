@@ -1,10 +1,69 @@
 "use server";
 
-import { getPlannerDatabase } from "@/lib/supabase/admin";
-import { validateBill } from "@/lib/utils/bills";
 import type { Bill, BillDraft, BillInput, BillResult, BillSaveResult } from "@/types";
+import type { PoolClient } from "pg";
+import { getPlannerDatabase } from "@/lib/supabase/admin";
+import { billSqlColumns, readPlannerBills, refreshPayPeriodLeftovers } from "@/lib/supabase/planner-balances";
+import { databasePool } from "@/lib/supabase/pool";
+import { validateBill } from "@/lib/utils/bills";
+import { getToday } from "@/lib/utils/dates";
 
 const columns = "id, day, name, cost, startDate, endDate";
+
+async function saveBillChanges<T>(
+  timeZone: string,
+  change: (db: PoolClient, userId: string) => Promise<BillResult<T>>,
+) {
+  const { userId } = await getPlannerDatabase();
+  const today = getToday(timeZone);
+  const db = await databasePool.connect();
+  try {
+    await db.query("BEGIN ISOLATION LEVEL REPEATABLE READ");
+    const result = await change(db, userId);
+    if (result.error !== undefined) {
+      await db.query("ROLLBACK");
+      return { result, bills: [], leftovers: [] };
+    }
+    const bills = await readPlannerBills(db, userId);
+    const leftovers = await refreshPayPeriodLeftovers(db, userId, today, { bills });
+    await db.query("COMMIT");
+    return { result, bills, leftovers };
+  } catch (error) {
+    await db.query("ROLLBACK");
+    throw error;
+  } finally {
+    db.release();
+  }
+}
+
+async function writeBill(db: PoolClient, userId: string, input: BillDraft) {
+  const values = [userId, input.day, input.name.trim(), input.cost, input.startDate, input.endDate];
+  const { rows } = input.id === undefined
+    ? await db.query<Bill>(`
+        insert into public."Bill" (user_id, day, name, cost, "startDate", "endDate")
+        values ($1, $2, $3, $4, $5, $6)
+        returning ${billSqlColumns}
+      `, values)
+    : await db.query<Bill>(`
+        update public."Bill"
+        set day = $2, name = $3, cost = $4, "startDate" = $5, "endDate" = $6, updated_at = now()
+        where user_id = $1 and id = $7
+        returning ${billSqlColumns}
+      `, [...values, input.id]);
+  return rows[0];
+}
+
+async function removeBills(db: PoolClient, userId: string, ids: number[]) {
+  const removed = await db.query(`
+    delete from public."Bill" where user_id = $1 and id = any($2::bigint[])
+  `, [userId, ids]);
+  return removed.rowCount === ids.length;
+}
+
+function billMatches(saved: Bill, input: BillInput) {
+  return saved.day === input.day && saved.name === input.name && saved.cost === input.cost &&
+    saved.startDate === input.startDate && saved.endDate === input.endDate;
+}
 
 export async function getBills(): Promise<BillResult<Bill[]>> {
   try {
@@ -24,51 +83,49 @@ export async function getBills(): Promise<BillResult<Bill[]>> {
   }
 }
 
-export async function createBill(input: BillInput): Promise<BillResult<Bill>> {
+export async function createBill(input: BillInput, timeZone = "UTC"): Promise<BillResult<Bill>> {
   const validationError = validateBill(input);
   if (validationError) return { error: validationError };
   try {
-    const { client, userId } = await getPlannerDatabase();
-    const { data, error } = await client.from("Bill")
-      .insert({ user_id: userId, day: input.day, name: input.name.trim(), cost: input.cost, startDate: input.startDate, endDate: input.endDate })
-      .select(columns).eq("user_id", userId).single();
-    if (error) return { error: "Could not add the bill. Please try again." };
-    return { data };
+    const { result } = await saveBillChanges<Bill>(timeZone, async (db, userId) => {
+      const data = await writeBill(db, userId, { ...input, id: undefined });
+      return data ? { data } : { error: "Could not add the bill. Please try again." };
+    });
+    return result;
   } catch {
     return { error: "Could not connect to the bills database." };
   }
 }
 
-export async function updateBill(id: number, input: BillInput): Promise<BillResult<Bill>> {
+export async function updateBill(id: number, input: BillInput, timeZone = "UTC"): Promise<BillResult<Bill>> {
   if (!Number.isSafeInteger(id) || id < 1) return { error: "Invalid bill ID." };
   const validationError = validateBill(input);
   if (validationError) return { error: validationError };
   try {
-    const { client, userId } = await getPlannerDatabase();
-    const { data, error } = await client.from("Bill")
-      .update({ day: input.day, name: input.name.trim(), cost: input.cost, startDate: input.startDate, endDate: input.endDate, updated_at: new Date().toISOString() }).eq("user_id", userId)
-      .eq("id", id).select(columns).single();
-    if (error) return { error: "Could not save the bill. It may have been removed." };
-    return { data };
+    const { result } = await saveBillChanges<Bill>(timeZone, async (db, userId) => {
+      const data = await writeBill(db, userId, { ...input, id });
+      return data ? { data } : { error: "Could not save the bill. It may have been removed." };
+    });
+    return result;
   } catch {
     return { error: "Could not connect to the bills database." };
   }
 }
 
-export async function deleteBill(id: number): Promise<BillResult<number>> {
+export async function deleteBill(id: number, timeZone = "UTC"): Promise<BillResult<number>> {
   if (!Number.isSafeInteger(id) || id < 1) return { error: "Invalid bill ID." };
   try {
-    const { client, userId } = await getPlannerDatabase();
-    const { data, error } = await client.from("Bill")
-      .delete().eq("user_id", userId).eq("id", id).select("id").single();
-    if (error) return { error: "Could not delete the bill. It may have been removed." };
-    return { data: data.id };
+    const { result } = await saveBillChanges<number>(timeZone, async (db, userId) => {
+      const removed = await removeBills(db, userId, [id]);
+      return removed ? { data: id } : { error: "Could not delete the bill. It may have been removed." };
+    });
+    return result;
   } catch {
-    return { error: "Could not connect to the bills database." };
+    return { error: "Could not delete the bill. It may have been removed." };
   }
 }
 
-export async function saveBills(drafts: BillDraft[], original: Bill[]): Promise<BillSaveResult> {
+export async function saveBills(drafts: BillDraft[], original: Bill[], timeZone = "UTC"): Promise<BillSaveResult> {
   // Validate the complete form before any database writes.
   if (!Array.isArray(drafts) || !Array.isArray(original)) return { error: "Invalid bill list." };
   const seen = new Set<number>();
@@ -90,57 +147,34 @@ export async function saveBills(drafts: BillDraft[], original: Bill[]): Promise<
     originalIds.add(bill.id);
   }
 
-  const current = await getBills();
-  if (current.error !== undefined) return { error: current.error };
-  const currentById = new Map(current.data.map((bill) => [bill.id, bill]));
-  if (current.data.length !== original.length || original.some((bill) => {
-    const saved = currentById.get(bill.id);
-    return !saved || saved.day !== bill.day || saved.name !== bill.name || saved.cost !== bill.cost || saved.startDate !== bill.startDate || saved.endDate !== bill.endDate;
-  })) {
-    return { error: "Bills changed since this form was loaded. Reload saved bills before saving.", requiresReload: true };
-  }
-  if (drafts.some((bill) => bill.id !== undefined && !currentById.has(bill.id))) {
-    return { error: "A bill no longer exists. Reload saved bills before saving.", requiresReload: true };
-  }
-
-  const interrupted: BillSaveResult = {
-    error: "The save could not be completed. Some changes may have been saved. Reload saved bills before trying again.",
-    requiresReload: true,
-  };
   try {
-    const { client, userId } = await getPlannerDatabase();
-    // Keep existing IDs and unrelated columns. Only write edited rows.
-    for (const draft of drafts) {
-      if (draft.id === undefined) continue;
-      const saved = currentById.get(draft.id)!;
-      const name = draft.name.trim();
-      if (saved.day === draft.day && saved.name === name && saved.cost === draft.cost && saved.startDate === draft.startDate && saved.endDate === draft.endDate) continue;
-      const { error } = await client.from("Bill")
-        .update({ day: draft.day, name, cost: draft.cost, startDate: draft.startDate, endDate: draft.endDate, updated_at: new Date().toISOString() }).eq("user_id", userId)
-        .eq("id", draft.id).select("id").single();
-      if (error) return interrupted;
-    }
+    const { result, bills, leftovers } = await saveBillChanges<true>(timeZone, async (db, userId) => {
+      const current = await readPlannerBills(db, userId);
+      const currentById = new Map(current.map((bill) => [bill.id, bill]));
+      if (current.length !== original.length || original.some((bill) => {
+        const saved = currentById.get(bill.id);
+        return !saved || !billMatches(saved, bill);
+      })) {
+        return { error: "Bills changed since this form was loaded. Reload saved bills before saving." };
+      }
+      if (drafts.some((bill) => bill.id !== undefined && !currentById.has(bill.id))) {
+        return { error: "A bill no longer exists. Reload saved bills before saving." };
+      }
 
-    // Delete only IDs in the loaded snapshot, never an unfiltered table delete.
-    const removed = current.data.filter((bill) => !seen.has(bill.id)).map((bill) => bill.id);
-    for (let offset = 0; offset < removed.length; offset += 100) {
-      const ids = removed.slice(offset, offset + 100);
-      const { data, error } = await client.from("Bill").delete().eq("user_id", userId).in("id", ids).select("id");
-      if (error || data.length !== ids.length) return interrupted;
-    }
+      for (const draft of drafts) {
+        const saved = draft.id === undefined ? undefined : currentById.get(draft.id);
+        if (saved && billMatches(saved, { ...draft, name: draft.name.trim() })) continue;
+        if (!await writeBill(db, userId, draft)) return { error: "Could not save a bill. Reload saved bills before trying again." };
+      }
 
-    const added = drafts.filter((bill) => bill.id === undefined)
-      .map((bill) => ({ user_id: userId, day: bill.day, name: bill.name.trim(), cost: bill.cost, startDate: bill.startDate, endDate: bill.endDate }));
-    if (added.length) {
-      const { error } = await client.from("Bill").insert(added);
-      if (error) return interrupted;
-    }
-
-    // Refresh IDs assigned to new rows and make the saved list the new baseline.
-    const refreshed = await getBills();
-    if (refreshed.error !== undefined) return interrupted;
-    return refreshed;
+      const removed = current.filter((bill) => !seen.has(bill.id)).map((bill) => bill.id);
+      if (removed.length && !await removeBills(db, userId, removed)) {
+        return { error: "A bill was already removed. Reload saved bills before trying again." };
+      }
+      return { data: true };
+    });
+    return result.error !== undefined ? { error: result.error, requiresReload: true } : { data: bills, leftovers };
   } catch {
-    return interrupted;
+    return { error: "Could not confirm the save. Reload saved bills before trying again.", requiresReload: true };
   }
 }

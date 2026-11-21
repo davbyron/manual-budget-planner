@@ -1,8 +1,9 @@
 import type { Dispatch, SetStateAction } from "react";
-import type { Bill, IncomeSource, PayPeriod, PayPeriodWithExpenses } from "@/types";
+import type { Bill, IncomeSource, PayPeriod, PayPeriodLeftover, PayPeriodWithExpenses } from "@/types";
 
 export type BillsProps = {
   onBillsChange?: (bills: Bill[]) => void;
+  onLeftoversChange?: (leftovers: PayPeriodLeftover[]) => void;
 };
 
 export type BillRowProps = {
@@ -33,7 +34,7 @@ export type ExpenseRowProps = {
 
 export type PayPeriodFormProps = {
   payPeriod?: PayPeriodWithExpenses;
-  onSaved: (period: PayPeriodWithExpenses) => void;
+  onSaved: (period: PayPeriodWithExpenses, leftovers?: PayPeriodLeftover[]) => void;
   onCancel?: () => void;
   onReload?: () => void;
 };
@@ -43,11 +44,12 @@ export type PayPeriodAccordionProps = {
   payPeriod: PayPeriodWithExpenses;
   open: boolean;
   onToggle: () => void;
-  onSaved: (period: PayPeriodWithExpenses) => void;
+  onSaved: PayPeriodFormProps["onSaved"];
 };
 
 export type IncomeSourcesProps = {
   onIncomeSourcesChange?: (incomeSources: IncomeSource[]) => void;
+  onLeftoversChange?: (leftovers: PayPeriodLeftover[]) => void;
 };
 
 export type IncomeSourceRowProps = {
@@ -61,8 +63,6 @@ export type CalendarProps = {
 };
 
 export type PayPeriodsProps = {
-  bills?: Bill[] | null;
-  incomeSources?: IncomeSource[] | null;
   periods: PayPeriodWithExpenses[];
   onPeriodsChange: Dispatch<SetStateAction<PayPeriodWithExpenses[]>>;
 };

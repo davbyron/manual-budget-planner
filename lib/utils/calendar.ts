@@ -1,4 +1,5 @@
 import type { Bill, PayPeriod } from "@/types";
+import { billOccursOnDate } from "@/lib/utils/bills";
 
 // ISO date-only strings compare without timezone conversion. Both endpoints count.
 export function getPayPeriodColor(date: string, periods: PayPeriod[]): string | undefined {
@@ -13,10 +14,5 @@ export function getPayPeriodColor(date: string, periods: PayPeriod[]): string | 
 }
 
 export function getBillsForDate(date: string, bills: Bill[]): Bill[] {
-  const day = Number(date.slice(8, 10));
-  return bills.filter((bill) =>
-    bill.day === day &&
-    (bill.startDate === null || date >= bill.startDate) &&
-    (bill.endDate === null || date <= bill.endDate)
-  );
+  return bills.filter((bill) => billOccursOnDate(bill, date));
 }

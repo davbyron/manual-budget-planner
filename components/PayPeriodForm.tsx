@@ -12,7 +12,6 @@ import {
 import { FormProvider, useController, useFieldArray, useForm } from "react-hook-form";
 import { createPayPeriod, getPayPeriod, savePayPeriod } from "@/lib/actions/pay-periods";
 import { validateBillDates } from "@/lib/utils/bills";
-import Dialog from "@/components/Dialog";
 import ExpenseRow from "@/components/ExpenseRow";
 import Table from "@/components/Table";
 import HelpTooltip from "@/components/HelpTooltip";
@@ -77,9 +76,10 @@ export default function PayPeriodForm(props: PayPeriodFormProps) {
 
     startTransition(async () => {
       try {
+        const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
         const result = originalPayPeriodData
-          ? await savePayPeriod(originalPayPeriodData.id, values, originalPayPeriodData)
-          : await createPayPeriod({ start_date: values.start_date, end_date: values.end_date, color: values.color });
+          ? await savePayPeriod(originalPayPeriodData.id, values, originalPayPeriodData, timeZone)
+          : await createPayPeriod({ start_date: values.start_date, end_date: values.end_date, color: values.color }, timeZone);
 
         if (result.error !== undefined) {
           setRequiresReload(result.requiresReload ?? false);
@@ -95,7 +95,7 @@ export default function PayPeriodForm(props: PayPeriodFormProps) {
         });
         setOriginalPayPeriodData(result.data);
         setFormSubmissionSucceeded(true);
-        onSaved(result.data);
+        onSaved(result.data, result.leftovers);
       } catch {
         setRequiresReload(true);
         setError("root", { message: "Could not confirm the save. Reload saved data before trying again." });

@@ -1,8 +1,9 @@
 "use client";
 
-import type { IncomeSource } from "@/types";
+import type { PayPeriodLeftover } from "@/types";
 import type { PlannerTabsProps } from "@/types/props";
 import { useId, useState } from "react";
+import { applyPayPeriodLeftovers } from "@/lib/utils/pay-periods";
 import Bills from "@/components/Bills";
 import IncomeSources from "@/components/IncomeSources";
 import PayPeriods from "@/components/PayPeriods";
@@ -14,10 +15,13 @@ const tabs = [
 ];
 
 export default function PlannerTabs(props: PlannerTabsProps) {
-  const { periods, onPeriodsChange, bills, onBillsChange } = props;
+  const { periods, onPeriodsChange, onBillsChange } = props;
   const id = useId();
   const [activeTab, setActiveTab] = useState(0);
-  const [incomeSources, setIncomeSources] = useState<IncomeSource[] | null>(null);
+
+  function applyLeftovers(leftovers: PayPeriodLeftover[]) {
+    onPeriodsChange((current) => applyPayPeriodLeftovers(current, leftovers));
+  }
 
   return (
     <div className="min-w-0 min-h-0 flex flex-col sm:flex-row xl:h-auto xl:flex-1">
@@ -72,8 +76,6 @@ export default function PlannerTabs(props: PlannerTabsProps) {
           className="min-w-0 min-h-0 flex-1"
         >
           <PayPeriods
-            bills={bills}
-            incomeSources={incomeSources}
             periods={periods}
             onPeriodsChange={onPeriodsChange}
           />
@@ -87,7 +89,7 @@ export default function PlannerTabs(props: PlannerTabsProps) {
           tabIndex={0}
           className="min-w-0 min-h-0 flex-1"
         >
-          <Bills onBillsChange={onBillsChange} />
+          <Bills onBillsChange={onBillsChange} onLeftoversChange={applyLeftovers} />
         </div>
 
         <div
@@ -98,7 +100,7 @@ export default function PlannerTabs(props: PlannerTabsProps) {
           tabIndex={0}
           className="min-w-0 min-h-0 flex-1"
         >
-          <IncomeSources onIncomeSourcesChange={setIncomeSources} />
+          <IncomeSources onLeftoversChange={applyLeftovers} />
         </div>
       </>
     </div>
