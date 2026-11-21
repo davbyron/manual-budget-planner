@@ -42,7 +42,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         </header>
         {children}
         <footer className="shrink-0 mt-auto h-10 w-full flex items-center justify-center text-white text-xs font-instrument-serif bg-neutral-950">
-          <p>&copy; 2026 David Byron</p>
+          <p>&copy; 2026 Cash Tally</p>
         </footer>
       </body>
     </html>
