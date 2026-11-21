@@ -1,5 +1,5 @@
+import type { Bill, ExpenseDraft, IncomeSource, PayPeriodBalanceInput, PayPeriodInput, PayPeriodWithExpenses } from "@/types";
 import { validateBillDates } from "@/lib/utils/bills";
-import type { Bill, ExpenseDraft, IncomeSource, PayPeriodInput, PayPeriodWithExpenses } from "@/types";
 
 export function validatePayPeriod(input: PayPeriodInput): string | null {
   if (!input || typeof input.start_date !== "string" || !input.start_date || typeof input.end_date !== "string" || !input.end_date) {
@@ -27,7 +27,7 @@ export function payPeriodMatches(current: PayPeriodWithExpenses, original: PayPe
 }
 
 export function getPayPeriodRemainingBalance(
-  period: PayPeriodWithExpenses,
+  period: PayPeriodBalanceInput,
   bills: Bill[],
   incomeSources: IncomeSource[],
   previousRemainingBalance = 0,
@@ -55,7 +55,7 @@ export function getPayPeriodRemainingBalance(
 }
 
 export function getPayPeriodRemainingBalances(
-  periods: PayPeriodWithExpenses[],
+  periods: PayPeriodBalanceInput[],
   bills: Bill[],
   incomeSources: IncomeSource[],
 ): Map<number, number> {
