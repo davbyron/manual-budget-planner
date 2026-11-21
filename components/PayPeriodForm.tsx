@@ -1,25 +1,54 @@
 "use client";
 
-import type { PayPeriodFormValues } from "@/types";
+import type { PayPeriodFormValues, PayPeriodWithExpenses } from "@/types";
 import type { PayPeriodFormProps } from "@/types/props";
 import {
-  Fragment,
   useId,
   useMemo,
   useState,
   useTransition
 } from "react";
-import { FormProvider, useController, useFieldArray, useForm } from "react-hook-form";
+import { FormProvider, useController, useFieldArray, useForm, useWatch } from "react-hook-form";
 import { createPayPeriod, getPayPeriod, savePayPeriod } from "@/lib/actions/pay-periods";
 import { validateBillDates } from "@/lib/utils/bills";
+import { getBillOccurrenceKey, getBillOccurrences } from "@/lib/utils/pay-periods";
 import ExpenseRow from "@/components/ExpenseRow";
-import Table from "@/components/Table";
 import HelpTooltip from "@/components/HelpTooltip";
+import Table from "@/components/Table";
 
 const buttonClass = "rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-700 dark:hover:bg-zinc-800";
 
+const expenseColumns = (
+  <tr>
+    <th scope="col" className="w-10">Date</th>
+    <th scope="col" className="min-w-[20ch]">Name</th>
+    <th scope="col" className="min-w-[10ch]">Amount</th>
+    <th scope="col"></th>
+  </tr>
+);
+
+function getFormValues(period?: PayPeriodWithExpenses): PayPeriodFormValues {
+  const expenses = period?.expenses ?? [];
+  const variableBills: PayPeriodFormValues["variableBills"] = {};
+  for (const expense of expenses) {
+    if (expense.bill_id != null && expense.bill_due_date != null) {
+      variableBills[getBillOccurrenceKey(expense.bill_id, expense.bill_due_date)] = {
+        date: expense.date,
+        cost: expense.cost,
+      };
+    }
+  }
+  return {
+    start_date: period?.start_date ?? "",
+    end_date: period?.end_date ?? "",
+    color: period?.color || "#3b82f6",
+    expenses,
+    variableBills,
+  };
+}
+
 export default function PayPeriodForm(props: PayPeriodFormProps) {
-  const { payPeriod, onSaved, onCancel, onReload } = props;
+  const { bills, payPeriod, onSaved, onCancel, onReload } = props;
 
   const todaysDateString = useMemo(() => new Date().toISOString().split("T")[0], []);
 
@@ -30,13 +59,7 @@ export default function PayPeriodForm(props: PayPeriodFormProps) {
   const [requiresReload, setRequiresReload] = useState(false);
   const [formSubmissionSucceeded, setFormSubmissionSucceeded] = useState(false);
 
-  const form = useForm<PayPeriodFormValues>({
-    defaultValues: {
-      start_date: payPeriod?.start_date ?? "",
-      end_date: payPeriod?.end_date ?? "",
-      color: payPeriod?.color || "#3b82f6",
-      expenses: payPeriod?.expenses ?? [],
-  }});
+  const form = useForm<PayPeriodFormValues>({ defaultValues: getFormValues(payPeriod) });
 
   const {
     register,
@@ -44,6 +67,7 @@ export default function PayPeriodForm(props: PayPeriodFormProps) {
     reset,
     handleSubmit,
     setError,
+    setValue,
     clearErrors,
     formState: { errors, isDirty }
   } = form;
@@ -52,6 +76,22 @@ export default function PayPeriodForm(props: PayPeriodFormProps) {
     control,
     name: "expenses",
     keyName: "formKey"
+  });
+
+  const [startDate, endDate] = useWatch({ control, name: ["start_date", "end_date"] });
+  const variableBills = useMemo(
+    () => getBillOccurrences(bills.filter((bill) => bill.isCostVariable), startDate, endDate),
+    [bills, startDate, endDate],
+  );
+  const activeKeys = new Set(variableBills.map(({ key }) => key));
+  const savedExpenses = new Map(originalPayPeriodData?.expenses.map((expense) => [expense.id, expense]));
+  const billsById = new Map(bills.map((bill) => [bill.id, bill]));
+  const expenseRows = fields.flatMap((field, index) => {
+    const saved = field.id === undefined ? undefined : savedExpenses.get(field.id);
+    if (saved?.bill_id != null && saved.bill_due_date &&
+        activeKeys.has(getBillOccurrenceKey(saved.bill_id, saved.bill_due_date))) return [];
+    const billName = saved?.bill_id == null ? undefined : billsById.get(saved.bill_id)?.name ?? saved.name;
+    return [{ field, index, billName }];
   });
 
   const {
@@ -77,9 +117,16 @@ export default function PayPeriodForm(props: PayPeriodFormProps) {
     startTransition(async () => {
       try {
         const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const input = {
+          ...values,
+          variableBills: Object.fromEntries(variableBills.flatMap(({ key }) =>
+            values.variableBills[key] ? [[key, values.variableBills[key]]] : []
+          )),
+          expenses: expenseRows.map(({ index }) => values.expenses[index]),
+        };
         const result = originalPayPeriodData
-          ? await savePayPeriod(originalPayPeriodData.id, values, originalPayPeriodData, timeZone)
-          : await createPayPeriod({ start_date: values.start_date, end_date: values.end_date, color: values.color }, timeZone);
+          ? await savePayPeriod(originalPayPeriodData.id, input, originalPayPeriodData, timeZone)
+          : await createPayPeriod(input, timeZone);
 
         if (result.error !== undefined) {
           setRequiresReload(result.requiresReload ?? false);
@@ -87,12 +134,7 @@ export default function PayPeriodForm(props: PayPeriodFormProps) {
           return;
         }
 
-        reset({
-          start_date: result.data.start_date,
-          end_date: result.data.end_date,
-          color: result.data.color,
-          expenses: result.data.expenses
-        });
+        reset(getFormValues(result.data));
         setOriginalPayPeriodData(result.data);
         setFormSubmissionSucceeded(true);
         onSaved(result.data, result.leftovers);
@@ -116,12 +158,7 @@ export default function PayPeriodForm(props: PayPeriodFormProps) {
           setError("root", { message: result.error }); return;
         }
 
-        reset({
-          start_date: result.data.start_date,
-          end_date: result.data.end_date,
-          color: result.data.color,
-          expenses: result.data.expenses
-        });
+        reset(getFormValues(result.data));
         setOriginalPayPeriodData(result.data);
         setRequiresReload(false);
         setFormSubmissionSucceeded(false);
@@ -219,6 +256,29 @@ export default function PayPeriodForm(props: PayPeriodFormProps) {
             </label>
           </div>
 
+          {variableBills.length > 0 && (
+            <div className="mt-6">
+              <h4>Variable Bills</h4>
+              <Table
+                caption="Variable Bills Table"
+                theadContents={expenseColumns}
+                tbodyContents={variableBills.map(({ bill, dueDate, key }) => (
+                  <ExpenseRow
+                    key={key}
+                    field={`variableBills.${key}`}
+                    billName={bill.name}
+                    dueDate={dueDate}
+                    onRemove={() => {
+                      setValue(`variableBills.${key}.cost`, 0, { shouldDirty: true, shouldValidate: true });
+                      setValue(`variableBills.${key}.date`, dueDate, { shouldDirty: true, shouldValidate: true });
+                      setFormSubmissionSucceeded(false);
+                    }}
+                  />
+                ))}
+              />
+            </div>
+          )}
+
           {originalPayPeriodData && (
             <div className="mt-6">
               <div className="flex items-center gap-2">
@@ -231,28 +291,21 @@ export default function PayPeriodForm(props: PayPeriodFormProps) {
                 </HelpTooltip>
               </div>
 
-              {fields.length === 0 ? (
+              {expenseRows.length === 0 ? (
                 <p className="py-3 text-sm italic text-zinc-500 dark:text-zinc-400">
                   No expenses for this pay period.
                 </p>
               ) : (
                 <Table
                   caption="Expenses Table"
-                  theadContents={
-                    <tr>
-                      <th scope="col" className="w-10">Date</th>
-                      <th scope="col" className="min-w-[20ch]">Name</th>
-                      <th scope="col" className="min-w-[10ch]">Amount</th>
-                      <th scope="col"></th>
-                    </tr>
-                  }
-                  tbodyContents={fields.map((field, index) => (
-                    <Fragment key={field.formKey}>
-                      <ExpenseRow
-                        index={index}
-                        onRemove={() => { remove(index); setFormSubmissionSucceeded(false); }}
-                      />
-                    </Fragment>
+                  theadContents={expenseColumns}
+                  tbodyContents={expenseRows.map(({ field, index, billName }) => (
+                    <ExpenseRow
+                      key={field.formKey}
+                      field={`expenses.${index}`}
+                      billName={billName}
+                      onRemove={() => { remove(index); setFormSubmissionSucceeded(false); }}
+                    />
                   ))}
                 />
               )}

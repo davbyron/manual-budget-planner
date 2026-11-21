@@ -4,13 +4,14 @@ import type { PayPeriodFormValues } from "@/types";
 import type { ExpenseRowProps } from "@/types/props";
 import { useId, useState } from "react";
 import { useController, useFormContext } from "react-hook-form";
-import { validateBillDates } from "@/lib/utils/bills";
 import { PiTrashDuotone } from "react-icons/pi";
+import { validateBillDates } from "@/lib/utils/bills";
+import VariableBillWarningTooltip from "@/components/VariableBillWarningTooltip";
 
 const dollars = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
 
 export default function ExpenseRow(props: ExpenseRowProps) {
-  const { index, onRemove } = props;
+  const { field, billName, dueDate, onRemove } = props;
 
   const id = useId();
 
@@ -20,7 +21,14 @@ export default function ExpenseRow(props: ExpenseRowProps) {
     formState: { errors }
   } = useFormContext<PayPeriodFormValues>();
 
-  const error = errors.expenses?.[index];
+  const index = field.startsWith("expenses.") ? Number(field.slice("expenses.".length)) : undefined;
+  const nameError = index === undefined ? undefined : errors.expenses?.[index]?.name;
+  const { field: dateField, fieldState: { error: dateError } } = useController({
+    control,
+    name: `${field}.date`,
+    defaultValue: dueDate,
+    rules: { validate: (date) => !!date && !validateBillDates(date, null) || "Enter a valid date." },
+  });
 
   const [draft, setDraft] = useState<string | null>(null);
 
@@ -31,10 +39,12 @@ export default function ExpenseRow(props: ExpenseRowProps) {
       value,
       onChange,
       onBlur
-    }
-  } = useController<PayPeriodFormValues, `expenses.${number}.cost`>({
+    },
+    fieldState: { error: costError },
+  } = useController({
     control,
-    name: `expenses.${index}.cost`,
+    name: `${field}.cost`,
+    defaultValue: dueDate === undefined ? undefined : 0,
     rules: {
       validate: (amount) => Number.isFinite(amount) || "Enter a valid amount."
     },
@@ -49,19 +59,17 @@ export default function ExpenseRow(props: ExpenseRowProps) {
           <input
             id={`${id}-date`}
             type="date"
-            aria-invalid={!!error?.date}
-            aria-describedby={error?.date ? `${id}-date-error` : undefined}
-            {...register(`expenses.${index}.date`, {
-              validate: (date) => !!date && !validateBillDates(date, null) || "Enter a valid date."
-            })}
+            aria-invalid={!!dateError}
+            aria-describedby={dateError ? `${id}-date-error` : undefined}
+            {...dateField}
           />
-          {error?.date && (
+          {dateError && (
             <span
               id={`${id}-date-error`}
               role="alert"
               className="text-xs text-red-500 dark:text-red-400"
             >
-              {error.date.message}
+              {dateError.message}
             </span>
           )}
         </label>
@@ -69,26 +77,33 @@ export default function ExpenseRow(props: ExpenseRowProps) {
 
       {/* Name */}
       <td>
-        <label htmlFor={`${id}-name`}>
-          <span className="sr-only">Name</span>
-          <input
-            id={`${id}-name`}
-            aria-invalid={!!error?.name}
-            aria-describedby={error?.name ? `${id}-name-error` : undefined}
-            {...register(`expenses.${index}.name`, {
-              validate: (text) => !!text.trim() || "Enter a name."
-            })}
-          />
-          {error?.name && (
-            <span
-              id={`${id}-name-error`}
-              role="alert"
-              className="text-xs text-red-500 dark:text-red-400"
-            >
-              {error.name.message}
-            </span>
-          )}
-        </label>
+        {billName !== undefined ? (
+          <div className="flex items-center gap-2">
+            {dueDate !== undefined && value === 0 && <VariableBillWarningTooltip />}
+            <span className="text-sm">{billName}</span>
+          </div>
+        ) : index !== undefined && (
+          <label htmlFor={`${id}-name`}>
+            <span className="sr-only">Name</span>
+            <input
+              id={`${id}-name`}
+              aria-invalid={!!nameError}
+              aria-describedby={nameError ? `${id}-name-error` : undefined}
+              {...register(`expenses.${index}.name`, {
+                validate: (text) => !!text.trim() || "Enter a name."
+              })}
+            />
+            {nameError && (
+              <span
+                id={`${id}-name-error`}
+                role="alert"
+                className="text-xs text-red-500 dark:text-red-400"
+              >
+                {nameError.message}
+              </span>
+            )}
+          </label>
+        )}
       </td>
 
       {/* Amount */}
@@ -107,8 +122,8 @@ export default function ExpenseRow(props: ExpenseRowProps) {
             name={name}
             ref={amountRef}
             value={draft ?? (Number.isFinite(value) ? dollars.format(value) : "")}
-            aria-invalid={!!error?.cost}
-            aria-describedby={error?.cost ? `${id}-cost-error` : undefined}
+            aria-invalid={!!costError}
+            aria-describedby={costError ? `${id}-cost-error` : undefined}
             onFocus={() => setDraft(Number.isFinite(value) ? value.toFixed(2) : "")}
             onChange={(event) => {
               const text = event.target.value.replace(/[$,]/g, "").trim();
@@ -118,13 +133,13 @@ export default function ExpenseRow(props: ExpenseRowProps) {
             }}
             onBlur={() => { setDraft(null); onBlur(); }}
           />
-          {error?.cost && (
+          {costError && (
             <span
               id={`${id}-cost-error`}
               role="alert"
               className="text-xs text-red-500 dark:text-red-400"
             >
-              {error.cost.message}
+              {costError.message}
             </span>
           )}
         </label>
@@ -134,7 +149,7 @@ export default function ExpenseRow(props: ExpenseRowProps) {
         <button
           type="button"
           onClick={onRemove}
-          aria-label={`Remove expense ${index + 1}`}
+          aria-label={dueDate ? `Clear amount for ${billName}` : `Remove expense ${(index ?? 0) + 1}`}
           className="
             px-2 w-full h-fit flex items-center justify-center
             text-sm text-red-600 font-medium

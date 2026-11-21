@@ -17,6 +17,7 @@ export default function BudgetPlanner() {
       "
     >
       <PlannerTabs
+        bills={bills ?? []}
         periods={payPeriods}
         onPeriodsChange={setPayPeriods}
         onBillsChange={setBills}

@@ -9,6 +9,7 @@ const dollars = new Intl.NumberFormat("en-US", { style: "currency", currency: "U
 
 export default function PayPeriodAccordion(props: PayPeriodAccordionProps) {
   const {
+    bills,
     remainingBalance,
     payPeriod,
     open,
@@ -63,7 +64,7 @@ export default function PayPeriodAccordion(props: PayPeriodAccordionProps) {
         style={{ borderColor: payPeriod.color }}
       >
         <h4>Options</h4>
-        <PayPeriodForm payPeriod={payPeriod} onSaved={onSaved} />
+        <PayPeriodForm bills={bills} payPeriod={payPeriod} onSaved={onSaved} />
       </div>
     </div>
   );

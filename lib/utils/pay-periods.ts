@@ -1,4 +1,4 @@
-import type { Bill, ExpenseDraft, IncomeSource, PayPeriodBalanceInput, PayPeriodInput, PayPeriodLeftover, PayPeriodWithExpenses } from "@/types";
+import type { Bill, ExpenseDraft, IncomeSource, PayPeriodBalanceInput, PayPeriodInput, PayPeriodLeftover, PayPeriodWithExpenses, VariableBillOccurrence } from "@/types";
 import { billOccursOnDate, validateBillDates } from "@/lib/utils/bills";
 
 export function validatePayPeriod(input: PayPeriodInput): string | null {
@@ -22,12 +22,19 @@ export function payPeriodMatches(current: PayPeriodWithExpenses, original: PayPe
   const saved = new Map(current.expenses.map((expense) => [expense.id, expense]));
   return original.expenses.every((expense) => {
     const match = saved.get(expense.id);
-    return match && match.date === expense.date && match.name === expense.name && match.cost === expense.cost && match.pay_period_id === expense.pay_period_id;
+    return match && match.date === expense.date && match.cost === expense.cost &&
+      match.pay_period_id === expense.pay_period_id && match.bill_id === expense.bill_id &&
+      match.bill_due_date === expense.bill_due_date && (match.bill_id != null || match.name === expense.name);
   });
 }
 
-function getBillTotalInCents(bills: Bill[], startDate: string, endDate: string): number {
-  let billTotal = 0;
+export function getBillOccurrenceKey(billId: number, dueDate: string) {
+  return `${billId}_${dueDate}`;
+}
+
+export function getBillOccurrences(bills: Bill[], startDate: string, endDate: string): VariableBillOccurrence[] {
+  if (validateBillDates(startDate, endDate)) return [];
+  const occurrences: VariableBillOccurrence[] = [];
   const month = new Date(`${startDate.slice(0, 7)}-01T00:00:00.000Z`);
   const lastMonth = new Date(`${endDate.slice(0, 7)}-01T00:00:00.000Z`);
 
@@ -38,11 +45,11 @@ function getBillTotalInCents(bills: Bill[], startDate: string, endDate: string):
       const dueDate = `${monthPrefix}-${String(bill.day).padStart(2, "0")}`;
       if (validateBillDates(dueDate, null)) continue;
       if (dueDate < startDate || dueDate > endDate || !billOccursOnDate(bill, dueDate)) continue;
-      billTotal += Math.round(bill.cost * 100);
+      occurrences.push({ bill, dueDate, key: getBillOccurrenceKey(bill.id, dueDate) });
     }
     month.setUTCMonth(month.getUTCMonth() + 1);
   }
-  return billTotal;
+  return occurrences;
 }
 
 export function getPayPeriodRemainingBalance(
@@ -51,7 +58,15 @@ export function getPayPeriodRemainingBalance(
   incomeSources: IncomeSource[],
   previousRemainingBalance = 0,
 ): number {
-  const billTotal = getBillTotalInCents(bills, period.start_date, period.end_date);
+  const recordedBills = new Set(period.expenses.flatMap((expense) =>
+    expense.bill_id != null && expense.bill_due_date
+      ? [getBillOccurrenceKey(expense.bill_id, expense.bill_due_date)]
+      : []
+  ));
+  const billTotal = getBillOccurrences(bills, period.start_date, period.end_date).reduce(
+    (total, { bill, key }) => bill.isCostVariable || recordedBills.has(key) ? total : total + Math.round(bill.cost * 100),
+    0,
+  );
   const expenseTotal = period.expenses.reduce((total, expense) => total + Math.round(expense.cost * 100), 0);
   const beginningBalance = incomeSources.reduce((total, source) => total + Math.round(source.amount * 100), 0);
   return (beginningBalance + Math.round(previousRemainingBalance * 100) - billTotal - expenseTotal) / 100;

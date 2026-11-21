@@ -116,6 +116,13 @@ export default function Bills(props: BillsProps) {
               pay period.
             </p>
             <p>
+              If a bill varies from month-to-month, select the
+              &ldquo;Variable?&rdquo; checkbox. In the
+              {" "}<b>Pay Periods & Expenses</b>{" "}
+              tab, you can set the amount for each variable bill
+              as they occur in different pay periods.
+            </p>
+            <p>
               Add an optional start or end date to indicate when the
               bill should be deducted from the remaining balance in
               your pay periods.
@@ -168,6 +175,7 @@ export default function Bills(props: BillsProps) {
                     <tr>
                       <th scope="col" className="min-w-[5ch]">Day</th>
                       <th scope="col" className="min-w-[20ch]">Name</th>
+                      <th scope="col" className="w-20 text-center">Variable?</th>
                       <th scope="col" className="min-w-[10ch]">Amount</th>
                       <th scope="col" className="w-10">Start Date</th>
                       <th scope="col" className="w-10">End Date</th>
@@ -189,7 +197,7 @@ export default function Bills(props: BillsProps) {
                 <button
                   type="button"
                   onClick={() => {
-                    append({ day: null, name: "New bill", cost: 0, startDate: null, endDate: null });
+                    append({ day: null, name: "New bill", isCostVariable: false, cost: 0, startDate: null, endDate: null });
                     setFormSubmissionSucceeded(false);
                   }}
                   className={buttonClass}

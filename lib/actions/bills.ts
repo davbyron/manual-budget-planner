@@ -8,7 +8,7 @@ import { databasePool } from "@/lib/supabase/pool";
 import { validateBill } from "@/lib/utils/bills";
 import { getToday } from "@/lib/utils/dates";
 
-const columns = "id, day, name, cost, startDate, endDate";
+const columns = "id, day, name, cost, startDate, endDate, isCostVariable";
 
 async function saveBillChanges<T>(
   timeZone: string,
@@ -18,7 +18,7 @@ async function saveBillChanges<T>(
   const today = getToday(timeZone);
   const db = await databasePool.connect();
   try {
-    await db.query("BEGIN ISOLATION LEVEL REPEATABLE READ");
+    await db.query("BEGIN ISOLATION LEVEL SERIALIZABLE");
     const result = await change(db, userId);
     if (result.error !== undefined) {
       await db.query("ROLLBACK");
@@ -37,17 +37,18 @@ async function saveBillChanges<T>(
 }
 
 async function writeBill(db: PoolClient, userId: string, input: BillDraft) {
-  const values = [userId, input.day, input.name.trim(), input.cost, input.startDate, input.endDate];
+  const values = [userId, input.day, input.name.trim(), input.cost, input.startDate, input.endDate, input.isCostVariable];
   const { rows } = input.id === undefined
     ? await db.query<Bill>(`
-        insert into public."Bill" (user_id, day, name, cost, "startDate", "endDate")
-        values ($1, $2, $3, $4, $5, $6)
+        insert into public."Bill" (user_id, day, name, cost, "startDate", "endDate", "isCostVariable")
+        values ($1, $2, $3, $4, $5, $6, coalesce($7, false))
         returning ${billSqlColumns}
       `, values)
     : await db.query<Bill>(`
         update public."Bill"
-        set day = $2, name = $3, cost = $4, "startDate" = $5, "endDate" = $6, updated_at = now()
-        where user_id = $1 and id = $7
+        set day = $2, name = $3, cost = $4, "startDate" = $5, "endDate" = $6,
+            "isCostVariable" = coalesce($7, "isCostVariable"), updated_at = now()
+        where user_id = $1 and id = $8
         returning ${billSqlColumns}
       `, [...values, input.id]);
   return rows[0];
@@ -62,7 +63,8 @@ async function removeBills(db: PoolClient, userId: string, ids: number[]) {
 
 function billMatches(saved: Bill, input: BillInput) {
   return saved.day === input.day && saved.name === input.name && saved.cost === input.cost &&
-    saved.startDate === input.startDate && saved.endDate === input.endDate;
+    saved.startDate === input.startDate && saved.endDate === input.endDate &&
+    (input.isCostVariable === undefined || saved.isCostVariable === input.isCostVariable);
 }
 
 export async function getBills(): Promise<BillResult<Bill[]>> {

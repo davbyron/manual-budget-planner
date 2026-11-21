@@ -15,7 +15,7 @@ const tabs = [
 ];
 
 export default function PlannerTabs(props: PlannerTabsProps) {
-  const { periods, onPeriodsChange, onBillsChange } = props;
+  const { bills, periods, onPeriodsChange, onBillsChange } = props;
   const id = useId();
   const [activeTab, setActiveTab] = useState(0);
 
@@ -76,6 +76,7 @@ export default function PlannerTabs(props: PlannerTabsProps) {
           className="min-w-0 min-h-0 flex-1"
         >
           <PayPeriods
+            bills={bills}
             periods={periods}
             onPeriodsChange={onPeriodsChange}
           />

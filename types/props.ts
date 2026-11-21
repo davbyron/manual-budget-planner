@@ -28,11 +28,14 @@ export type TooltipProps = {
 };
 
 export type ExpenseRowProps = {
-  index: number;
+  field: `expenses.${number}` | `variableBills.${string}`;
+  billName?: string;
+  dueDate?: string;
   onRemove: () => void;
 };
 
 export type PayPeriodFormProps = {
+  bills: Bill[];
   payPeriod?: PayPeriodWithExpenses;
   onSaved: (period: PayPeriodWithExpenses, leftovers?: PayPeriodLeftover[]) => void;
   onCancel?: () => void;
@@ -40,6 +43,7 @@ export type PayPeriodFormProps = {
 };
 
 export type PayPeriodAccordionProps = {
+  bills: Bill[];
   remainingBalance: number | null;
   payPeriod: PayPeriodWithExpenses;
   open: boolean;
@@ -63,6 +67,7 @@ export type CalendarProps = {
 };
 
 export type PayPeriodsProps = {
+  bills: Bill[];
   periods: PayPeriodWithExpenses[];
   onPeriodsChange: Dispatch<SetStateAction<PayPeriodWithExpenses[]>>;
 };

@@ -12,7 +12,7 @@ import HelpTooltip from "@/components/HelpTooltip";
 const buttonClass = "rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium hover:bg-zinc-100 disabled:opacity-50 dark:border-zinc-700 dark:hover:bg-zinc-800";
 
 export default function PayPeriods(props: PayPeriodsProps) {
-  const { periods, onPeriodsChange } = props;
+  const { bills, periods, onPeriodsChange } = props;
 
   const [openIds, setOpenIds] = useState<Set<number>>(() => new Set());
   const [creating, setCreating] = useState(false);
@@ -128,7 +128,7 @@ export default function PayPeriods(props: PayPeriodsProps) {
           {creating ? (
             <div className="rounded-xl border border-zinc-200 p-4 dark:border-zinc-800">
               <h3 className="mb-3">New pay period</h3>
-              <PayPeriodForm onCancel={() => setCreating(false)} onReload={() => { setCreating(false); setAttempt((value) => value + 1); }} onSaved={(period, leftovers) => {
+              <PayPeriodForm bills={bills} onCancel={() => setCreating(false)} onReload={() => { setCreating(false); setAttempt((value) => value + 1); }} onSaved={(period, leftovers) => {
                 saved(period, leftovers);
                 setOpenIds((current) => new Set(current).add(period.id));
                 setCreating(false);
@@ -140,6 +140,7 @@ export default function PayPeriods(props: PayPeriodsProps) {
             {periods.map((period) => (
               <PayPeriodAccordion
                 key={period.id}
+                bills={bills}
                 remainingBalance={period.leftover}
                 payPeriod={period}
                 open={openIds.has(period.id)}

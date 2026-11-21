@@ -119,6 +119,8 @@ export type Database = {
       }
       Expense: {
         Row: {
+          bill_due_date: string | null
+          bill_id: number | null
           cost: number
           created_at: string
           date: string
@@ -129,6 +131,8 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          bill_due_date?: string | null
+          bill_id?: number | null
           cost?: number
           created_at?: string
           date?: string
@@ -139,6 +143,8 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          bill_due_date?: string | null
+          bill_id?: number | null
           cost?: number
           created_at?: string
           date?: string
@@ -149,6 +155,13 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "expense_owner_bill_fk"
+            columns: ["bill_id", "user_id"]
+            isOneToOne: false
+            referencedRelation: "Bill"
+            referencedColumns: ["id", "user_id"]
+          },
           {
             foreignKeyName: "Expense_better_auth_user_fk"
             columns: ["user_id"]

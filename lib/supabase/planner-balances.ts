@@ -4,7 +4,7 @@ import "server-only";
 import { databasePool } from "@/lib/supabase/pool";
 import { getPayPeriodRemainingBalances } from "@/lib/utils/pay-periods";
 
-export const billSqlColumns = 'id::float8 as id, day::integer as day, name, cost, "startDate"::text, "endDate"::text';
+export const billSqlColumns = 'id::float8 as id, day::integer as day, name, cost, "startDate"::text, "endDate"::text, "isCostVariable"';
 
 export async function readPlannerBills(db: PoolClient, userId: string): Promise<Bill[]> {
   const { rows } = await db.query<Bill>(`
@@ -25,7 +25,7 @@ export async function refreshPayPeriodLeftovers(
   const { rows: periods } = await db.query<PayPeriodBalanceInput>(`
     select period.id::float8, period.start_date::text, period.end_date::text, period.leftover,
       coalesce((
-        select json_agg(json_build_object('cost', expense.cost))
+        select json_agg(json_build_object('cost', expense.cost, 'bill_id', expense.bill_id, 'bill_due_date', expense.bill_due_date))
         from public."Expense" expense
         where expense.user_id = $1 and expense.pay_period_id = period.id
           and (period.end_date >= $2 or period.id = $3)
@@ -64,7 +64,7 @@ export async function savePayPeriodLeftovers(userId: string, today: string, edit
 export async function withPlannerBalanceTransaction<T>(save: (db: PoolClient) => Promise<T>): Promise<T> {
   const db = await databasePool.connect();
   try {
-    await db.query("BEGIN ISOLATION LEVEL REPEATABLE READ");
+    await db.query("BEGIN ISOLATION LEVEL SERIALIZABLE");
     const result = await save(db);
     await db.query("COMMIT");
     return result;

@@ -15,6 +15,9 @@ export function validateBill(input: BillInput): string | null {
   if (typeof input.cost !== "number" || !Number.isFinite(input.cost) || input.cost < 0) {
     return "Amount must be a non-negative number.";
   }
+  if (input.isCostVariable !== undefined && typeof input.isCostVariable !== "boolean") {
+    return "Choose whether the bill amount is variable.";
+  }
   return validateBillDates(input.startDate, input.endDate);
 }
 
