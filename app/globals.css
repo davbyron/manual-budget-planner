@@ -41,11 +41,13 @@ th, td {
   @apply px-2 text-left;
 }
 
+input:not([type="checkbox"]) {
+  @apply w-full min-w-0 min-h-11 text-sm dark:border-zinc-700;
+}
+
 input {
   @apply
-    w-full min-w-0 min-h-11 text-sm
-    focus-visible:outline-2 focus-visible:outline-blue-600
-    dark:border-zinc-700;
+    focus-visible:outline-2 focus-visible:outline-blue-600;
 }
 
 @media (width < 40rem) {

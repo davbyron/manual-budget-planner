@@ -120,11 +120,11 @@ export default function BillRow(props: BillRowProps) {
       </td>
 
       <td className="text-center">
-        <label className="inline-flex items-center justify-center">
+        <label className="inline-block">
           <span className="sr-only">Is bill {index + 1} variable?</span>
           <input
             type="checkbox"
-            className="size-4 min-h-0 cursor-pointer accent-blue-600"
+            className="size-4 cursor-pointer align-middle accent-blue-600"
             {...register(`bills.${index}.isCostVariable`, {
               onChange: (event) => {
                 if (!event.target.checked) return;
