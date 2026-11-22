@@ -1,12 +1,13 @@
 "use client";
 
-import type { Bill, PayPeriodWithExpenses } from "@/types";
+import type { Bill, IncomeSource, PayPeriodWithExpenses } from "@/types";
 import { useState } from "react";
 import Calendar from "@/components/Calendar";
 import PlannerTabs from "@/components/PlannerTabs";
 
 export default function BudgetPlanner() {
   const [bills, setBills] = useState<Bill[] | null>(null);
+  const [incomeSources, setIncomeSources] = useState<IncomeSource[]>([]);
   const [payPeriods, setPayPeriods] = useState<PayPeriodWithExpenses[]>([]);
   return (
     <main
@@ -21,8 +22,9 @@ export default function BudgetPlanner() {
         periods={payPeriods}
         onPeriodsChange={setPayPeriods}
         onBillsChange={setBills}
+        onIncomeSourcesChange={setIncomeSources}
       />
-      <Calendar payPeriods={payPeriods} bills={bills ?? []} />
+      <Calendar bills={bills ?? []} incomeSources={incomeSources} payPeriods={payPeriods} />
     </main>
   );
 }

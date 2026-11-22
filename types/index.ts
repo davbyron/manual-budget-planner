@@ -14,6 +14,15 @@ export type BillResult<T> = { data: T; error?: never } | { data?: never; error: 
 export type BillDraft = BillInput & { id?: number };
 export type BillsFormValues = { bills: BillDraft[] };
 
+export type CalendarCashFlowEntry = { id: string; name: string; amountInCents: number | null };
+export type CalendarDayCashFlow = {
+  bills: CalendarCashFlowEntry[];
+  expenses: CalendarCashFlowEntry[];
+  incomeSources: CalendarCashFlowEntry[];
+  gainsInCents: number;
+  lossesInCents: number;
+};
+
 export type BillSaveResult =
   | { data: Bill[]; leftovers: PayPeriodLeftover[]; error?: never; requiresReload?: never }
   | { data?: never; leftovers?: never; error: string; requiresReload?: boolean };

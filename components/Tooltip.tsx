@@ -8,6 +8,7 @@ import {
   FloatingArrow,
   FloatingPortal,
   offset,
+  safePolygon,
   shift,
   useDismiss,
   useFloating,
@@ -20,7 +21,7 @@ import { useRef, useState } from "react";
 import { useMediaQuery } from "@/lib/hooks/useMediaQuery";
 
 export default function Tooltip(props: TooltipProps) {
-  const { trigger, className, arrowFill, children } = props;
+  const { trigger, triggerClassName, className, arrowFill, role = "label", children } = props;
 
   const arrowRef = useRef(null);
   const isLargeScreen = useMediaQuery("(min-width: 64rem)");
@@ -44,19 +45,20 @@ export default function Tooltip(props: TooltipProps) {
     placement: isLargeScreen ? "right" : "bottom",
   });
 
-  const hover = useHover(context, {move: false});
+  const hover = useHover(context, {
+    move: false,
+    handleClose: role === "tooltip" ? safePolygon() : undefined,
+  });
   const focus = useFocus(context);
   const dismiss = useDismiss(context);
-  const role = useRole(context, {
-    role: "label",
-  });
+  const tooltipRole = useRole(context, { role });
 
   // Merge all the interactions into prop getters
   const {getReferenceProps, getFloatingProps} = useInteractions([
     hover,
     focus,
     dismiss,
-    role,
+    tooltipRole,
   ]);
 
   return (
@@ -64,6 +66,7 @@ export default function Tooltip(props: TooltipProps) {
       <button
         type="button"
         ref={refs.setReference}
+        className={triggerClassName}
         {...getReferenceProps()}
       >
         {trigger}

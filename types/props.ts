@@ -1,5 +1,5 @@
 import type { Dispatch, SetStateAction } from "react";
-import type { Bill, IncomeSource, PayPeriod, PayPeriodLeftover, PayPeriodWithExpenses } from "@/types";
+import type { Bill, CalendarDayCashFlow, IncomeSource, PayPeriodLeftover, PayPeriodWithExpenses } from "@/types";
 
 export type BillsProps = {
   onBillsChange?: (bills: Bill[]) => void;
@@ -22,9 +22,21 @@ export type HelpTooltipProps = {
 
 export type TooltipProps = {
   trigger: React.ReactNode;
+  triggerClassName?: string;
   className?: string;
   arrowFill?: string;
+  role?: "label" | "tooltip";
   children: React.ReactNode;
+};
+
+export type CalendarCashFlowTooltipProps = {
+  dateLabel: string;
+  cashFlow: CalendarDayCashFlow;
+};
+
+export type CashFlowAmountProps = {
+  amountInCents: number;
+  stackOnSmallScreens?: boolean;
 };
 
 export type ExpenseRowProps = {
@@ -63,7 +75,8 @@ export type IncomeSourceRowProps = {
 
 export type CalendarProps = {
   bills: Bill[];
-  payPeriods: PayPeriod[];
+  incomeSources: IncomeSource[];
+  payPeriods: PayPeriodWithExpenses[];
 };
 
 export type PayPeriodsProps = {
@@ -74,6 +87,7 @@ export type PayPeriodsProps = {
 
 export type PlannerTabsProps = PayPeriodsProps & {
   onBillsChange: (bills: Bill[]) => void;
+  onIncomeSourcesChange: (incomeSources: IncomeSource[]) => void;
 };
 
 export interface EmailTemplateBaseProps {

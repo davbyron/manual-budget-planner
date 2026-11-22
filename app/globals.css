@@ -15,7 +15,7 @@ body {
 }
 
 h2 {
-  @apply text-3xl font-bold font-playfair-display;
+  @apply text-2xl sm:text-3xl font-bold font-playfair-display;
 }
 
 h3 {

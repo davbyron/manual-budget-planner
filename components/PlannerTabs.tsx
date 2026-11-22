@@ -15,7 +15,7 @@ const tabs = [
 ];
 
 export default function PlannerTabs(props: PlannerTabsProps) {
-  const { bills, periods, onPeriodsChange, onBillsChange } = props;
+  const { bills, periods, onPeriodsChange, onBillsChange, onIncomeSourcesChange } = props;
   const id = useId();
   const [activeTab, setActiveTab] = useState(0);
 
@@ -101,7 +101,7 @@ export default function PlannerTabs(props: PlannerTabsProps) {
           tabIndex={0}
           className="min-w-0 min-h-0 flex-1"
         >
-          <IncomeSources onLeftoversChange={applyLeftovers} />
+          <IncomeSources onIncomeSourcesChange={onIncomeSourcesChange} onLeftoversChange={applyLeftovers} />
         </div>
       </>
     </div>

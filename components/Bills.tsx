@@ -107,7 +107,7 @@ export default function Bills(props: BillsProps) {
       "
     >
       <div className="flex item-center gap-2">
-        <h2>Bills</h2>
+        <h2 className="mt-1">Bills</h2>
         <HelpTooltip>
           <div className="flex flex-col gap-3">
             <p>

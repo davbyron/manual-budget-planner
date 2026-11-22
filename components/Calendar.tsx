@@ -2,15 +2,14 @@
 
 import type { CalendarProps } from "@/types/props";
 import { useEffect, useId, useState } from "react";
-import { getBillsForDate, getPayPeriodColor } from "@/lib/utils/calendar";
 import {
-  PiCaretRightBold,
+  PiCaretDoubleLeftBold,
   PiCaretDoubleRightBold,
   PiCaretLeftBold,
-  PiCaretDoubleLeftBold
+  PiCaretRightBold,
 } from "react-icons/pi";
-
-const dollarFormatter = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
+import { getCalendarCashFlow, getPayPeriodColor } from "@/lib/utils/calendar";
+import CalendarCashFlowTooltip from "@/components/CalendarCashFlowTooltip";
 
 const months = [
   "January", "February", "March", "April", "May", "June",
@@ -26,7 +25,7 @@ const navigationClassName = "\
 ";
 
 export default function Calendar(props: CalendarProps) {
-  const { payPeriods, bills } = props;
+  const { bills, incomeSources, payPeriods } = props;
   const headingId = useId();
   const [visibleMonth, setVisibleMonth] = useState<Date | null>(null);
 
@@ -52,6 +51,8 @@ export default function Calendar(props: CalendarProps) {
   const firstWeekday = visibleMonth.getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const weekCount = Math.ceil((firstWeekday + daysInMonth) / 7);
+  const monthKey = `${String(year).padStart(4, "0")}-${String(month + 1).padStart(2, "0")}`;
+  const cashFlowByDate = getCalendarCashFlow(monthKey, daysInMonth, bills, payPeriods, incomeSources);
 
   function navigate(monthOffset: number) {
     setVisibleMonth((current) => {
@@ -151,52 +152,33 @@ export default function Calendar(props: CalendarProps) {
         >
           {Array.from({ length: weekCount }, (_, week) => (
             <div key={week} className="w-full grid grid-cols-7">
-              {weekdays.map((day, weekday) => {
+              {weekdays.map((_, weekday) => {
                 const date = week * 7 + weekday - firstWeekday + 1;
                 const isCurrentDate = date === today.getDate() && month === today.getMonth() && year === today.getFullYear();
                 const isCurrentMonth = date >= 1 && date <= daysInMonth;
-                const dateKey = `${String(year).padStart(4, "0")}-${String(month + 1).padStart(2, "0")}-${String(date).padStart(2, "0")}`;
+                const dateKey = `${monthKey}-${String(date).padStart(2, "0")}`;
                 const backgroundColor = isCurrentMonth ? getPayPeriodColor(dateKey, payPeriods) : undefined;
-                const dayBills = isCurrentMonth ? getBillsForDate(dateKey, bills) : [];
-
+                const cashFlow = cashFlowByDate.get(dateKey);
+                const hasEntries = cashFlow && cashFlow.bills.length + cashFlow.expenses.length + cashFlow.incomeSources.length > 0;
                 return (
                   <div
-                    key={day}
+                    key={dateKey}
                     style={{ backgroundColor }}
-                    className="h-32 sm:h-40 xl:h-auto px-1 py-2 text-sm align-top border-t border-zinc-100 dark:border-zinc-800"
+                    className="px-1 py-2 min-w-0 h-32 text-xs border-t border-zinc-100 sm:h-40 xl:h-auto dark:border-zinc-800"
                   >
-                    {isCurrentMonth ? (
-                      <div className="min-w-0 flex flex-col items-start gap-1">
-                        <div
-                          className="px-1 pb-1 w-full text-left text-xs"
-                          style={{ backgroundColor: backgroundColor ?? "transparent" }}
-                        >
-                          <div
-                            className={isCurrentDate ? `bg-red-600 text-white rounded-full size-4 flex items-center justify-center` : ""}
-                          >
-                            {date}
-                          </div>
-                        </div>
-
-                        {dayBills.length > 0 && (
-                          <ul className="h-20 sm:h-28 xl:h-10 w-full space-y-1 text-left text-[0.55rem] sm:text-xs overflow-scroll scrollbar-none">
-                            {dayBills.map((bill) => (
-                              <li
-                                key={bill.id}
-                                className="rounded bg-white/70 p-1 text-zinc-900 dark:bg-zinc-950/80 dark:text-zinc-100"
-                              >
-                                <span className="block wrap-anywhere">
-                                  {bill.name}
-                                </span>
-                                <span className="block wrap-anywhere font-medium">
-                                  {dollarFormatter.format(bill.cost)}
-                                </span>
-                              </li>
-                            ))}
-                          </ul>
-                        )}
+                    {isCurrentMonth && (
+                      <div className="mb-1">
+                        <span className={isCurrentDate ? "size-4 flex items-center justify-center text-white bg-red-600 rounded-full" : ""}>
+                          {date}
+                        </span>
                       </div>
-                    ) : null}
+                    )}
+                    {hasEntries && (
+                      <CalendarCashFlowTooltip
+                        dateLabel={`${months[month]} ${date}, ${year}`}
+                        cashFlow={cashFlow}
+                      />
+                    )}
                   </div>
                 );
               })}
